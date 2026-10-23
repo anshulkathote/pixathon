@@ -1,0 +1,36 @@
+{
+  "group_id": "2127eca3-e9c8-456e-9bf2-20ba033a29d9",
+  "states": [
+    {
+      "character": {
+        "id": "f597c457-6f56-48c0-b7d3-60b7a5d6513b",
+        "name": "Idle",
+        "prompt": "Create a cute, recognizable top-down pixel-art game character for a colorful sci-fi puzzle adventure called ECHO MAZE.  Character: A tiny futuristic explorer wearing a compact navy-blue space suit, glowing cyan energy core on the chest, small golden accents, expressive bright visor, cute chunky proportions and a distinctive silhouette.  Style: High-quality colorful 16-bit-inspired pixel art, crisp pixel edges, carefully clustered pixels, rich but controlled colors, clean dark outlines, professional indie game sprite.  View: Top-down 3/4 game perspective, facing downward toward the camera.  Composition: Single character centered, full body visible, transparent background, no shadows extending outside the sprite, no text, no UI, no extra characters.  Make the design readable at small in-game sizes and suitable for directional movement animations.",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-23T11:46:23.652952+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-23T11:52:49.161162"
+}

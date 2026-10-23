@@ -1,0 +1,36 @@
+{
+  "group_id": "d56da261-637f-4379-ab95-d69d1d478869",
+  "states": [
+    {
+      "character": {
+        "id": "c3462256-8738-4ee2-adfc-295fb3565f26",
+        "name": "Idle",
+        "prompt": "Create a cute, recognizable pixel-art ghost character for a colorful sci-fi puzzle adventure game called ECHO MAZE.  Character: A tiny spectral futuristic explorer, a ghostly traveler from a previous timeline.  Appearance:  * Compact humanoid explorer silhouette. * Small floating body. * Purple and lavender spectral suit. * Bright violet glowing energy core on the chest. * Pale lavender visor with expressive glowing eyes. * Small golden energy accents. * Subtle pixel-art energy particles surrounding the character. * Semi-transparent ghostly appearance.  Art style: Rich, colorful 16-bit-inspired pixel art, polished indie game aesthetic, carefully clustered pixels, crisp pixel edges, clean dark outlines.  View: Top-down 3/4 perspective, facing downward.  Composition: Single complete character, centered, full body visible, transparent background, no text, no UI, no additional characters.  The ghost should look like a playable game character, not a floating bedsheet ghost. Make it recognizable at small game sizes.",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-23T12:00:09.760217+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-23T12:12:07.879722"
+}
