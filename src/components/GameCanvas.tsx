@@ -116,10 +116,22 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       'floor_cracked',
       'wall_top',
       'wall_block',
+      'wall_horiz',
+      'wall_core',
       'wall_vert',
       'wall_corner_tl',
+      'wall_cross',
       'crystals',
       'crystal_single',
+      'crystal_blue',
+      'crystal_green',
+      'crystal_magenta',
+      'crystal_prismatic',
+      'plate_off',
+      'plate_on',
+      'plate_on_amber',
+      'plate_on_violet',
+      'trim_gold_corner',
     ];
 
     tiles.forEach((t) => {
@@ -339,13 +351,17 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
               ctx.strokeRect(cx + 1.5, cy + 1.5, cellSize - 3, cellSize - 3);
             }
 
-            // Decorative glowing crystals in select corridor dead-ends or corners
+            // Decorative glowing crystals from environment2 in select corridor corners
             if ((x * 11 + y * 17) % 19 === 3) {
-              const crystalImg = tileImages.current['crystal_single'];
+              const crystalKeys = ['crystal_blue', 'crystal_green', 'crystal_magenta', 'crystal_prismatic'];
+              const cKey = crystalKeys[(x + y) % crystalKeys.length];
+              const crystalImg = tileImages.current[cKey] || tileImages.current['crystal_single'];
               if (crystalImg && crystalImg.complete && crystalImg.naturalWidth > 0) {
-                const cSize = Math.floor(cellSize * 0.35);
+                const cSize = Math.floor(cellSize * 0.4);
                 ctx.save();
-                ctx.globalAlpha = 0.6 + Math.sin(now * 0.004 + x + y) * 0.2;
+                ctx.shadowColor = '#00f2fe';
+                ctx.shadowBlur = 8;
+                ctx.globalAlpha = 0.75 + Math.sin(now * 0.005 + x * 2 + y) * 0.2;
                 ctx.drawImage(crystalImg, cx + cellSize - cSize - 2, cy + 2, cSize, cSize);
                 ctx.restore();
               }
@@ -399,50 +415,81 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
       }
 
-      // 3. Draw Pressure Plates (Mechanical, for Player OR Ghost)
+      // 3. Draw Pressure Plates (Mechanical & Spectral Rune Plates from environment2)
       for (const plate of state.plates) {
         const cx = offsetX + plate.x * cellSize;
         const cy = offsetY + plate.y * cellSize;
         const isPressed = plate.isPressed;
 
-        const pad = Math.floor(cellSize * 0.16);
+        const pad = Math.floor(cellSize * 0.12);
         const pw = cellSize - pad * 2;
         const ph = cellSize - pad * 2;
 
         ctx.save();
-        if (isPressed) {
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-          ctx.fillRect(cx + pad, cy + pad, pw, ph);
+        const plateSpriteKey = isPressed
+          ? (plate.color === '#f59e0b' ? 'plate_on_amber' : 'plate_on')
+          : 'plate_off';
+        const plateImg = tileImages.current[plateSpriteKey];
 
-          ctx.strokeStyle = plate.color;
-          ctx.lineWidth = 2.5;
-          ctx.shadowColor = plate.color;
-          ctx.shadowBlur = 12;
-          ctx.strokeRect(cx + pad + 1, cy + pad + 1, pw - 2, ph - 2);
+        if (plateImg && plateImg.complete && plateImg.naturalWidth > 0) {
+          if (isPressed) {
+            // Radiant plasma beacon glow on activation
+            ctx.shadowColor = plate.color;
+            ctx.shadowBlur = 18;
+            ctx.drawImage(plateImg, cx + pad, cy + pad, pw, ph);
 
-          ctx.fillStyle = plate.color;
-          ctx.globalAlpha = 0.35 + Math.sin(now * 0.008) * 0.15;
-          ctx.fillRect(cx + pad + 4, cy + pad + 4, pw - 8, ph - 8);
+            // Pulsing rune energy beacon
+            ctx.strokeStyle = plate.color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.8 + Math.sin(now * 0.008) * 0.2;
+            ctx.strokeRect(cx + pad, cy + pad, pw, ph);
+          } else {
+            // Dormant metal socket
+            ctx.globalAlpha = 0.85;
+            ctx.drawImage(plateImg, cx + pad, cy + pad, pw, ph);
 
-          ctx.globalAlpha = 1;
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.18, 0, Math.PI * 2);
-          ctx.fill();
+            // Subtle color identification rim
+            ctx.strokeStyle = plate.color;
+            ctx.globalAlpha = 0.5;
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(cx + pad + 1, cy + pad + 1, pw - 2, ph - 2);
+          }
         } else {
-          ctx.fillStyle = '#1e293b';
-          ctx.fillRect(cx + pad, cy + pad, pw, ph);
+          // Fallback procedural plate rendering
+          if (isPressed) {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+            ctx.fillRect(cx + pad, cy + pad, pw, ph);
 
-          ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(cx + pad, cy + pad, pw, ph);
+            ctx.strokeStyle = plate.color;
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = plate.color;
+            ctx.shadowBlur = 12;
+            ctx.strokeRect(cx + pad + 1, cy + pad + 1, pw - 2, ph - 2);
 
-          ctx.strokeStyle = plate.color;
-          ctx.globalAlpha = 0.6;
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.2, 0, Math.PI * 2);
-          ctx.stroke();
+            ctx.fillStyle = plate.color;
+            ctx.globalAlpha = 0.35 + Math.sin(now * 0.008) * 0.15;
+            ctx.fillRect(cx + pad + 4, cy + pad + 4, pw - 8, ph - 8);
+
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.18, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(cx + pad, cy + pad, pw, ph);
+
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(cx + pad, cy + pad, pw, ph);
+
+            ctx.strokeStyle = plate.color;
+            ctx.globalAlpha = 0.6;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.2, 0, Math.PI * 2);
+            ctx.stroke();
+          }
         }
         ctx.restore();
       }
@@ -665,30 +712,55 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
       ctx.restore();
 
-      // 9. Draw Temple / Cavern Walls & Circuitry Boundaries
+      // 9. Draw Temple / Cavern Walls & Circuitry Boundaries (environment2)
       for (const wall of level.walls) {
         const wx = offsetX + wall.x * cellSize;
         const wy = offsetY + wall.y * cellSize;
 
+        // Neighbor wall adjacency check for seamless modular connections
+        const hasNorth = level.walls.some((w) => w.x === wall.x && w.y === wall.y - 1);
+        const hasSouth = level.walls.some((w) => w.x === wall.x && w.y === wall.y + 1);
+        const hasEast = level.walls.some((w) => w.x === wall.x + 1 && w.y === wall.y);
+        const hasWest = level.walls.some((w) => w.x === wall.x - 1 && w.y === wall.y);
+
+        let chosenWallKey = 'wall_block';
+        if (hasNorth && hasSouth && hasEast && hasWest) {
+          // Central cross junction
+          chosenWallKey = 'wall_cross';
+        } else if (hasEast && hasWest && !hasNorth && !hasSouth) {
+          // Horizontal corridor wall - alternate with glowing core generator
+          chosenWallKey = (wall.x % 3 === 0) ? 'wall_core' : 'wall_horiz';
+        } else if (hasNorth && hasSouth && !hasEast && !hasWest) {
+          // Vertical conduit wall
+          chosenWallKey = 'wall_vert';
+        } else if ((hasSouth && hasEast) || (hasSouth && hasWest) || (hasNorth && hasEast) || (hasNorth && hasWest)) {
+          // Corner junction
+          chosenWallKey = 'wall_corner_tl';
+        } else if (hasEast || hasWest) {
+          chosenWallKey = 'wall_horiz';
+        }
+
         ctx.save();
-        const wallImg = tileImages.current['wall_block'];
+        const wallImg = tileImages.current[chosenWallKey] || tileImages.current['wall_block'];
         if (wallImg && wallImg.complete && wallImg.naturalWidth > 0) {
-          // Draw textured stone & circuit wall tile
+          // Draw textured stone & circuit wall tile from environment2
           ctx.drawImage(wallImg, wx, wy, cellSize, cellSize);
 
           // Deep blue stone depth border
-          ctx.strokeStyle = '#1e1b4b';
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 1;
           ctx.strokeRect(wx + 0.5, wy + 0.5, cellSize - 1, cellSize - 1);
 
           // Top highlight bevel for 3D depth
-          ctx.fillStyle = 'rgba(129, 140, 248, 0.25)';
-          ctx.fillRect(wx + 1, wy + 1, cellSize - 2, 3);
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+          ctx.fillRect(wx + 1, wy + 1, cellSize - 2, 2.5);
 
-          // Subtle purple energy circuit glow
-          ctx.fillStyle = '#a855f7';
-          ctx.globalAlpha = 0.4 + Math.sin(now * 0.003 + wall.x + wall.y) * 0.25;
-          ctx.fillRect(wx + cellSize / 2 - 2, wy + cellSize / 2 - 2, 4, 4);
+          // Pulsing cyan/violet energy conduit nodes
+          ctx.fillStyle = '#00f2fe';
+          ctx.shadowColor = '#00f2fe';
+          ctx.shadowBlur = 6;
+          ctx.globalAlpha = 0.5 + Math.sin(now * 0.004 + wall.x * 3 + wall.y * 2) * 0.35;
+          ctx.fillRect(wx + cellSize / 2 - 1.5, wy + cellSize / 2 - 1.5, 3, 3);
         } else {
           // Deep mysterious blue/navy stone block fallback
           ctx.fillStyle = '#0a1122';
