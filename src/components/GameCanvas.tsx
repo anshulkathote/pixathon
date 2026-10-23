@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { GameState, LevelDef, Position } from '../types/game';
 import { getLevelDef } from '../engine/gameEngine';
 import { sound } from '../engine/sound';
@@ -28,6 +28,32 @@ interface TrailPoint {
   alpha: number;
 }
 
+type Direction8 = 'south' | 'south-east' | 'east' | 'north-east' | 'north' | 'north-west' | 'west' | 'south-west';
+
+const DIRECTIONS: Direction8[] = [
+  'south',
+  'south-east',
+  'east',
+  'north-east',
+  'north',
+  'north-west',
+  'west',
+  'south-west',
+];
+
+function getDirection8(dx: number, dy: number, fallback: Direction8 = 'south'): Direction8 {
+  if (dx === 0 && dy === 0) return fallback;
+  if (dx === 0 && dy > 0) return 'south';
+  if (dx === 0 && dy < 0) return 'north';
+  if (dx > 0 && dy === 0) return 'east';
+  if (dx < 0 && dy === 0) return 'west';
+  if (dx > 0 && dy > 0) return 'south-east';
+  if (dx < 0 && dy > 0) return 'south-west';
+  if (dx > 0 && dy < 0) return 'north-east';
+  if (dx < 0 && dy < 0) return 'north-west';
+  return fallback;
+}
+
 export const GameCanvas: React.FC<GameCanvasProps> = ({
   state,
   isRewinding,
@@ -46,6 +72,88 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Rewind animation state
   const rewindProgress = useRef<number>(0);
   const rewindActive = useRef<boolean>(false);
+
+  // Asset image caches
+  const playerSprites = useRef<Record<Direction8, HTMLImageElement>>({} as Record<Direction8, HTMLImageElement>);
+  const ghostSprites = useRef<Record<Direction8, HTMLImageElement>>({} as Record<Direction8, HTMLImageElement>);
+  const tileImages = useRef<Record<string, HTMLImageElement>>({});
+  const [, setAssetsLoaded] = useState<boolean>(false);
+
+  // Direction tracking
+  const playerDirection = useRef<Direction8>('south');
+  const prevPlayerCoord = useRef<Position>({ ...state.playerPos });
+  const ghostDirections = useRef<Direction8[]>([]);
+
+  // Preload all sprites and tiles once
+  useEffect(() => {
+    let loadedCount = 0;
+    const totalExpected = DIRECTIONS.length * 2 + 10;
+    const checkDone = () => {
+      loadedCount++;
+      if (loadedCount >= totalExpected) {
+        setAssetsLoaded(true);
+      }
+    };
+
+    DIRECTIONS.forEach((dir) => {
+      const pImg = new Image();
+      pImg.src = `/sprites/player/${dir}.png`;
+      pImg.onload = checkDone;
+      pImg.onerror = checkDone;
+      playerSprites.current[dir] = pImg;
+
+      const gImg = new Image();
+      gImg.src = `/sprites/ghost/${dir}.png`;
+      gImg.onload = checkDone;
+      gImg.onerror = checkDone;
+      ghostSprites.current[dir] = gImg;
+    });
+
+    const tiles = [
+      'floor_plain',
+      'floor_ornate',
+      'floor_runes',
+      'floor_cracked',
+      'wall_top',
+      'wall_block',
+      'wall_vert',
+      'wall_corner_tl',
+      'crystals',
+      'crystal_single',
+    ];
+
+    tiles.forEach((t) => {
+      const img = new Image();
+      img.src = `/tiles/${t}.png`;
+      img.onload = checkDone;
+      img.onerror = checkDone;
+      tileImages.current[t] = img;
+    });
+  }, []);
+
+  // Update player facing direction when coordinate changes
+  useEffect(() => {
+    const dx = state.playerPos.x - prevPlayerCoord.current.x;
+    const dy = state.playerPos.y - prevPlayerCoord.current.y;
+    if (dx !== 0 || dy !== 0) {
+      playerDirection.current = getDirection8(dx, dy, playerDirection.current);
+      prevPlayerCoord.current = { ...state.playerPos };
+    }
+  }, [state.playerPos]);
+
+  // Update ghost facing directions based on current step vs previous step in path
+  useEffect(() => {
+    ghostDirections.current = state.ghosts.map((ghost, gIdx) => {
+      const curIdx = Math.min(state.currentStep, ghost.path.length - 1);
+      const prevIdx = Math.max(0, curIdx - 1);
+      const cur = ghost.path[curIdx] || { x: 0, y: 0 };
+      const prev = ghost.path[prevIdx] || cur;
+      const dx = cur.x - prev.x;
+      const dy = cur.y - prev.y;
+      const currentDir = ghostDirections.current[gIdx] || 'south';
+      return getDirection8(dx, dy, currentDir);
+    });
+  }, [state.ghosts, state.currentStep]);
 
   // Event trackers for audio triggers
   const prevPlatesRef = useRef<string[]>([]);
@@ -197,7 +305,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-      // 1. Draw subtle grid floor tiles
+      // 1. Draw Environment Walkable Floor Tiles & Crystal Cavern Accents
       for (let y = 0; y < level.height; y++) {
         for (let x = 0; x < level.width; x++) {
           const cx = offsetX + x * cellSize;
@@ -205,20 +313,43 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           const isWall = level.walls.some((w) => w.x === x && w.y === y);
 
           if (!isWall) {
-            // Dark grid floor tile
-            ctx.fillStyle = '#0b1120';
-            ctx.fillRect(cx + 1, cy + 1, cellSize - 2, cellSize - 2);
+            // Pick floor tile pattern based on coordinate hash
+            const hash = (x * 7 + y * 13) % 10;
+            let tileKey = 'floor_plain';
+            if (hash === 2 || hash === 8) tileKey = 'floor_ornate';
+            else if (hash === 5) tileKey = 'floor_runes';
+            else if (hash === 9) tileKey = 'floor_cracked';
 
-            // Subtle inner grid border
-            ctx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(cx + 1.5, cy + 1.5, cellSize - 3, cellSize - 3);
+            const tileImg = tileImages.current[tileKey];
+            if (tileImg && tileImg.complete && tileImg.naturalWidth > 0) {
+              // Draw rich pixel art floor tile
+              ctx.drawImage(tileImg, cx, cy, cellSize, cellSize);
 
-            // Tech floor dot in center
-            ctx.fillStyle = 'rgba(71, 85, 105, 0.35)';
-            ctx.beginPath();
-            ctx.arc(cx + cellSize / 2, cy + cellSize / 2, 1.5, 0, Math.PI * 2);
-            ctx.fill();
+              // Subtle glowing edge trim for crystal temple atmosphere
+              ctx.strokeStyle = 'rgba(0, 242, 254, 0.12)';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(cx + 0.5, cy + 0.5, cellSize - 1, cellSize - 1);
+            } else {
+              // Rich turquoise fallback
+              ctx.fillStyle = '#0d2838';
+              ctx.fillRect(cx + 1, cy + 1, cellSize - 2, cellSize - 2);
+
+              ctx.strokeStyle = 'rgba(0, 242, 254, 0.25)';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(cx + 1.5, cy + 1.5, cellSize - 3, cellSize - 3);
+            }
+
+            // Decorative glowing crystals in select corridor dead-ends or corners
+            if ((x * 11 + y * 17) % 19 === 3) {
+              const crystalImg = tileImages.current['crystal_single'];
+              if (crystalImg && crystalImg.complete && crystalImg.naturalWidth > 0) {
+                const cSize = Math.floor(cellSize * 0.35);
+                ctx.save();
+                ctx.globalAlpha = 0.6 + Math.sin(now * 0.004 + x + y) * 0.2;
+                ctx.drawImage(crystalImg, cx + cellSize - cSize - 2, cy + 2, cSize, cSize);
+                ctx.restore();
+              }
+            }
           }
         }
       }
@@ -534,21 +665,42 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
       ctx.restore();
 
-      // 9. Draw Walls
+      // 9. Draw Temple / Cavern Walls & Circuitry Boundaries
       for (const wall of level.walls) {
         const wx = offsetX + wall.x * cellSize;
         const wy = offsetY + wall.y * cellSize;
 
         ctx.save();
-        ctx.fillStyle = '#0a1122';
-        ctx.fillRect(wx, wy, cellSize, cellSize);
+        const wallImg = tileImages.current['wall_block'];
+        if (wallImg && wallImg.complete && wallImg.naturalWidth > 0) {
+          // Draw textured stone & circuit wall tile
+          ctx.drawImage(wallImg, wx, wy, cellSize, cellSize);
 
-        ctx.fillStyle = '#111c34';
-        ctx.fillRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
+          // Deep blue stone depth border
+          ctx.strokeStyle = '#1e1b4b';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(wx + 0.5, wy + 0.5, cellSize - 1, cellSize - 1);
 
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
+          // Top highlight bevel for 3D depth
+          ctx.fillStyle = 'rgba(129, 140, 248, 0.25)';
+          ctx.fillRect(wx + 1, wy + 1, cellSize - 2, 3);
+
+          // Subtle purple energy circuit glow
+          ctx.fillStyle = '#a855f7';
+          ctx.globalAlpha = 0.4 + Math.sin(now * 0.003 + wall.x + wall.y) * 0.25;
+          ctx.fillRect(wx + cellSize / 2 - 2, wy + cellSize / 2 - 2, 4, 4);
+        } else {
+          // Deep mysterious blue/navy stone block fallback
+          ctx.fillStyle = '#0a1122';
+          ctx.fillRect(wx, wy, cellSize, cellSize);
+
+          ctx.fillStyle = '#111c34';
+          ctx.fillRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
+
+          ctx.strokeStyle = '#312e81';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
+        }
         ctx.restore();
       }
 
@@ -611,7 +763,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
       }
 
-      // 13. Draw Ghosts (Translucent with distinct color & number badge)
+      // 13. Draw Ghosts (Translucent with distinct color & number badge, using 8-directional sprite)
       state.ghosts.forEach((ghost, gIdx) => {
         const gPos = animGhostPos.current[gIdx] || { x: 0, y: 0 };
         const gx = offsetX + gPos.x * cellSize + cellSize / 2;
@@ -619,58 +771,120 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
         ctx.save();
         const ghostFloat = Math.sin(now * 0.005 + gIdx * 2) * 3;
+        const gDir = ghostDirections.current[gIdx] || 'south';
+        const sprite = ghostSprites.current[gDir];
 
+        // Spectral aura glow
         ctx.shadowColor = ghost.color;
-        ctx.shadowBlur = 16;
-        ctx.fillStyle = ghost.color;
-        ctx.globalAlpha = 0.55;
+        ctx.shadowBlur = 18;
 
-        ctx.beginPath();
-        ctx.arc(gx, gy + ghostFloat, cellSize * 0.28, 0, Math.PI * 2);
-        ctx.fill();
+        const charSize = Math.floor(cellSize * 0.88);
 
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.5;
-        ctx.globalAlpha = 0.8;
-        ctx.stroke();
+        if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+          ctx.globalAlpha = 0.72;
 
-        ctx.fillStyle = '#ffffff';
-        ctx.font = `bold ${Math.max(10, Math.floor(cellSize * 0.22))}px ui-sans-serif, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.globalAlpha = 1;
-        ctx.fillText(String(ghost.id), gx, gy + ghostFloat);
+          // For Ghost 2+ (fallback to Ghost 1 art with distinguishable hue tint)
+          if (ghost.id > 1) {
+            ctx.filter = 'hue-rotate(65deg) saturate(1.4)';
+          }
+
+          ctx.drawImage(
+            sprite,
+            gx - charSize / 2,
+            gy + ghostFloat - charSize / 2,
+            charSize,
+            charSize
+          );
+
+          // Reset filter
+          ctx.filter = 'none';
+
+          // Floating identification badge over head
+          ctx.globalAlpha = 1;
+          const badgeY = gy + ghostFloat - charSize / 2 - 4;
+          ctx.fillStyle = ghost.color;
+          ctx.beginPath();
+          ctx.arc(gx, badgeY, 6, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 9px ui-sans-serif, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(String(ghost.id), gx, badgeY);
+        } else {
+          // Circular fallback if sprite image is still loading
+          ctx.fillStyle = ghost.color;
+          ctx.globalAlpha = 0.55;
+          ctx.beginPath();
+          ctx.arc(gx, gy + ghostFloat, cellSize * 0.28, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = 0.8;
+          ctx.stroke();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `bold ${Math.max(10, Math.floor(cellSize * 0.22))}px ui-sans-serif, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.globalAlpha = 1;
+          ctx.fillText(String(ghost.id), gx, gy + ghostFloat);
+        }
 
         ctx.restore();
       });
 
-      // 14. Draw Current Player (Glowing Cyan Avatar)
+      // 14. Draw Current Player (8-Directional Pixel-Art Sprite with Cyan Glow Aura)
       const px = offsetX + animPlayerPos.current.x * cellSize + cellSize / 2;
       const py = offsetY + animPlayerPos.current.y * cellSize + cellSize / 2;
 
       ctx.save();
-      ctx.shadowColor = '#00f2fe';
-      ctx.shadowBlur = 18;
+      const pDir = playerDirection.current || 'south';
+      const pSprite = playerSprites.current[pDir];
+      const pSize = Math.floor(cellSize * 0.88);
 
-      ctx.strokeStyle = '#00f2fe';
-      ctx.lineWidth = 2.5;
+      // Cyan pulse aura beneath player feet
+      ctx.shadowColor = '#00f2fe';
+      ctx.shadowBlur = 16;
+      ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(px, py, cellSize * 0.32, 0, Math.PI * 2);
+      ctx.ellipse(px, py + pSize * 0.35, pSize * 0.32, pSize * 0.16, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      const coreGrad = ctx.createRadialGradient(px, py, 2, px, py, cellSize * 0.26);
-      coreGrad.addColorStop(0, '#ffffff');
-      coreGrad.addColorStop(0.5, '#38bdf8');
-      coreGrad.addColorStop(1, '#0284c7');
-      ctx.fillStyle = coreGrad;
-      ctx.beginPath();
-      ctx.arc(px, py, cellSize * 0.25, 0, Math.PI * 2);
-      ctx.fill();
+      if (pSprite && pSprite.complete && pSprite.naturalWidth > 0) {
+        // Draw 8-directional pixel-art explorer sprite
+        ctx.drawImage(
+          pSprite,
+          px - pSize / 2,
+          py - pSize / 2,
+          pSize,
+          pSize
+        );
+      } else {
+        // High quality gradient avatar fallback while loading
+        ctx.strokeStyle = '#00f2fe';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(px, py, cellSize * 0.32, 0, Math.PI * 2);
+        ctx.stroke();
 
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(px, py, 3.5, 0, Math.PI * 2);
-      ctx.fill();
+        const coreGrad = ctx.createRadialGradient(px, py, 2, px, py, cellSize * 0.26);
+        coreGrad.addColorStop(0, '#ffffff');
+        coreGrad.addColorStop(0.5, '#38bdf8');
+        coreGrad.addColorStop(1, '#0284c7');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(px, py, cellSize * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       ctx.restore();
 
