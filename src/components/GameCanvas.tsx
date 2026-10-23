@@ -61,7 +61,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const idx = Math.min(state.currentStep, g.path.length - 1);
       return { ...g.path[idx] };
     });
-  }, [state.ghosts]);
+  }, [state.ghosts, state.currentStep]);
 
   // Handle rewind trigger
   useEffect(() => {

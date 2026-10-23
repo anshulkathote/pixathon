@@ -58,17 +58,16 @@ export function App() {
   // Handle Level Victory persistence
   useEffect(() => {
     if (gameState.isWon) {
+      const levelId = gameState.levelIndex;
       setCompletedLevels((prev) => {
-        if (!prev.includes(gameState.levelIndex)) {
-          const updated = [...prev, gameState.levelIndex];
-          try {
-            localStorage.setItem('echo_maze_completed_levels', JSON.stringify(updated));
-          } catch {
-            // ignore
-          }
-          return updated;
+        if (prev.includes(levelId)) return prev;
+        const updated = [...prev, levelId];
+        try {
+          localStorage.setItem('echo_maze_completed_levels', JSON.stringify(updated));
+        } catch {
+          // ignore
         }
-        return prev;
+        return updated;
       });
     }
   }, [gameState.isWon, gameState.levelIndex]);
