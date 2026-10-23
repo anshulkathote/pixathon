@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECHO MAZE — Sci-Fi Pixel-Art Visual Asset System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #050813;
+    --navy-hull: #0b1124;
+    --navy-panel: #111a36;
+    --navy-border: #1a2850;
+    --cyan-glow: #00f0ff;
+    --teal-core: #0df2c8;
+    --violet-temp: #a855f7;
+    --gold-key: #fbbf24;
+    --text-muted: #64748b;
+  }
+
+  body {
+    background-color: var(--bg-deep);
+    color: #e2e8f0;
+    font-family: 'Space Grotesk', sans-serif;
+    image-rendering: pixelated;
+  }
+
+  .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+  }
+  .font-mono-tech {
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* Pixel Grid Simulation & Crisp Rendering */
+  .pixel-crisp {
+    image-rendering: pixelated;
+    shape-rendering: crispEdges;
+  }
+
+  /* Scanline subtle overlay */
+  .scanlines {
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0),
+      rgba(255,255,255,0) 50%,
+      rgba(0, 0, 0, 0.25) 50%,
+      rgba(0, 0, 0, 0.25)
+    );
+    background-size: 100% 4px;
+  }
+
+  /* Asset Card & Interactive states */
+  .tile-card {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #0d152c;
+    border: 1px solid #1c2b54;
+  }
+  .tile-card:hover {
+    border-color: #00f0ff;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .tab-btn.active {
+    background: rgba(0, 240, 255, 0.12);
+    border-color: #00f0ff;
+    color: #00f0ff;
+    box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.2);
+  }
+
+  /* Custom pixel buttons for UI category */
+  .pixel-btn-demo {
+    box-shadow: inset -2px -2px 0px rgba(0,0,0,0.5), inset 2px 2px 0px rgba(255,255,255,0.15);
+  }
+  .pixel-btn-demo:active {
+    box-shadow: inset 2px 2px 0px rgba(0,0,0,0.6);
+    transform: translate(1px, 1px);
+  }
+</style>
+</head>
+<body class="min-h-screen bg-[#050813] text-slate-100 selection:bg-cyan-500 selection:text-black">
+
+  <!-- TOP HEADER / NAV BAR -->
+  <header class="border-b border-cyan-950/80 bg-[#080d1e]/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 bg-[#0f1b3b] border-2 border-cyan-400 flex items-center justify-center shadow-[0_0_12px_rgba(0,240,255,0.3)]">
+          <svg class="w-6 h-6 text-cyan-400 pixel-crisp" viewBox="0 0 16 16" fill="currentColor">
+            <!-- Retro Echo Maze Glyphs -->
+            <rect x="2" y="2" width="12" height="2"/>
+            <rect x="2" y="12" width="12" height="2"/>
+            <rect x="2" y="4" width="2" height="8"/>
+            <rect x="12" y="4" width="2" height="8"/>
+            <rect x="6" y="6" width="4" height="4" fill="#fbbf24"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-pixel text-sm tracking-wider text-cyan-400">ECHO MAZE</h1>
+            <span class="text-[10px] font-mono-tech px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-800">TILES & UI SPEC v1.0</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5 font-mono-tech">Top-Down Sci-Fi Spacecraft / Alien Hull System</p>
+        </div>
+      </div>
+
+      <!-- Quick Category Anchors -->
+      <nav class="flex items-center gap-2 overflow-x-auto text-xs font-mono-tech">
+        <a href="#palette" class="px-3 py-1.5 rounded border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition">PALETTE</a>
+        <a href="#floors" class="px-3 py-1.5 rounded border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition">FLOORS</a>
+        <a href="#walls" class="px-3 py-1.5 rounded border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition">WALLS</a>
+        <a href="#gates" class="px-3 py-1.5 rounded border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition">GATES</a>
+        <a href="#mechanisms" class="px-3 py-1.5 rounded border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition">MECHANISMS</a>
+        <a href="#collectibles" class="px-3 py-1.5 rounded border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition">COLLECTIBLES & EXIT</a>
+        <a href="#ui" class="px-3 py-1.5 rounded border border-cyan-500/60 bg-cyan-950/30 text-cyan-300 font-semibold shadow-[0_0_8px_rgba(0,240,255,0.2)]">MINIMAL HUD UI</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-6 py-8 space-y-16">
+
+    <!-- HERO / SYSTEM OVERVIEW -->
+    <section class="bg-gradient-to-r from-[#0c142c] via-[#091024] to-[#070b1a] border border-[#1b2b52] rounded-xl p-6 md:p-8 relative overflow-hidden shadow-2xl">
+      <div class="absolute -right-16 -top-16 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="relative z-10 grid md:grid-cols-3 gap-6 items-center">
+        <div class="md:col-span-2 space-y-3">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-[11px] font-mono-tech text-cyan-300">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            ORTHOGRAPHIC 32x32px GRID SYSTEM
+          </div>
+          <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-white">Top-Down Sci-Fi Pixel Environment & Minimal HUD</h2>
+          <p class="text-sm text-slate-300 leading-relaxed max-w-2xl">
+            Tailored specifically for <strong class="text-cyan-300">Echo Maze</strong>'s grid mechanics. Low-visual-noise floor textures guarantee instant readability for characters, echoes/ghosts, and interactables. Distinct silhouette walls with edge-locking rules ensure puzzle walls read with absolute clarity.
+          </p>
+        </div>
+
+        <!-- Metric Specs Box -->
+        <div class="bg-[#070c1b] border border-cyan-900/50 p-4 rounded-lg font-mono-tech text-xs space-y-2">
+          <div class="text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800 pb-1 flex justify-between">
+            <span>Tile Specification</span>
+            <span class="text-cyan-400">PIXEL-PERFECT</span>
+          </div>
+          <div class="flex justify-between py-0.5"><span class="text-slate-400">Base Grid Size:</span><span class="text-cyan-300 font-bold">32 × 32 px</span></div>
+          <div class="flex justify-between py-0.5"><span class="text-slate-400">Sub-pixel Unit:</span><span class="text-slate-200">1px native (scale 4x/8x)</span></div>
+          <div class="flex justify-between py-0.5"><span class="text-slate-400">Projection:</span><span class="text-slate-200">Pure Top-Down Ortho</span></div>
+          <div class="flex justify-between py-0.5"><span class="text-slate-400">Baked Neighbor Shadows:</span><span class="text-teal-400">0% (Grid-isolated)</span></div>
+          <div class="flex justify-between py-0.5"><span class="text-slate-400">Backgrounds:</span><span class="text-teal-400">Transparent PNG/Alpha</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PALETTE & TOKEN SPECIFICATION -->
+    <section id="palette" class="space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="font-pixel text-xs text-cyan-400 tracking-wider">00 // COLOR PALETTE & ATMOSPHERE SYSTEM</h3>
+        <span class="text-xs font-mono-tech text-slate-400">STRICT RESTRAINT (16 TOKENS)</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+        <!-- Deep Hull Base -->
+        <div class="bg-[#0b1124] border border-slate-800 p-3 rounded">
+          <div class="w-full h-10 bg-[#050813] border border-black mb-2 rounded-sm shadow-inner"></div>
+          <div class="text-[10px] font-mono-tech text-slate-400">VOID / PIT</div>
+          <div class="text-xs font-bold font-mono-tech text-white">#050813</div>
+        </div>
+        <div class="bg-[#0b1124] border border-slate-800 p-3 rounded">
+          <div class="w-full h-10 bg-[#0b1428] border border-black mb-2 rounded-sm shadow-inner"></div>
+          <div class="text-[10px] font-mono-tech text-slate-400">HULL DARK</div>
+          <div class="text-xs font-bold font-mono-tech text-white">#0B1428</div>
+        </div>
+        <div class="bg-[#0b1124] border border-slate-800 p-3 rounded">
+          <div class="w-full h-10 bg-[#142348] border border-black mb-2 rounded-sm shadow-inner"></div>
+          <div class="text-[10px] font-mono-tech text-slate-400">FLOOR BASE</div>
+          <div class="text-xs font-bold font-mono-tech text-white">#142348</div>
+        </div>
+        <div class="bg-[#0b1124] border border-slate-800 p-3 rounded">
+          <div class="w-full h-10 bg-[#1d3266] border border-black mb-2 rounded-sm shadow-inner"></div>
+          <div class="text-[10px] font-mono-tech text-slate-400">PANEL BEVEL</div>
+          <div class="text-xs font-bold font-mono-tech text-white">#1D3266</div>
+        </div>
+
+        <!-- Cyan / Teal Energy -->
+        <div class="bg-[#0b1124] border border-slate-800 p-3 rounded">
+          <div class="w-full h-10 bg-[#00f0ff] border border-black mb-2 rounded-sm shadow-[0_0_8px_#00f0ff]"></div>
+          <div class="text-[10px] font-mono-tech text-slate-400">CYAN ENERGY</div>
+          <div class="text-xs font-bold font-mono-tech text-cyan-300">#00F0FF</div>
+        </div>
+        <div class="bg-[#0b1124] border border-slate-800 p-3 rounded">
+          <div class="w-full h-10 bg-[#0df2c8] border border-black mb-2 rounded-sm shadow-[0_0_8px_#0df2c8]"></div>
+          <div class="text-[10px] font-mono-tech text-slate-400">TEAL PULSE</div>
+          <div class="text-xs font-bold font-mono-tech text-teal-300">#0DF2C8</div>
+        </div>
+
+        <!-- Violet & Gold Accents -->
+        <div class="bg-[#0b1124] border border-slate-800 p-3 rounded">
+          <div class="w-full h-10 bg-[#a855f7] border border-black mb-2 rounded-sm shadow-[0_0_8px_#a855f7]"></div>
+          <div class="text-[10px] font-mono-tech text-slate-400">TEMPORAL VOID</div>
+          <div class="text-xs font-bold font-mono-tech text-purple-300">#A855F7</div>
+        </div>
+        <div class="bg-[#0b1124] border border-slate-800 p-3 rounded">
+          <div class="w-full h-10 bg-[#fbbf24] border border-black mb-2 rounded-sm shadow-[0_0_8px_#fbbf24]"></div>
+          <div class="text-[10px] font-mono-tech text-slate-400">GOLD KEY / GOAL</div>
+          <div class="text-xs font-bold font-mono-tech text-amber-300">#FBBF24</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: FLOOR TILES -->
+    <section id="floors" class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div>
+          <h3 class="font-pixel text-xs text-cyan-400 tracking-wider">01 // FLOOR TILE ASSETS</h3>
+          <p class="text-xs text-slate-400 font-mono-tech mt-1">Subdued textures designed for minimal eye-strain and seamless grid tiling.</p>
+        </div>
+        <span class="text-xs font-mono-tech text-teal-400 bg-teal-950/40 px-2 py-1 rounded border border-teal-800">ORTHO 32x32px (RENDERED AT 4X / 128px)</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Floor 1: Main Floor -->
+        <div class="tile-card p-5 rounded-lg flex flex-col items-center text-center">
+          <div class="text-xs font-mono-tech text-cyan-300 mb-3 uppercase tracking-wider font-semibold">Main Floor Tile</div>
+          <div class="p-4 bg-[#060a16] border border-cyan-950 rounded-lg mb-4 flex items-center justify-center">
+            <!-- 32x32 Pixel Art SVG Scaled to 128px -->
+            <svg class="w-32 h-32 pixel-crisp shadow-lg" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background Floor Plating -->
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Panel outline grid -->
+              <rect x="0" y="0" width="32" height="1" fill="#1b2a50"/>
+              <rect x="0" y="0" width="1" height="32" fill="#1b2a50"/>
+              <rect x="0" y="31" width="32" height="1" fill="#090e1c"/>
+              <rect x="31" y="0" width="1" height="32" fill="#090e1c"/>
+              <!-- Central Non-distracting Hull Plate -->
+              <rect x="2" y="2" width="28" height="28" fill="#121e3c"/>
+              <rect x="3" y="3" width="26" height="26" fill="#142244"/>
+              <!-- Corner Rivets / Hex Bolts -->
+              <rect x="3" y="3" width="2" height="2" fill="#0a1020"/>
+              <rect x="3" y="3" width="1" height="1" fill="#223668"/>
+              <rect x="27" y="3" width="2" height="2" fill="#0a1020"/>
+              <rect x="27" y="3" width="1" height="1" fill="#223668"/>
+              <rect x="3" y="27" width="2" height="2" fill="#0a1020"/>
+              <rect x="3" y="27" width="1" height="1" fill="#223668"/>
+              <rect x="27" y="27" width="2" height="2" fill="#0a1020"/>
+              <rect x="27" y="27" width="1" height="1" fill="#223668"/>
+              <!-- Subtle recessed seam -->
+              <rect x="6" y="15" width="20" height="2" fill="#0c162e"/>
+              <rect x="15" y="6" width="2" height="20" fill="#0c162e"/>
+            </svg>
+          </div>
+          <div class="w-full text-left font-mono-tech text-xs space-y-1.5 border-t border-slate-800/80 pt-3">
+            <div class="flex justify-between"><span class="text-slate-400">Role:</span><span class="text-slate-200">Default walkable tile</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Contrast:</span><span class="text-teal-400">Low-contrast hull grey/navy</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Tiling:</span><span class="text-slate-300">Seamless 4-way repeating</span></div>
+          </div>
+        </div>
+
+        <!-- Floor 2: Alternate Floor -->
+        <div class="tile-card p-5 rounded-lg flex flex-col items-center text-center">
+          <div class="text-xs font-mono-tech text-cyan-300 mb-3 uppercase tracking-wider font-semibold">Alternate Floor Tile</div>
+          <div class="p-4 bg-[#060a16] border border-cyan-950 rounded-lg mb-4 flex items-center justify-center">
+            <svg class="w-32 h-32 pixel-crisp shadow-lg" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" fill="#101a33"/>
+              <rect x="0" y="0" width="32" height="1" fill="#1b2a50"/>
+              <rect x="0" y="0" width="1" height="32" fill="#1b2a50"/>
+              <rect x="0" y="31" width="32" height="1" fill="#090e1c"/>
+              <rect x="31" y="0" width="1" height="32" fill="#090e1c"/>
+              <!-- Diamond vent / grid micro pattern -->
+              <rect x="2" y="2" width="28" height="28" fill="#132040"/>
+              <!-- Mesh / Grating micro-dots -->
+              <rect x="6" y="6" width="2" height="2" fill="#090f20"/>
+              <rect x="10" y="6" width="2" height="2" fill="#090f20"/>
+              <rect x="14" y="6" width="2" height="2" fill="#090f20"/>
+              <rect x="18" y="6" width="2" height="2" fill="#090f20"/>
+              <rect x="22" y="6" width="2" height="2" fill="#090f20"/>
+
+              <rect x="8" y="10" width="2" height="2" fill="#090f20"/>
+              <rect x="12" y="10" width="2" height="2" fill="#090f20"/>
+              <rect x="16" y="10" width="2" height="2" fill="#090f20"/>
+              <rect x="20" y="10" width="2" height="2" fill="#090f20"/>
+              <rect x="24" y="10" width="2" height="2" fill="#090f20"/>
+
+              <rect x="6" y="14" width="2" height="2" fill="#090f20"/>
+              <rect x="10" y="14" width="2" height="2" fill="#090f20"/>
+              <rect x="14" y="14" width="2" height="2" fill="#090f20"/>
+              <rect x="18" y="14" width="2" height="2" fill="#090f20"/>
+              <rect x="22" y="14" width="2" height="2" fill="#090f20"/>
+
+              <rect x="8" y="18" width="2" height="2" fill="#090f20"/>
+              <rect x="12" y="18" width="2" height="2" fill="#090f20"/>
+              <rect x="16" y="18" width="2" height="2" fill="#090f20"/>
+              <rect x="20" y="18" width="2" height="2" fill="#090f20"/>
+              <rect x="24" y="18" width="2" height="2" fill="#090f20"/>
+
+              <rect x="6" y="22" width="2" height="2" fill="#090f20"/>
+              <rect x="10" y="22" width="2" height="2" fill="#090f20"/>
+              <rect x="14" y="22" width="2" height="2" fill="#090f20"/>
+              <rect x="18" y="22" width="2" height="2" fill="#090f20"/>
+              <rect x="22" y="22" width="2" height="2" fill="#090f20"/>
+              <!-- Border Accent -->
+              <rect x="4" y="4" width="24" height="1" fill="#1b2a52"/>
+              <rect x="4" y="27" width="24" height="1" fill="#1b2a52"/>
+            </svg>
+          </div>
+          <div class="w-full text-left font-mono-tech text-xs space-y-1.5 border-t border-slate-800/80 pt-3">
+            <div class="flex justify-between"><span class="text-slate-400">Role:</span><span class="text-slate-200">Ventilation / pathway guide</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Detail:</span><span class="text-slate-300">Recessed tech mesh</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Use:</span><span class="text-slate-300">Path highlighting & variety</span></div>
+          </div>
+        </div>
+
+        <!-- Floor 3: Special Energy Floor -->
+        <div class="tile-card p-5 rounded-lg flex flex-col items-center text-center border-cyan-500/30">
+          <div class="text-xs font-mono-tech text-cyan-300 mb-3 uppercase tracking-wider font-semibold">Special Floor / Energy Conduit</div>
+          <div class="p-4 bg-[#060a16] border border-cyan-950 rounded-lg mb-4 flex items-center justify-center">
+            <svg class="w-32 h-32 pixel-crisp shadow-[0_0_15px_rgba(0,240,255,0.2)]" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" fill="#0d172e"/>
+              <rect x="0" y="0" width="32" height="32" fill="#101d3a"/>
+              <!-- Circuit Bus Underfloor Glass -->
+              <rect x="2" y="2" width="28" height="28" fill="#0b1326"/>
+              <!-- Conduit Trench -->
+              <rect x="12" y="0" width="8" height="32" fill="#070c18"/>
+              <rect x="14" y="0" width="4" height="32" fill="#005577"/>
+              <rect x="15" y="0" width="2" height="32" fill="#00f0ff"/>
+              <rect x="15" y="6" width="2" height="4" fill="#ffffff"/>
+              <rect x="15" y="20" width="2" height="4" fill="#ffffff"/>
+              <!-- Energy nodes left & right -->
+              <rect x="4" y="14" width="8" height="4" fill="#070c18"/>
+              <rect x="6" y="15" width="6" height="2" fill="#0df2c8"/>
+              <rect x="20" y="14" width="8" height="4" fill="#070c18"/>
+              <rect x="20" y="15" width="6" height="2" fill="#0df2c8"/>
+              <!-- Sub-violet glow node -->
+              <rect x="13" y="13" width="6" height="6" fill="#1e1035"/>
+              <rect x="14" y="14" width="4" height="4" fill="#a855f7"/>
+              <rect x="15" y="15" width="2" height="2" fill="#e9d5ff"/>
+            </svg>
+          </div>
+          <div class="w-full text-left font-mono-tech text-xs space-y-1.5 border-t border-slate-800/80 pt-3">
+            <div class="flex justify-between"><span class="text-slate-400">Role:</span><span class="text-cyan-300">Powered circuit zone / route</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Lighting:</span><span class="text-cyan-400">Internal cyan + violet node</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Interaction:</span><span class="text-slate-300">Conduit lines connectable</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tiling Preview Demonstration -->
+      <div class="p-4 bg-[#090f22] border border-[#172547] rounded-lg">
+        <div class="flex flex-wrap items-center justify-between mb-3 text-xs font-mono-tech">
+          <span class="text-slate-300 font-bold uppercase tracking-wider">Seamless 4×3 Board Grid Assembly Test</span>
+          <span class="text-slate-400">Shows how low-contrast floors keep characters & puzzle items easily readable</span>
+        </div>
+        <div class="inline-grid grid-cols-6 gap-0 border-2 border-cyan-900/60 p-1 bg-[#050813]">
+          <!-- Repeat simulated 32x32 tiles at 1.5x scale -->
+          <!-- Row 1 -->
+          <div class="w-12 h-12 bg-[#121e3c] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-1 h-1 bg-[#223668] absolute top-1 left-1"></div>
+            <div class="w-1 h-1 bg-[#223668] absolute bottom-1 right-1"></div>
+          </div>
+          <div class="w-12 h-12 bg-[#121e3c] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-1 h-1 bg-[#223668] absolute top-1 left-1"></div>
+          </div>
+          <div class="w-12 h-12 bg-[#132040] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-6 h-6 border border-[#1b2a52] grid grid-cols-2 gap-1 p-0.5"><div class="bg-[#090f20]"></div><div class="bg-[#090f20]"></div><div class="bg-[#090f20]"></div><div class="bg-[#090f20]"></div></div>
+          </div>
+          <div class="w-12 h-12 bg-[#132040] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-6 h-6 border border-[#1b2a52] grid grid-cols-2 gap-1 p-0.5"><div class="bg-[#090f20]"></div><div class="bg-[#090f20]"></div><div class="bg-[#090f20]"></div><div class="bg-[#090f20]"></div></div>
+          </div>
+          <div class="w-12 h-12 bg-[#121e3c] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-1 h-1 bg-[#223668] absolute top-1 right-1"></div>
+          </div>
+          <div class="w-12 h-12 bg-[#121e3c] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-1 h-1 bg-[#223668] absolute bottom-1 left-1"></div>
+          </div>
+          <!-- Row 2 with conduit -->
+          <div class="w-12 h-12 bg-[#121e3c] border border-[#1b2a50]/60 relative"></div>
+          <div class="w-12 h-12 bg-[#0b1326] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-full h-2 bg-[#00f0ff] shadow-[0_0_6px_#00f0ff]"></div>
+          </div>
+          <div class="w-12 h-12 bg-[#0b1326] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-full h-2 bg-[#00f0ff] shadow-[0_0_6px_#00f0ff]"></div>
+            <div class="w-3 h-3 bg-[#a855f7] absolute"></div>
+          </div>
+          <div class="w-12 h-12 bg-[#0b1326] border border-[#1b2a50]/60 relative flex items-center justify-center">
+            <div class="w-full h-2 bg-[#00f0ff] shadow-[0_0_6px_#00f0ff]"></div>
+          </div>
+          <div class="w-12 h-12 bg-[#121e3c] border border-[#1b2a50]/60 relative"></div>
+          <div class="w-12 h-12 bg-[#121e3c] border border-[#1b2a50]/60 relative"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: WALLS & CORNERS -->
+    <section id="walls" class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div>
+          <h3 class="font-pixel text-xs text-cyan-400 tracking-wider">02 // WALLS, CORNERS & OBSTACLE PILLARS</h3>
+          <p class="text-xs text-slate-400 font-mono-tech mt-1">Sturdy, high-contrast silhouettes. Thick top-down hull armor with cyan edge bevels.</p>
+        </div>
+        <span class="text-xs font-mono-tech text-cyan-400 bg-cyan-950/40 px-2 py-1 rounded border border-cyan-800">SOLID SILHOUETTES</span>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+        
+        <!-- Solid Wall -->
+        <div class="tile-card p-4 rounded-lg flex flex-col items-center">
+          <span class="text-xs font-mono-tech text-cyan-300 mb-2 font-semibold">Standard Solid Wall</span>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded mb-3">
+            <svg class="w-24 h-24 pixel-crisp" viewBox="0 0 32 32">
+              <!-- Outer outline / hull wall -->
+              <rect width="32" height="32" fill="#080e1c"/>
+              <rect x="2" y="2" width="28" height="28" fill="#182542"/>
+              <rect x="4" y="4" width="24" height="24" fill="#23355c"/>
+              <!-- Top Cap highlight (pure top down) -->
+              <rect x="5" y="5" width="22" height="22" fill="#2d4272"/>
+              <!-- Armor ribbing -->
+              <rect x="8" y="8" width="16" height="3" fill="#1b2848"/>
+              <rect x="8" y="14" width="16" height="4" fill="#15213c"/>
+              <rect x="8" y="21" width="16" height="3" fill="#1b2848"/>
+              <!-- Cyan seam / bolt -->
+              <rect x="6" y="6" width="2" height="2" fill="#00f0ff"/>
+              <rect x="24" y="6" width="2" height="2" fill="#00f0ff"/>
+              <rect x="6" y="24" width="2" height="2" fill="#00f0ff"/>
+              <rect x="24" y="24" width="2" height="2" fill="#00f0ff"/>
+            </svg>
+          </div>
+          <div class="text-[11px] font-mono-tech text-slate-400">4-way blocked obstacle</div>
+        </div>
+
+        <!-- Wall Corner Piece -->
+        <div class="tile-card p-4 rounded-lg flex flex-col items-center">
+          <span class="text-xs font-mono-tech text-cyan-300 mb-2 font-semibold">Wall Corner (Top-Left)</span>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded mb-3">
+            <svg class="w-24 h-24 pixel-crisp" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/> <!-- Walkable background hint -->
+              <!-- Corner L-Shape -->
+              <path d="M0,0 L32,0 L32,16 L16,16 L16,32 L0,32 Z" fill="#080e1c"/>
+              <path d="M2,2 L32,2 L32,14 L14,14 L14,32 L2,32 Z" fill="#23355c"/>
+              <path d="M4,4 L32,4 L32,12 L12,12 L12,32 L4,32 Z" fill="#2d4272"/>
+              <!-- Corner Re-enforcement -->
+              <rect x="4" y="4" width="8" height="8" fill="#3a5592"/>
+              <rect x="6" y="6" width="4" height="4" fill="#00f0ff"/>
+              <!-- Border striping -->
+              <rect x="16" y="6" width="16" height="2" fill="#182542"/>
+              <rect x="6" y="16" width="2" height="16" fill="#182542"/>
+            </svg>
+          </div>
+          <div class="text-[11px] font-mono-tech text-slate-400">90° corner junction</div>
+        </div>
+
+        <!-- Wall Edge Piece -->
+        <div class="tile-card p-4 rounded-lg flex flex-col items-center">
+          <span class="text-xs font-mono-tech text-cyan-300 mb-2 font-semibold">Wall Edge Piece (North)</span>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded mb-3">
+            <svg class="w-24 h-24 pixel-crisp" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Wall spans top half -->
+              <rect x="0" y="0" width="32" height="20" fill="#080e1c"/>
+              <rect x="0" y="2" width="32" height="16" fill="#23355c"/>
+              <rect x="0" y="4" width="32" height="12" fill="#2d4272"/>
+              <!-- Wall base bevel (facing south floor) -->
+              <rect x="0" y="16" width="32" height="4" fill="#121b2f"/>
+              <!-- Energy conduit along edge -->
+              <rect x="0" y="9" width="32" height="2" fill="#0df2c8"/>
+            </svg>
+          </div>
+          <div class="text-[11px] font-mono-tech text-slate-400">Horizontal boundary</div>
+        </div>
+
+        <!-- Pillar / Obstacle -->
+        <div class="tile-card p-4 rounded-lg flex flex-col items-center">
+          <span class="text-xs font-mono-tech text-cyan-300 mb-2 font-semibold">Reactor Pillar Obstacle</span>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded mb-3">
+            <svg class="w-24 h-24 pixel-crisp" viewBox="0 0 32 32">
+              <!-- Transparent / floor bg -->
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Octagonal Pillar -->
+              <polygon points="10,2 22,2 30,10 30,22 22,30 10,30 2,22 2,10" fill="#080e1c"/>
+              <polygon points="11,4 21,4 28,11 28,21 21,28 11,28 4,21 4,11" fill="#1e2c4d"/>
+              <polygon points="12,6 20,6 26,12 26,20 20,26 12,26 6,20 6,12" fill="#2a3d69"/>
+              <!-- Central Core Glow (Teal & Violet) -->
+              <circle cx="16" cy="16" r="6" fill="#080e1c"/>
+              <circle cx="16" cy="16" r="4" fill="#00f0ff"/>
+              <circle cx="16" cy="16" r="2" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div class="text-[11px] font-mono-tech text-slate-400">Stand-alone 1x1 block</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 3: GATES & DOORS -->
+    <section id="gates" class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div>
+          <h3 class="font-pixel text-xs text-cyan-400 tracking-wider">03 // GATE & DOOR STATES</h3>
+          <p class="text-xs text-slate-400 font-mono-tech mt-1">Instant state readability. Laser energy bars retract when opened.</p>
+        </div>
+        <span class="text-xs font-mono-tech text-amber-400 bg-amber-950/40 px-2 py-1 rounded border border-amber-800">3-STATE INTERACTABLE</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Locked Gate -->
+        <div class="tile-card p-5 rounded-lg flex flex-col items-center">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444]"></span>
+            <span class="text-xs font-mono-tech text-red-400 font-bold uppercase tracking-wider">1. Locked Gate / Door</span>
+          </div>
+          <div class="p-4 bg-[#060a16] border border-red-950/60 rounded-lg mb-4 flex items-center justify-center">
+            <svg class="w-32 h-32 pixel-crisp shadow-lg" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Left Post -->
+              <rect x="0" y="4" width="8" height="24" fill="#090f1d"/>
+              <rect x="1" y="5" width="6" height="22" fill="#202f52"/>
+              <rect x="3" y="14" width="2" height="4" fill="#ef4444"/>
+              <!-- Right Post -->
+              <rect x="24" y="4" width="8" height="24" fill="#090f1d"/>
+              <rect x="25" y="5" width="6" height="22" fill="#202f52"/>
+              <rect x="27" y="14" width="2" height="4" fill="#ef4444"/>
+              <!-- Red/Gold Heavy Barricade Laser Beams -->
+              <rect x="8" y="9" width="16" height="3" fill="#7f1d1d"/>
+              <rect x="8" y="10" width="16" height="1" fill="#f87171"/>
+              <rect x="8" y="15" width="16" height="3" fill="#7f1d1d"/>
+              <rect x="8" y="16" width="16" height="1" fill="#f87171"/>
+              <rect x="8" y="21" width="16" height="3" fill="#7f1d1d"/>
+              <rect x="8" y="22" width="16" height="1" fill="#f87171"/>
+              <!-- Central Heavy Padlock / Digital Key Icon -->
+              <rect x="13" y="13" width="6" height="6" fill="#080d19"/>
+              <rect x="14" y="14" width="4" height="4" fill="#fbbf24"/>
+              <rect x="15" y="15" width="2" height="2" fill="#78350f"/>
+            </svg>
+          </div>
+          <p class="text-xs font-mono-tech text-slate-300">Requires gold key or puzzle condition. Solid obstruction.</p>
+        </div>
+
+        <!-- Unlocked Gate (Ready to pass or triggered) -->
+        <div class="tile-card p-5 rounded-lg flex flex-col items-center border-teal-500/30">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-[0_0_6px_#0df2c8]"></span>
+            <span class="text-xs font-mono-tech text-teal-400 font-bold uppercase tracking-wider">2. Unlocked Gate / Door</span>
+          </div>
+          <div class="p-4 bg-[#060a16] border border-teal-950/60 rounded-lg mb-4 flex items-center justify-center">
+            <svg class="w-32 h-32 pixel-crisp shadow-lg" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Left Post -->
+              <rect x="0" y="4" width="8" height="24" fill="#090f1d"/>
+              <rect x="1" y="5" width="6" height="22" fill="#202f52"/>
+              <rect x="3" y="14" width="2" height="4" fill="#0df2c8"/>
+              <!-- Right Post -->
+              <rect x="24" y="4" width="8" height="24" fill="#090f1d"/>
+              <rect x="25" y="5" width="6" height="22" fill="#202f52"/>
+              <rect x="27" y="14" width="2" height="4" fill="#0df2c8"/>
+              <!-- Cyan/Teal Pulsing Field -->
+              <rect x="8" y="11" width="16" height="2" fill="#005577"/>
+              <rect x="8" y="12" width="16" height="1" fill="#00f0ff"/>
+              <rect x="8" y="19" width="16" height="2" fill="#005577"/>
+              <rect x="8" y="19" width="16" height="1" fill="#0df2c8"/>
+              <!-- Central Access Granted Icon -->
+              <rect x="14" y="14" width="4" height="4" fill="#0df2c8"/>
+              <rect x="15" y="15" width="2" height="2" fill="#ffffff"/>
+            </svg>
+          </div>
+          <p class="text-xs font-mono-tech text-slate-300">Lock removed; barrier power cycling down.</p>
+        </div>
+
+        <!-- Open Gate (Traversable) -->
+        <div class="tile-card p-5 rounded-lg flex flex-col items-center border-cyan-500/40">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#00f0ff]"></span>
+            <span class="text-xs font-mono-tech text-cyan-300 font-bold uppercase tracking-wider">3. Open Gate / Door</span>
+          </div>
+          <div class="p-4 bg-[#060a16] border border-cyan-950/60 rounded-lg mb-4 flex items-center justify-center">
+            <svg class="w-32 h-32 pixel-crisp shadow-lg" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Floor track through door -->
+              <rect x="8" y="8" width="16" height="16" fill="#142244"/>
+              <rect x="15" y="0" width="2" height="32" fill="#1b2a50"/>
+              <!-- Retracted Posts Left -->
+              <rect x="0" y="4" width="6" height="24" fill="#090f1d"/>
+              <rect x="1" y="5" width="4" height="22" fill="#202f52"/>
+              <rect x="2" y="8" width="2" height="2" fill="#00f0ff"/>
+              <!-- Retracted Posts Right -->
+              <rect x="26" y="4" width="6" height="24" fill="#090f1d"/>
+              <rect x="27" y="5" width="4" height="22" fill="#202f52"/>
+              <rect x="28" y="8" width="2" height="2" fill="#00f0ff"/>
+              <!-- Floor threshold indicators (green/teal dots) -->
+              <rect x="9" y="15" width="2" height="2" fill="#0df2c8"/>
+              <rect x="21" y="15" width="2" height="2" fill="#0df2c8"/>
+            </svg>
+          </div>
+          <p class="text-xs font-mono-tech text-slate-300">100% Walkable path. Clear open corridor aperture.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: MECHANISMS (PRESSURE PLATES) -->
+    <section id="mechanisms" class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div>
+          <h3 class="font-pixel text-xs text-cyan-400 tracking-wider">04 // MECHANISMS — PRESSURE PLATES</h3>
+          <p class="text-xs text-slate-400 font-mono-tech mt-1">Weight-activated floor triggers for puzzle switches.</p>
+        </div>
+        <span class="text-xs font-mono-tech text-teal-300 bg-teal-950/40 px-2 py-1 rounded border border-teal-800">STATE BINARY</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Pressure Plate Inactive -->
+        <div class="tile-card p-5 rounded-lg flex flex-col sm:flex-row items-center gap-6">
+          <div class="p-4 bg-[#060a16] border border-cyan-950 rounded-lg flex-shrink-0">
+            <svg class="w-32 h-32 pixel-crisp" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Outer Plate Frame -->
+              <rect x="3" y="3" width="26" height="26" fill="#080e1c"/>
+              <rect x="4" y="4" width="24" height="24" fill="#1b2742"/>
+              <!-- Raised Bevel Edge -->
+              <rect x="5" y="5" width="22" height="22" fill="#223254"/>
+              <!-- Plate Surface Raised (Subtle shadow on south edge) -->
+              <rect x="7" y="7" width="18" height="18" fill="#15213b"/>
+              <rect x="7" y="23" width="18" height="2" fill="#0c1322"/>
+              <!-- Inactive Unlit Center Ring -->
+              <rect x="11" y="11" width="10" height="10" fill="#0a0f1c"/>
+              <rect x="13" y="13" width="6" height="6" fill="#1b2a48"/>
+              <!-- Dim Standby Dot -->
+              <rect x="15" y="15" width="2" height="2" fill="#005577"/>
+            </svg>
+          </div>
+          <div class="space-y-2 text-left font-mono-tech">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-bold">STATE: INACTIVE (RAISED)</span>
+            <h4 class="text-sm font-bold text-white">Pressure Plate — Standby</h4>
+            <p class="text-xs text-slate-400">Raised mechanical lip. Unlit capacitive sensors await player or ghost avatar step.</p>
+            <div class="text-[11px] text-cyan-400 pt-1">Visual Cue: Dim cyan central standby pixel.</div>
+          </div>
+        </div>
+
+        <!-- Pressure Plate Activated -->
+        <div class="tile-card p-5 rounded-lg flex flex-col sm:flex-row items-center gap-6 border-cyan-400/40">
+          <div class="p-4 bg-[#060a16] border border-cyan-950 rounded-lg flex-shrink-0">
+            <svg class="w-32 h-32 pixel-crisp shadow-[0_0_20px_rgba(0,240,255,0.25)]" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Depressed Base Frame -->
+              <rect x="3" y="3" width="26" height="26" fill="#080e1c"/>
+              <rect x="4" y="4" width="24" height="24" fill="#0b172a"/>
+              <!-- Plate is sunken into floor -->
+              <rect x="5" y="5" width="22" height="22" fill="#071120"/>
+              <!-- Glowing Energy Circuit Rings -->
+              <rect x="6" y="6" width="20" height="20" fill="#005577"/>
+              <rect x="7" y="7" width="18" height="18" fill="#00f0ff"/>
+              <rect x="9" y="9" width="14" height="14" fill="#061224"/>
+              <!-- Active Core Glow -->
+              <rect x="11" y="11" width="10" height="10" fill="#0df2c8"/>
+              <rect x="13" y="13" width="6" height="6" fill="#ffffff"/>
+              <!-- Corner Energy Radiators -->
+              <rect x="5" y="5" width="2" height="2" fill="#00f0ff"/>
+              <rect x="25" y="5" width="2" height="2" fill="#00f0ff"/>
+              <rect x="5" y="25" width="2" height="2" fill="#00f0ff"/>
+              <rect x="25" y="25" width="2" height="2" fill="#00f0ff"/>
+            </svg>
+          </div>
+          <div class="space-y-2 text-left font-mono-tech">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-700 font-bold">STATE: ACTIVATED (DEPRESSED)</span>
+            <h4 class="text-sm font-bold text-white">Pressure Plate — Engaged</h4>
+            <p class="text-xs text-slate-400">Sunken flush into floor grid. Radiant cyan + teal circuit burst confirms switch connection.</p>
+            <div class="text-[11px] text-teal-300 pt-1">Visual Cue: High-luminescence cyan/white core.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 5: COLLECTIBLES, EXIT & DECORATIONS -->
+    <section id="collectibles" class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div>
+          <h3 class="font-pixel text-xs text-cyan-400 tracking-wider">05 // COLLECTIBLES, EXIT & SCI-FI DETAILS</h3>
+          <p class="text-xs text-slate-400 font-mono-tech mt-1">High-contrast primary objectives and discrete floor accents.</p>
+        </div>
+        <span class="text-xs font-mono-tech text-amber-300 bg-amber-950/40 px-2 py-1 rounded border border-amber-800">PUZZLE OBJECTIVES</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+
+        <!-- Collectible Key -->
+        <div class="tile-card p-4 rounded-lg flex flex-col items-center">
+          <span class="text-xs font-mono-tech text-amber-300 mb-2 font-semibold">Collectible Gold Key</span>
+          <div class="p-3 bg-[#060a16] border border-amber-900/40 rounded mb-3 flex items-center justify-center">
+            <svg class="w-24 h-24 pixel-crisp shadow-[0_0_15px_rgba(251,191,36,0.25)]" viewBox="0 0 32 32">
+              <!-- Transparent / floor bg -->
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Pulsing Gold Quantum Card/Key -->
+              <!-- Outer Shadow outline -->
+              <rect x="7" y="7" width="18" height="18" fill="#040711"/>
+              <!-- Head Ring / Terminal -->
+              <rect x="8" y="8" width="16" height="6" fill="#d97706"/>
+              <rect x="9" y="9" width="14" height="4" fill="#fbbf24"/>
+              <rect x="13" y="10" width="6" height="2" fill="#070c18"/>
+              <!-- Shaft -->
+              <rect x="14" y="14" width="4" height="10" fill="#d97706"/>
+              <rect x="15" y="14" width="2" height="9" fill="#fde047"/>
+              <rect x="15" y="15" width="2" height="2" fill="#ffffff"/>
+              <!-- Teeth / Bit Pins -->
+              <rect x="18" y="17" width="3" height="2" fill="#fbbf24"/>
+              <rect x="18" y="21" width="4" height="2" fill="#fbbf24"/>
+              <!-- Cyan Energy Sub-Crystal Embedded -->
+              <rect x="15" y="10" width="2" height="2" fill="#00f0ff"/>
+            </svg>
+          </div>
+          <div class="text-[11px] font-mono-tech text-amber-300">Gold Accent #FBBF24</div>
+          <p class="text-[10px] font-mono-tech text-slate-400 mt-1">Stands out sharply against navy</p>
+        </div>
+
+        <!-- Exit / Goal Portal -->
+        <div class="tile-card p-4 rounded-lg flex flex-col items-center border-purple-500/40">
+          <span class="text-xs font-mono-tech text-purple-300 mb-2 font-semibold">Exit / Goal Portal</span>
+          <div class="p-3 bg-[#060a16] border border-purple-950 rounded mb-3 flex items-center justify-center">
+            <svg class="w-24 h-24 pixel-crisp shadow-[0_0_18px_rgba(168,85,247,0.3)]" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Teleport Pad Border Frame -->
+              <rect x="2" y="2" width="28" height="28" fill="#0a0f1e"/>
+              <rect x="4" y="4" width="24" height="24" fill="#1b2746"/>
+              <!-- Outer Vortex Ring (Violet) -->
+              <rect x="6" y="6" width="20" height="20" fill="#581c87"/>
+              <rect x="7" y="7" width="18" height="18" fill="#7e22ce"/>
+              <rect x="9" y="9" width="14" height="14" fill="#a855f7"/>
+              <!-- Swirl Core (Cyan + White) -->
+              <rect x="11" y="11" width="10" height="10" fill="#c084fc"/>
+              <rect x="12" y="12" width="8" height="8" fill="#0df2c8"/>
+              <rect x="13" y="13" width="6" height="6" fill="#00f0ff"/>
+              <rect x="14" y="14" width="4" height="4" fill="#ffffff"/>
+              <!-- Corner Anchor Nodes -->
+              <rect x="3" y="3" width="2" height="2" fill="#fbbf24"/>
+              <rect x="27" y="3" width="2" height="2" fill="#fbbf24"/>
+              <rect x="3" y="27" width="2" height="2" fill="#fbbf24"/>
+              <rect x="27" y="27" width="2" height="2" fill="#fbbf24"/>
+            </svg>
+          </div>
+          <div class="text-[11px] font-mono-tech text-purple-300">Violet Temporal Vortex</div>
+          <p class="text-[10px] font-mono-tech text-slate-400 mt-1">Level completion destination</p>
+        </div>
+
+        <!-- Small Deco 1: Cyber Panel -->
+        <div class="tile-card p-4 rounded-lg flex flex-col items-center">
+          <span class="text-xs font-mono-tech text-cyan-300 mb-2 font-semibold">Deco: Access Terminal</span>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded mb-3 flex items-center justify-center">
+            <svg class="w-24 h-24 pixel-crisp" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Floor mounted mini screen -->
+              <rect x="8" y="10" width="16" height="12" fill="#090f1d"/>
+              <rect x="9" y="11" width="14" height="10" fill="#14213d"/>
+              <!-- Console green/cyan display lines -->
+              <rect x="11" y="13" width="8" height="1" fill="#00f0ff"/>
+              <rect x="11" y="15" width="10" height="1" fill="#0df2c8"/>
+              <rect x="11" y="17" width="6" height="1" fill="#0df2c8"/>
+              <!-- Status LED -->
+              <rect x="20" y="13" width="1" height="1" fill="#fbbf24"/>
+            </svg>
+          </div>
+          <div class="text-[11px] font-mono-tech text-slate-400">Subtle floor terminal</div>
+          <p class="text-[10px] font-mono-tech text-slate-500 mt-1">Adds lore without obstacle</p>
+        </div>
+
+        <!-- Small Deco 2: Cable Bundle -->
+        <div class="tile-card p-4 rounded-lg flex flex-col items-center">
+          <span class="text-xs font-mono-tech text-cyan-300 mb-2 font-semibold">Deco: Conduit Splice</span>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded mb-3 flex items-center justify-center">
+            <svg class="w-24 h-24 pixel-crisp" viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Cables snaking across floor -->
+              <path d="M0,8 Q12,8 16,16 T32,24" stroke="#080e1c" stroke-width="4" fill="none"/>
+              <path d="M0,8 Q12,8 16,16 T32,24" stroke="#1d2d50" stroke-width="2" fill="none"/>
+              <path d="M0,14 Q10,14 16,20 T32,28" stroke="#080e1c" stroke-width="4" fill="none"/>
+              <path d="M0,14 Q10,14 16,20 T32,28" stroke="#005577" stroke-width="2" fill="none"/>
+              <rect x="15" y="15" width="2" height="2" fill="#00f0ff"/>
+            </svg>
+          </div>
+          <div class="text-[11px] font-mono-tech text-slate-400">Cable junction tile</div>
+          <p class="text-[10px] font-mono-tech text-slate-500 mt-1">Break visual repetition</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 6: MINIMAL GAMEPLAY UI -->
+    <section id="ui" class="space-y-6 pt-4 border-t-2 border-cyan-900/40">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-[10px] font-mono-tech text-cyan-400 uppercase tracking-widest mb-1">
+            <span class="w-1.5 h-1.5 bg-cyan-400"></span> PART 2 SPECIFICATION
+          </div>
+          <h3 class="font-pixel text-sm text-white tracking-wider">MINIMAL GAMEPLAY UI — SPACESHIP INSTRUMENTATION</h3>
+          <p class="text-xs text-slate-400 font-mono-tech mt-1">Zero-bloat top-down HUD. Extremely compact, high-contrast indicators that leave 100% focus on the puzzle board.</p>
+        </div>
+        <div class="flex items-center gap-2 font-mono-tech text-xs">
+          <span class="px-2.5 py-1 bg-slate-900 border border-slate-700 rounded text-slate-300">Editable Labels</span>
+          <span class="px-2.5 py-1 bg-cyan-950/80 border border-cyan-700/80 rounded text-cyan-300 font-bold">4 Reusable Components</span>
+        </div>
+      </div>
+
+      <!-- IN-GAME HUD OVERLAY BAR MOCKUP -->
+      <div class="p-4 md:p-6 bg-[#040813] border-2 border-[#16254a] rounded-xl relative overflow-hidden">
+        <div class="text-[10px] font-mono-tech text-slate-500 uppercase tracking-wider mb-3 flex items-center justify-between">
+          <span>Live In-Game Header Simulation (Top of Screen)</span>
+          <span class="text-cyan-400">Ultra-Lightweight Overlay</span>
+        </div>
+
+        <!-- The actual Minimal Top HUD Bar -->
+        <div class="max-w-4xl mx-auto bg-[#0a1126]/95 border border-[#1b2b54] p-3 md:px-5 md:py-2.5 rounded-lg flex items-center justify-between shadow-2xl backdrop-blur">
+          
+          <!-- Left: LEVEL Indicator -->
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 bg-[#060b1a] px-3 py-1.5 rounded border border-[#1b2b52]">
+              <span class="text-[9px] font-pixel text-slate-400 tracking-wider">LVL</span>
+              <span class="text-xs font-pixel text-cyan-400 font-bold tracking-widest" contenteditable="true" title="Click to edit">07</span>
+            </div>
+            <div class="hidden sm:flex flex-col text-[10px] font-mono-tech">
+              <span class="text-slate-400 text-[9px] uppercase tracking-wider">SECTOR</span>
+              <span class="text-slate-200 uppercase font-semibold">DERELICT-A3</span>
+            </div>
+          </div>
+
+          <!-- Center: MOVES LEFT Indicator -->
+          <div class="flex items-center gap-3 bg-[#060b1a] px-4 py-1.5 rounded border border-[#1b2b52] shadow-inner">
+            <div class="flex flex-col items-center">
+              <span class="text-[9px] font-pixel text-slate-400 tracking-widest">MOVES LEFT</span>
+              <div class="flex items-baseline gap-1 mt-0.5">
+                <span class="text-base font-pixel text-teal-300 tracking-wider font-bold" contenteditable="true" title="Click to edit">14</span>
+                <span class="text-[9px] font-pixel text-slate-500">/ 25</span>
+              </div>
+            </div>
+            <!-- Mini visual fuel/energy gauge -->
+            <div class="w-12 h-2.5 bg-[#0e1730] border border-[#1b2b54] flex gap-0.5 p-0.5">
+              <div class="flex-1 bg-teal-400"></div>
+              <div class="flex-1 bg-teal-400"></div>
+              <div class="flex-1 bg-teal-400"></div>
+              <div class="flex-1 bg-slate-700"></div>
+            </div>
+          </div>
+
+          <!-- Right: Action Buttons (Pause & Rewind) -->
+          <div class="flex items-center gap-2">
+            <!-- Rewind Button -->
+            <button class="pixel-btn-demo w-8 h-8 md:w-9 md:h-9 bg-[#0e1834] hover:bg-[#16254e] active:bg-[#080f24] border border-[#213564] hover:border-cyan-400 text-cyan-300 rounded flex items-center justify-center transition-all group" title="Rewind Move (Undo)">
+              <svg class="w-4 h-4 pixel-crisp text-cyan-400 group-hover:scale-110 transition-transform" viewBox="0 0 16 16" fill="currentColor">
+                <!-- Retro Pixel Rewind Icon -->
+                <path d="M7 3 L2 8 L7 13 L7 9 L14 9 L14 7 L7 7 Z"/>
+                <rect x="2" y="3" width="2" height="10"/>
+              </svg>
+            </button>
+
+            <!-- Pause Button -->
+            <button class="pixel-btn-demo w-8 h-8 md:w-9 md:h-9 bg-[#0e1834] hover:bg-[#16254e] active:bg-[#080f24] border border-[#213564] hover:border-cyan-400 text-cyan-300 rounded flex items-center justify-center transition-all group" title="Pause Game">
+              <svg class="w-4 h-4 pixel-crisp text-cyan-400 group-hover:scale-110 transition-transform" viewBox="0 0 16 16" fill="currentColor">
+                <!-- Retro Pixel Pause Bars -->
+                <rect x="4" y="3" width="3" height="10"/>
+                <rect x="9" y="3" width="3" height="10"/>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DETAILED COMPONENT STATE BREAKDOWN -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <!-- 1. LEVEL Indicator Spec -->
+        <div class="tile-card p-4 rounded-lg space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-pixel text-cyan-400">01 // LEVEL</span>
+            <span class="text-[10px] font-mono-tech text-slate-400">LABEL: EDITABLE</span>
+          </div>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded flex flex-col items-center justify-center gap-2">
+            <div class="bg-[#0b142c] border border-cyan-800/80 px-3 py-1.5 rounded flex items-center gap-2 shadow-sm">
+              <span class="text-[9px] font-pixel text-slate-400">LVL</span>
+              <span class="text-xs font-pixel text-cyan-300 font-bold tracking-widest">12</span>
+            </div>
+            <span class="text-[10px] font-mono-tech text-slate-500">Compact 64×24px</span>
+          </div>
+          <p class="text-xs font-mono-tech text-slate-300">Spacecraft sector readout styling. Uses cyan glow border on stage progression.</p>
+        </div>
+
+        <!-- 2. MOVES LEFT Indicator Spec -->
+        <div class="tile-card p-4 rounded-lg space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-pixel text-teal-400">02 // MOVES</span>
+            <span class="text-[10px] font-mono-tech text-slate-400">DYNAMIC VALUE</span>
+          </div>
+          <div class="p-3 bg-[#060a16] border border-teal-950 rounded flex flex-col items-center justify-center gap-2">
+            <div class="bg-[#0b142c] border border-teal-800/80 px-3 py-1.5 rounded flex flex-col items-center shadow-sm">
+              <span class="text-[8px] font-pixel text-slate-400">MOVES</span>
+              <span class="text-sm font-pixel text-teal-300 font-bold mt-0.5">08</span>
+            </div>
+            <span class="text-[10px] font-mono-tech text-slate-500">Warning state at &le;3</span>
+          </div>
+          <p class="text-xs font-mono-tech text-slate-300">Switches from teal to warning amber when remaining moves drop below 20%.</p>
+        </div>
+
+        <!-- 3. Pause Button States -->
+        <div class="tile-card p-4 rounded-lg space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-pixel text-cyan-400">03 // PAUSE BTN</span>
+            <span class="text-[10px] font-mono-tech text-slate-400">4 STATES</span>
+          </div>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded grid grid-cols-2 gap-2 text-center text-[10px] font-mono-tech">
+            <!-- Normal -->
+            <div class="flex flex-col items-center gap-1 p-1 bg-[#0a1126] border border-slate-700 rounded">
+              <div class="w-6 h-6 bg-[#0e1834] border border-[#213564] flex items-center justify-center text-cyan-400 font-bold">||</div>
+              <span class="text-slate-400 text-[9px]">Normal</span>
+            </div>
+            <!-- Hover -->
+            <div class="flex flex-col items-center gap-1 p-1 bg-[#0a1126] border border-cyan-500/80 rounded">
+              <div class="w-6 h-6 bg-[#16254e] border border-cyan-400 flex items-center justify-center text-cyan-300 font-bold shadow-[0_0_6px_#00f0ff]">||</div>
+              <span class="text-cyan-300 text-[9px]">Hover</span>
+            </div>
+            <!-- Pressed -->
+            <div class="flex flex-col items-center gap-1 p-1 bg-[#0a1126] border border-slate-800 rounded">
+              <div class="w-6 h-6 bg-[#060c1c] border border-black flex items-center justify-center text-cyan-500 font-bold translate-y-0.5">||</div>
+              <span class="text-slate-500 text-[9px]">Pressed</span>
+            </div>
+            <!-- Disabled -->
+            <div class="flex flex-col items-center gap-1 p-1 bg-[#0a1126] border border-slate-900 rounded opacity-40">
+              <div class="w-6 h-6 bg-[#0a0f20] border border-slate-800 flex items-center justify-center text-slate-600 font-bold">||</div>
+              <span class="text-slate-600 text-[9px]">Disabled</span>
+            </div>
+          </div>
+          <p class="text-xs font-mono-tech text-slate-300">Clean 2-bar pixel icon with recessed pressed state shadow.</p>
+        </div>
+
+        <!-- 4. Rewind Button States -->
+        <div class="tile-card p-4 rounded-lg space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-pixel text-cyan-400">04 // REWIND BTN</span>
+            <span class="text-[10px] font-mono-tech text-slate-400">4 STATES</span>
+          </div>
+          <div class="p-3 bg-[#060a16] border border-cyan-950 rounded grid grid-cols-2 gap-2 text-center text-[10px] font-mono-tech">
+            <!-- Normal -->
+            <div class="flex flex-col items-center gap-1 p-1 bg-[#0a1126] border border-slate-700 rounded">
+              <div class="w-6 h-6 bg-[#0e1834] border border-[#213564] flex items-center justify-center text-cyan-400 font-bold text-xs">&lt;</div>
+              <span class="text-slate-400 text-[9px]">Normal</span>
+            </div>
+            <!-- Hover -->
+            <div class="flex flex-col items-center gap-1 p-1 bg-[#0a1126] border border-cyan-500/80 rounded">
+              <div class="w-6 h-6 bg-[#16254e] border border-cyan-400 flex items-center justify-center text-cyan-300 font-bold text-xs shadow-[0_0_6px_#00f0ff]">&lt;</div>
+              <span class="text-cyan-300 text-[9px]">Hover</span>
+            </div>
+            <!-- Pressed -->
+            <div class="flex flex-col items-center gap-1 p-1 bg-[#0a1126] border border-slate-800 rounded">
+              <div class="w-6 h-6 bg-[#060c1c] border border-black flex items-center justify-center text-cyan-500 font-bold text-xs translate-y-0.5">&lt;</div>
+              <span class="text-slate-500 text-[9px]">Pressed</span>
+            </div>
+            <!-- Disabled -->
+            <div class="flex flex-col items-center gap-1 p-1 bg-[#0a1126] border border-slate-900 rounded opacity-40">
+              <div class="w-6 h-6 bg-[#0a0f20] border border-slate-800 flex items-center justify-center text-slate-600 font-bold text-xs">&lt;</div>
+              <span class="text-slate-600 text-[9px]">Disabled</span>
+            </div>
+          </div>
+          <p class="text-xs font-mono-tech text-slate-300">Single-move step rewind. Disable state active when at turn 0.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 7: EXPORT & INTEGRATION MATRIX -->
+    <section class="border border-slate-800 bg-[#080d1e] p-6 rounded-xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <h4 class="font-pixel text-xs text-cyan-400">DEVELOPER INTEGRATION SUMMARY</h4>
+        <span class="text-xs font-mono-tech text-teal-400">ENGINE READY // UNITY • GODOT • WEBGL</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left font-mono-tech text-xs">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400">
+              <th class="py-2 pr-4">Category</th>
+              <th class="py-2 pr-4">Asset Name</th>
+              <th class="py-2 pr-4">Resolution</th>
+              <th class="py-2 pr-4">Collision / Role</th>
+              <th class="py-2">Palette Signature</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 text-slate-300">
+            <tr>
+              <td class="py-2 text-cyan-300">Floor</td>
+              <td>Main Floor Tile</td>
+              <td>32×32px</td>
+              <td>Walkable (Default)</td>
+              <td>#101a33, #142244, #1b2a50</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-cyan-300">Floor</td>
+              <td>Alternate Floor Tile</td>
+              <td>32×32px</td>
+              <td>Walkable (Tech mesh)</td>
+              <td>#132040, #090f20</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-cyan-300">Floor</td>
+              <td>Special Energy / Conduit</td>
+              <td>32×32px</td>
+              <td>Walkable (Powered line)</td>
+              <td>#00f0ff, #0df2c8, #a855f7</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-cyan-300">Walls</td>
+              <td>Standard Wall &amp; Corners</td>
+              <td>32×32px</td>
+              <td>Solid Collision Box</td>
+              <td>#080e1c, #23355c, #2d4272</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-cyan-300">Walls</td>
+              <td>Reactor Pillar Obstacle</td>
+              <td>32×32px</td>
+              <td>Solid (Centered Octagon)</td>
+              <td>#1e2c4d, #00f0ff core</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-amber-300">Gates</td>
+              <td>Locked / Unlocked / Open</td>
+              <td>32×32px</td>
+              <td>Dynamic Passability</td>
+              <td>#ef4444 (Locked) &rarr; #00f0ff (Open)</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-teal-300">Mechanisms</td>
+              <td>Pressure Plate (2 states)</td>
+              <td>32×32px</td>
+              <td>Trigger Area (Walk-over)</td>
+              <td>#0c1322 &rarr; #00f0ff / #0df2c8</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-amber-300">Collectibles</td>
+              <td>Collectible Quantum Key</td>
+              <td>32×32px</td>
+              <td>Pickup Item (Gold Accent)</td>
+              <td>#fbbf24, #fde047, #d97706</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-purple-300">Exit</td>
+              <td>Exit / Goal Temporal Portal</td>
+              <td>32×32px</td>
+              <td>Victory Trigger</td>
+              <td>#7e22ce, #a855f7, #ffffff</td>
+            </tr>
+            <tr>
+              <td class="py-2 text-cyan-400">Gameplay UI</td>
+              <td>Level, Moves, Pause, Rewind</td>
+              <td>Modular</td>
+              <td>Screen Overlay / Touch / Mouse</td>
+              <td>Navy Surface + Cyan/Teal Accents</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-900 bg-[#03060f] py-6 text-center text-xs font-mono-tech text-slate-500">
+    ECHO MAZE Sci-Fi Pixel Art Design System • Top-Down Puzzle Game Specification
+  </footer>
+
+</body>
+</html>

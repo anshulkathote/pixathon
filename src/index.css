@@ -16,8 +16,26 @@
   letter-spacing: -0.05em;
 }
 
+.font-mono-tech {
+  font-family: 'Share Tech Mono', monospace;
+}
+
 .font-mono-code {
   font-family: 'Press Start 2P', monospace;
+}
+
+/* UI Components Stepped Demo Buttons */
+.pixel-btn-demo {
+  box-shadow: inset -2px -2px 0px rgba(0, 0, 0, 0.5), inset 2px 2px 0px rgba(255, 255, 255, 0.15);
+  transition: all 0.1s ease-out;
+}
+.pixel-btn-demo:hover:not(:disabled) {
+  border-color: #00f0ff;
+  box-shadow: inset -2px -2px 0px rgba(0, 0, 0, 0.5), inset 2px 2px 0px rgba(0, 240, 255, 0.3), 0 0 8px rgba(0, 240, 255, 0.35);
+}
+.pixel-btn-demo:active:not(:disabled) {
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.6);
+  transform: translate(1px, 1px);
 }
 
 /* Authentic Stepped Pixel-Art Borders */

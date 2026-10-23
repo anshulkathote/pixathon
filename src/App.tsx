@@ -295,19 +295,11 @@ export function App() {
     <main className="min-h-screen w-full bg-[#060913] text-slate-100 flex flex-col items-center justify-between p-3 sm:p-5 select-none overflow-x-hidden">
       {/* Container with max width for desktop display */}
       <div className="w-full max-w-4xl flex flex-col gap-3 flex-1">
-        {/* HUD Component */}
+        {/* Minimal Gameplay HUD (Showing ONLY Game Board, Level, Moves Left, Pause, Rewind) */}
         <HUD
           state={gameState}
-          showPathPreview={showPathPreview}
-          onTogglePathPreview={() => setShowPathPreview((prev) => !prev)}
-          onEndLoop={handleEndLoop}
           onUndo={handleUndo}
-          onRestart={handleRestart}
-          onWait={() => handleMove('WAIT')}
           onPause={() => setIsPaused(true)}
-          onHelp={() => setShowTutorial(true)}
-          isMuted={isMuted}
-          onToggleMute={handleToggleMute}
         />
 
         {/* Center Game Canvas Area */}
@@ -320,14 +312,16 @@ export function App() {
           />
         </div>
 
-        {/* Bottom Controls Bar */}
-        <ControlsOverlay
-          onMove={handleMove}
-          onEndLoop={handleEndLoop}
-          onUndo={handleUndo}
-          canEndLoop={gameState.ghosts.length < level.maxGhosts && !gameState.isWon}
-          canUndo={gameState.playerHistory.length > 1}
-        />
+        {/* Mobile Touch Controls (hidden on desktop to ensure purely minimal UI) */}
+        <div className="md:hidden">
+          <ControlsOverlay
+            onMove={handleMove}
+            onEndLoop={handleEndLoop}
+            onUndo={handleUndo}
+            canEndLoop={gameState.ghosts.length < level.maxGhosts && !gameState.isWon}
+            canUndo={gameState.playerHistory.length > 1}
+          />
+        </div>
       </div>
 
       {/* Modals */}
