@@ -9,3 +9,140 @@
     overflow-x: hidden;
   }
 }
+
+.font-pixel {
+  font-family: 'Press Start 2P', monospace;
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Stepped Pixel Art Borders (Multi-layered offset box-shadow technique) */
+.pixel-box-cyan {
+  background: #00d2e0;
+  box-shadow: 
+    0 4px 0 0 #03060c,
+    0 -4px 0 0 #03060c,
+    4px 0 0 0 #03060c,
+    -4px 0 0 0 #03060c,
+    inset 0 3px 0 0 #a5f8ff,
+    inset 0 -3px 0 0 #008794,
+    0 4px 0 0 rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(0, 240, 255, 0.45);
+  transition: all 0.15s ease-out;
+}
+.pixel-box-cyan:hover {
+  background: #1affff;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 0 0 #03060c,
+    0 -4px 0 0 #03060c,
+    4px 0 0 0 #03060c,
+    -4px 0 0 0 #03060c,
+    inset 0 4px 0 0 #d9fcff,
+    inset 0 -4px 0 0 #009eab,
+    0 6px 0 0 rgba(0, 0, 0, 0.6),
+    0 0 24px rgba(0, 240, 255, 0.7);
+}
+.pixel-box-cyan:active {
+  background: #00a4b0;
+  transform: translateY(2px);
+  box-shadow: 
+    0 2px 0 0 #03060c,
+    0 -2px 0 0 #03060c,
+    2px 0 0 0 #03060c,
+    -2px 0 0 0 #03060c,
+    inset 0 3px 0 0 #006870,
+    inset 0 -3px 0 0 #3ee7f2;
+}
+
+.pixel-box-secondary {
+  background: #18223c;
+  box-shadow: 
+    0 4px 0 0 #03060c,
+    0 -4px 0 0 #03060c,
+    4px 0 0 0 #03060c,
+    -4px 0 0 0 #03060c,
+    inset 0 3px 0 0 #364872,
+    inset 0 -3px 0 0 #0a0f1c,
+    0 4px 0 0 rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease-out;
+}
+.pixel-box-secondary:hover {
+  background: #202d4f;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 0 0 #03060c,
+    0 -4px 0 0 #03060c,
+    4px 0 0 0 #03060c,
+    -4px 0 0 0 #03060c,
+    inset 0 3px 0 0 #00f0ff,
+    inset 0 -3px 0 0 #0c1324,
+    0 6px 0 0 rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(0, 240, 255, 0.35);
+}
+.pixel-box-secondary:active {
+  background: #11182c;
+  transform: translateY(2px);
+  box-shadow: 
+    0 2px 0 0 #03060c,
+    0 -2px 0 0 #03060c,
+    2px 0 0 0 #03060c,
+    -2px 0 0 0 #03060c,
+    inset 0 3px 0 0 #070a14,
+    inset 0 -3px 0 0 #28395f;
+}
+
+.pixel-box-ghost {
+  background: #1f1a38;
+  box-shadow: 
+    0 4px 0 0 #03060c,
+    0 -4px 0 0 #03060c,
+    4px 0 0 0 #03060c,
+    -4px 0 0 0 #03060c,
+    inset 0 3px 0 0 #4a3675,
+    inset 0 -3px 0 0 #100b20,
+    0 4px 0 0 rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(189, 82, 255, 0.35);
+  transition: all 0.15s ease-out;
+}
+.pixel-box-ghost:hover {
+  background: #2a224d;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 0 0 #03060c,
+    0 -4px 0 0 #03060c,
+    4px 0 0 0 #03060c,
+    -4px 0 0 0 #03060c,
+    inset 0 3px 0 0 #bd52ff,
+    inset 0 -3px 0 0 #130d25,
+    0 6px 0 0 rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(189, 82, 255, 0.6);
+}
+.pixel-box-ghost:active {
+  background: #151128;
+  transform: translateY(2px);
+  box-shadow: 
+    0 2px 0 0 #03060c,
+    0 -2px 0 0 #03060c,
+    2px 0 0 0 #03060c,
+    -2px 0 0 0 #03060c,
+    inset 0 3px 0 0 #0c0819,
+    inset 0 -3px 0 0 #3a2760;
+}
+
+/* Modal Dialog Frame */
+.pixel-modal {
+  background: #0f1627;
+  box-shadow: 
+    0 6px 0 0 #03060c,
+    0 -6px 0 0 #03060c,
+    6px 0 0 0 #03060c,
+    -6px 0 0 0 #03060c,
+    0 0 0 3px #1f2a47,
+    inset 0 3px 0 0 #2d3c63,
+    inset 0 -3px 0 0 #070b14,
+    0 16px 36px rgba(0, 0, 0, 0.8),
+    0 0 28px rgba(0, 240, 255, 0.18);
+}

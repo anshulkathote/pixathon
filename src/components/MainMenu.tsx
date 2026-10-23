@@ -1,4 +1,4 @@
-import { Play, Grid, HelpCircle, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Grid, HelpCircle, Volume2, VolumeX, Sparkles } from 'lucide-react';
 import { LEVELS } from '../engine/levels';
 
 interface MainMenuProps {
@@ -84,29 +84,32 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         </div>
 
         {/* Buttons List */}
-        <div className="w-full max-w-xs flex flex-col gap-3">
+        <div className="w-full max-w-xs flex flex-col gap-3.5">
           <button
             onClick={onStartGame}
-            className="w-full py-3.5 px-6 rounded-xl font-black text-sm tracking-wide uppercase bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 flex items-center justify-center gap-2.5 shadow-xl shadow-cyan-500/25 transition active:scale-[0.98] cursor-pointer"
+            className="pixel-box-cyan w-full py-3.5 px-6 font-pixel text-xs text-black tracking-wider flex items-center justify-center gap-3 cursor-pointer group select-none"
           >
-            <Play size={18} className="fill-slate-950" />
-            <span>Enter The Maze</span>
+            <svg className="w-4 h-4 fill-black group-hover:scale-110 transition-transform" viewBox="0 0 16 16">
+              <path d="M4 2v12l10-6L4 2z" />
+            </svg>
+            <span>START GAME</span>
+            <span className="w-1.5 h-1.5 bg-black ml-1 animate-pulse" />
           </button>
 
           <button
             onClick={onOpenLevelSelect}
-            className="w-full py-3 px-6 rounded-xl font-bold text-xs bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 flex items-center justify-center gap-2 transition cursor-pointer"
+            className="pixel-box-secondary w-full py-3 px-5 font-pixel text-[11px] text-cyan-300 tracking-wider flex items-center justify-center gap-2.5 cursor-pointer group select-none"
           >
-            <Grid size={15} className="text-slate-400" />
-            <span>Select Chamber ({completedLevels.length}/{LEVELS.length} Solved)</span>
+            <Grid size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span>CHAMBERS ({completedLevels.length}/{LEVELS.length})</span>
           </button>
 
           <button
             onClick={onOpenTutorial}
-            className="w-full py-2.5 px-6 rounded-xl font-semibold text-xs bg-slate-900/70 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center justify-center gap-2 transition cursor-pointer"
+            className="pixel-box-secondary w-full py-2.5 px-4 font-mono-code text-xs text-slate-300 flex items-center justify-center gap-2 cursor-pointer select-none hover:text-white"
           >
-            <HelpCircle size={15} className="text-cyan-400" />
-            <span>How to Play</span>
+            <HelpCircle size={14} className="text-cyan-400" />
+            <span>HOW TO PLAY</span>
           </button>
         </div>
 

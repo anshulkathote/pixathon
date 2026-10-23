@@ -5,7 +5,6 @@ import {
   Undo2,
   Volume2,
   VolumeX,
-  Pause,
   HelpCircle,
   FastForward,
   Eye,
@@ -123,9 +122,11 @@ export const HUD: React.FC<HUDProps> = ({
           <button
             onClick={onPause}
             title="Pause Menu (Esc)"
-            className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-cyan-400 transition border border-slate-700/60 cursor-pointer"
+            className="pixel-box-secondary w-9 h-9 flex items-center justify-center cursor-pointer group select-none ml-1"
           >
-            <Pause size={16} />
+            <svg className="w-3.5 h-3.5 fill-cyan-400 group-hover:fill-white transition-colors" viewBox="0 0 16 16">
+              <path d="M4 3h3v10H4V3zm5 0h3v10H9V3z" />
+            </svg>
           </button>
         </div>
       </div>
