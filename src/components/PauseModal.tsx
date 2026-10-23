@@ -39,8 +39,8 @@ export const PauseModal: React.FC<PauseModalProps> = ({
           </button>
         </div>
 
-        <div className="inline-block px-2 py-0.5 bg-cyan-950/50 border border-cyan-800/60 text-cyan-400 font-pixel text-[9px] mb-2 uppercase tracking-widest">
-          TIMELINE PAUSED
+        <div className="inline-block px-2 py-0.5 bg-violet-950/50 border border-violet-800/60 text-violet-400 font-pixel text-[9px] mb-2 uppercase tracking-widest">
+          SHADOW LOOP PAUSED
         </div>
         <h2 className="font-pixel text-base text-white tracking-wide mb-1">
           CHAMBER 0{level.id}

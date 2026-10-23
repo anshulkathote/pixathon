@@ -9,7 +9,7 @@ import {
 } from './gameEngine';
 import type { Direction } from '../types/game';
 
-describe('Echo Maze Game Engine & Level Verification', () => {
+describe('Shadow Maze Game Engine & Level Verification', () => {
   describe('Basic Movement & Collisions', () => {
     it('initializes state correctly for Level 1', () => {
       const state = createInitialState(1);

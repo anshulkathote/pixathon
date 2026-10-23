@@ -81,8 +81,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         <h3 className="font-pixel text-lg text-white tracking-wide mb-1">
           LEVEL COMPLETED!
         </h3>
-        <p className="font-mono-code text-xs text-cyan-300/80 mb-4">
-          Temporal echo unified in Chamber 0{level.id} (<span className="text-amber-300">{state.currentLoop} Loop{state.currentLoop > 1 ? 's' : ''}</span>)
+        <p className="font-mono-code text-xs text-violet-300/80 mb-4">
+          Shadow unified in Chamber 0{level.id} (<span className="text-amber-300">{state.currentLoop} Loop{state.currentLoop > 1 ? 's' : ''}</span>)
         </p>
 
         {/* Stars Rating Display */}

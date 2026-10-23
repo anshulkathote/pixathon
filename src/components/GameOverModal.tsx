@@ -22,21 +22,21 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-md bg-slate-900 border border-amber-500/40 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-amber-950/50 flex flex-col items-center text-center">
-        {/* Amber icon badge */}
-        <div className="w-16 h-16 rounded-2xl bg-amber-950/80 border border-amber-500/50 flex items-center justify-center text-amber-400 mb-4 shadow-lg shadow-amber-900/40">
+      <div className="relative w-full max-w-md bg-slate-900 border border-violet-500/40 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-violet-950/50 flex flex-col items-center text-center">
+        {/* Violet icon badge */}
+        <div className="w-16 h-16 rounded-2xl bg-violet-950/80 border border-violet-500/50 flex items-center justify-center text-violet-400 mb-4 shadow-lg shadow-violet-900/40">
           <AlertTriangle size={32} />
         </div>
 
         {/* Heading */}
-        <span className="text-xs uppercase font-bold tracking-widest text-amber-400 mb-1">
-          Timeline Depleted
+        <span className="text-xs uppercase font-bold tracking-widest text-violet-400 mb-1">
+          Shadow Loop Depleted
         </span>
         <h2 className="text-2xl font-black text-slate-100 tracking-tight">
           Step Limit Reached
         </h2>
         <p className="text-sm text-slate-400 mt-2">
-          You consumed all {state.maxSteps} steps for this timeline without reaching the exit.
+          You consumed all {state.maxSteps} steps for this shadow loop without reaching the exit.
         </p>
 
         {/* Tactical Hint */}
@@ -53,10 +53,10 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           {canSpawnGhost ? (
             <button
               onClick={onEndLoop}
-              className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white flex items-center justify-center gap-2 shadow-lg shadow-purple-900/40 transition active:scale-[0.98] cursor-pointer"
+              className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-violet-900/40 transition active:scale-[0.98] cursor-pointer"
             >
               <FastForward size={16} />
-              <span>Record & Spawn Echo {state.ghosts.length + 1}</span>
+              <span>Record & Spawn Shadow {state.ghosts.length + 1}</span>
             </button>
           ) : (
             <button

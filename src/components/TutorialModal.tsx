@@ -8,7 +8,7 @@ interface TutorialModalProps {
 export const TutorialModal: React.FC<TutorialModalProps> = ({ onClose, isFirstTime = false }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-cyan-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/50 flex flex-col text-slate-200">
+      <div className="relative w-full max-w-lg bg-slate-900 border border-violet-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-violet-950/50 flex flex-col text-slate-200">
         {!isFirstTime && (
           <button
             onClick={onClose}
@@ -20,30 +20,30 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ onClose, isFirstTi
 
         {/* Title Badge */}
         <div className="flex items-center gap-2 mb-2">
-          <span className="p-1.5 rounded-lg bg-cyan-950 border border-cyan-500/40 text-cyan-400">
+          <span className="p-1.5 rounded-lg bg-violet-950 border border-violet-500/40 text-violet-400">
             <Sparkles size={16} />
           </span>
-          <span className="text-xs uppercase font-bold tracking-widest text-cyan-400">
-            Temporal Field Protocol
+          <span className="text-xs uppercase font-bold tracking-widest text-violet-400">
+            Shadow Realm Protocol
           </span>
         </div>
 
         <h2 className="text-2xl font-black text-slate-100 tracking-tight">
-          How to Play ECHO MAZE
+          How to Play Shadow Maze
         </h2>
-        <p className="text-sm text-cyan-300 font-medium italic mt-1">
-          "You are not playing alone. You are cooperating with yourself."
+        <p className="text-sm text-violet-300 font-medium italic mt-1">
+          "You are not playing alone. You are cooperating with your shadow."
         </p>
 
         {/* Mechanic Cards */}
         <div className="flex flex-col gap-3 my-5 text-xs">
-          {/* Card 1: Echoes */}
+          {/* Card 1: Record */}
           <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-start gap-3">
             <div className="w-8 h-8 rounded-lg bg-purple-950 border border-purple-600/60 flex items-center justify-center text-purple-300 shrink-0 mt-0.5">
               <Clock size={16} />
             </div>
             <div>
-              <span className="font-bold text-slate-200 text-sm block">1. Record Your Timeline</span>
+              <span className="font-bold text-slate-200 text-sm block">1. Record Your Shadow Loop</span>
               <p className="text-slate-400 mt-0.5 leading-relaxed">
                 Take steps across the maze. When you finish positioning yourself (e.g. standing on a plate), press{' '}
                 <kbd className="px-1.5 py-0.5 bg-purple-950 border border-purple-800 rounded text-purple-300 font-mono text-[11px]">Enter</kbd> to{' '}
@@ -52,15 +52,15 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ onClose, isFirstTi
             </div>
           </div>
 
-          {/* Card 2: Ghosts replay */}
+          {/* Card 2: Shadows replay */}
           <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-600/60 flex items-center justify-center text-cyan-300 shrink-0 mt-0.5">
+            <div className="w-8 h-8 rounded-lg bg-violet-950 border border-violet-600/60 flex items-center justify-center text-violet-300 shrink-0 mt-0.5">
               <FastForward size={16} />
             </div>
             <div>
-              <span className="font-bold text-slate-200 text-sm block">2. Ghosts Echo Your Steps</span>
+              <span className="font-bold text-slate-200 text-sm block">2. Shadows Replay Your Steps</span>
               <p className="text-slate-400 mt-0.5 leading-relaxed">
-                The world rewinds, and your past self spawns as a translucent echo. It will faithfully repeat your moves and remain standing on plates to keep doors open for you.
+                The world rewinds, and your past self spawns as a translucent shadow. It will faithfully repeat your moves and remain standing on plates to keep doors open for you.
               </p>
             </div>
           </div>
@@ -88,7 +88,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ onClose, isFirstTi
               <p className="text-slate-400 mt-0.5 leading-relaxed">
                 You have a limited number of steps <strong className="text-cyan-300">and</strong> loops. Think before you move! Toggle{' '}
                 <kbd className="px-1 py-0.5 bg-slate-800 rounded text-cyan-300 font-mono text-[10px]">P</kbd>{' '}
-                to preview a ghost's recorded path, and use{' '}
+                to preview a shadow's recorded path, and use{' '}
                 <kbd className="px-1 py-0.5 bg-slate-800 rounded text-slate-300 font-mono text-[10px]">Z</kbd>{' '}
                 to undo your last move.
               </p>
@@ -109,10 +109,10 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ onClose, isFirstTi
         {/* Confirm Button */}
         <button
           onClick={onClose}
-          className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition active:scale-[0.98] cursor-pointer"
+          className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-400 hover:to-purple-500 text-slate-100 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25 transition active:scale-[0.98] cursor-pointer"
         >
           <Play size={16} />
-          <span>{isFirstTime ? 'Initiate Echo Protocol' : 'Resume Mission'}</span>
+          <span>{isFirstTime ? 'Initiate Shadow Protocol' : 'Resume Mission'}</span>
         </button>
       </div>
     </div>

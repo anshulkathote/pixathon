@@ -30,26 +30,26 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       {/* Main Brand Card */}
       <div className="relative z-10 w-full max-w-lg flex flex-col items-center text-center">
         {/* Animated Cyber Tag */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/70 border border-cyan-500/40 text-cyan-400 text-xs font-semibold tracking-widest uppercase mb-4 shadow-lg shadow-cyan-950/40 animate-pulse">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-950/70 border border-violet-500/40 text-violet-300 text-xs font-semibold tracking-widest uppercase mb-4 shadow-lg shadow-violet-950/40 animate-pulse">
           <Sparkles size={13} />
-          <span>Temporal Co-op Puzzle</span>
+          <span>Shadow Co-op Puzzle</span>
         </div>
 
         {/* Title */}
-        <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-purple-400 drop-shadow-sm">
-          ECHO MAZE
+        <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-200 to-purple-500 drop-shadow-sm">
+          SHADOW MAZE
         </h1>
 
         {/* Subtitle / Core Hook */}
         <p className="text-base sm:text-lg text-slate-300 font-medium mt-3 max-w-md">
           You are not playing alone.{' '}
-          <span className="text-cyan-400 font-semibold block sm:inline">
-            You are cooperating with yourself.
+          <span className="text-violet-300 font-semibold block sm:inline">
+            You are cooperating with your shadow.
           </span>
         </p>
 
         <p className="text-xs text-slate-400 mt-2 max-w-sm leading-relaxed">
-          Record your path. Rewind the loop. Your translucent echoes replay your past movements to hold plates, bypass laser doors, and unlock the nexus.
+          Record your path. Rewind the loop. Your translucent shadows replay your past movements to hold plates, bypass dark barriers, and unlock the sanctum.
         </p>
 
         {/* Hero Interactive Elements Preview */}
@@ -64,22 +64,22 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
           <span className="text-slate-600 font-bold">+</span>
 
-          {/* Echo 1 */}
+          {/* Shadow 1 */}
           <div className="flex flex-col items-center gap-1">
             <div className="w-9 h-9 rounded-full bg-purple-500/20 border-2 border-purple-400 flex items-center justify-center shadow-lg shadow-purple-500/30 opacity-75">
               <span className="text-xs font-bold text-purple-200">1</span>
             </div>
-            <span className="text-[11px] font-mono text-purple-300">Echo 1</span>
+            <span className="text-[11px] font-mono text-purple-300">Shadow 1</span>
           </div>
 
           <span className="text-slate-600 font-bold">+</span>
 
-          {/* Echo 2 */}
+          {/* Shadow 2 */}
           <div className="flex flex-col items-center gap-1">
             <div className="w-9 h-9 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/30 opacity-75">
               <span className="text-xs font-bold text-amber-200">2</span>
             </div>
-            <span className="text-[11px] font-mono text-amber-300">Echo 2</span>
+            <span className="text-[11px] font-mono text-amber-300">Shadow 2</span>
           </div>
         </div>
 

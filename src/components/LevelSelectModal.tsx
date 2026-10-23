@@ -25,16 +25,16 @@ export const LevelSelectModal: React.FC<LevelSelectModalProps> = ({
         </button>
 
         <div className="flex items-center gap-2 mb-1">
-          <Sparkles size={16} className="text-cyan-400" />
-          <span className="text-xs uppercase font-bold tracking-widest text-cyan-400">
-            Sector Matrix
+          <Sparkles size={16} className="text-violet-400" />
+          <span className="text-xs uppercase font-bold tracking-widest text-violet-400">
+            Shadow Matrix
           </span>
         </div>
         <h2 className="text-2xl font-black text-slate-100 tracking-tight">
-          Select Timeline Chamber
+          Select Shadow Chamber
         </h2>
         <p className="text-xs text-slate-400 mt-1 mb-5">
-          Pick a puzzle timeline to synchronize. Progress is saved automatically.
+          Pick a shadow chamber to infiltrate. Progress is saved automatically.
         </p>
 
         {/* Level List Grid */}
@@ -52,7 +52,7 @@ export const LevelSelectModal: React.FC<LevelSelectModalProps> = ({
                 }}
                 className={`flex flex-col text-left p-4 rounded-xl border transition-all cursor-pointer ${
                   isCurrent
-                    ? 'bg-cyan-950/50 border-cyan-500 shadow-md shadow-cyan-950/50'
+                    ? 'bg-violet-950/50 border-violet-500 shadow-md shadow-violet-950/50'
                     : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
                 }`}
               >
@@ -60,7 +60,7 @@ export const LevelSelectModal: React.FC<LevelSelectModalProps> = ({
                   <span
                     className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
                       isCurrent
-                        ? 'bg-cyan-500 text-slate-950'
+                        ? 'bg-violet-500 text-slate-100'
                         : 'bg-slate-800 text-slate-400'
                     }`}
                   >
@@ -81,7 +81,7 @@ export const LevelSelectModal: React.FC<LevelSelectModalProps> = ({
 
                 <div className="flex items-center gap-2 mt-3 text-[11px] text-slate-500">
                   <span className="px-1.5 py-0.5 bg-slate-900 rounded border border-slate-800">
-                    Max Echoes: {lvl.maxGhosts}
+                    Max Shadows: {lvl.maxGhosts}
                   </span>
                   <span className="px-1.5 py-0.5 bg-slate-900 rounded border border-slate-800">
                     Steps: {lvl.maxSteps}

@@ -163,7 +163,7 @@ export const HUD: React.FC<HUDProps> = ({
 
         {/* Current Loop / Timeline Card */}
         <div className="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <span className="text-xs text-slate-400 font-medium">Timeline / Loop</span>
+          <span className="text-xs text-slate-400 font-medium">Shadow Loop</span>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-black text-purple-400 tracking-tight">
               {state.currentLoop}
@@ -283,7 +283,7 @@ export const HUD: React.FC<HUDProps> = ({
           <div className="flex items-center gap-2 text-slate-400 font-medium">
             <Radio size={14} className="text-purple-400 animate-pulse" />
             <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
-              Echo Timelines:
+              Shadow Timelines:
             </span>
           </div>
 
@@ -304,7 +304,7 @@ export const HUD: React.FC<HUDProps> = ({
                     style={{ backgroundColor: ghost.color }}
                   />
                   <span className="font-bold" style={{ color: ghost.color }}>
-                    Echo {ghost.id}
+                    Shadow {ghost.id}
                   </span>
                   <span className="text-slate-500">|</span>
                   <span className="text-slate-300 font-mono text-[11px]">
