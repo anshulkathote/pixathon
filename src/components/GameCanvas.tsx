@@ -49,9 +49,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
   // Event trackers for audio triggers
   const prevPlatesRef = useRef<string[]>([]);
-  const prevReceiversRef = useRef<string[]>([]);
   const prevKeysRef = useRef<boolean>(false);
-  const prevSyncRef = useRef<boolean>(false);
 
   const level: LevelDef = getLevelDef(state.levelIndex);
 
@@ -90,10 +88,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   }, [isRewinding]);
 
-  // Spawn particles and audio on plate/receiver/key/sync events
+  // Spawn particles and audio on plate and key events
   useEffect(() => {
     const currentActivePlates = state.plates.filter((p) => p.isPressed).map((p) => p.id);
-    const currentActiveReceivers = state.receivers.filter((r) => r.isActive).map((r) => r.id);
 
     // Newly activated plates
     for (const plate of state.plates) {
@@ -118,36 +115,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
     }
     prevPlatesRef.current = currentActivePlates;
-
-    // Newly activated receivers
-    for (const receiver of state.receivers) {
-      const wasActive = prevReceiversRef.current.includes(receiver.id);
-      const isActive = currentActiveReceivers.includes(receiver.id);
-      if (!wasActive && isActive) {
-        sound.playReceiver(true);
-        for (let i = 0; i < 24; i++) {
-          const angle = Math.random() * Math.PI * 2;
-          const speed = 1 + Math.random() * 3;
-          particlesRef.current.push({
-            x: receiver.x,
-            y: receiver.y,
-            vx: Math.cos(angle) * speed * 0.05,
-            vy: Math.sin(angle) * speed * 0.05 - 0.04, // slight upward float
-            color: receiver.color,
-            size: 2.5 + Math.random() * 2.5,
-            alpha: 1,
-            decay: 0.025,
-          });
-        }
-      }
-    }
-    prevReceiversRef.current = currentActiveReceivers;
-
-    // Synchronization achieved
-    if (!prevSyncRef.current && state.isSynchronized) {
-      sound.playSyncSuccess();
-    }
-    prevSyncRef.current = state.isSynchronized;
 
     // Key collected check
     const hasKey = state.keys.some((k) => k.isCollected);
@@ -256,72 +223,49 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         }
       }
 
-      // Helper function to get center coordinate of an item by id
-      const getTriggerCoord = (trigId: string): { x: number; y: number; color: string } | null => {
-        const plate = state.plates.find((p) => p.id === trigId);
-        if (plate) {
-          return {
-            x: offsetX + plate.x * cellSize + cellSize / 2,
-            y: offsetY + plate.y * cellSize + cellSize / 2,
-            color: plate.color,
-          };
-        }
-        const recv = state.receivers.find((r) => r.id === trigId);
-        if (recv) {
-          return {
-            x: offsetX + recv.x * cellSize + cellSize / 2,
-            y: offsetY + recv.y * cellSize + cellSize / 2,
-            color: recv.color,
-          };
-        }
-        return null;
-      };
-
-      // 2. Draw Circuit Lines connecting Plates and Receivers to their Doors
+      // 2. Draw Circuit Lines connecting Plates to their Energy Doors
       for (const door of state.doors) {
-        const triggers = door.linkedTriggerIds || (door.linkedPlateId ? [door.linkedPlateId] : []);
+        if (!door.linkedPlateId) continue; // only pressure-plate doors get circuit lines
+        const plate = state.plates.find((p) => p.id === door.linkedPlateId);
+        if (!plate) continue;
+
+        const tx = offsetX + plate.x * cellSize + cellSize / 2;
+        const ty = offsetY + plate.y * cellSize + cellSize / 2;
         const dx = offsetX + door.x * cellSize + cellSize / 2;
         const dy = offsetY + door.y * cellSize + cellSize / 2;
 
-        for (const trigId of triggers) {
-          const trig = getTriggerCoord(trigId);
-          if (trig) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(trig.x, trig.y);
-            const midX = trig.x;
-            const midY = dy;
-            ctx.lineTo(midX, midY);
-            ctx.lineTo(dx, dy);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(tx, ty);
+        ctx.lineTo(tx, dy);
+        ctx.lineTo(dx, dy);
 
-            if (door.isOpen) {
-              // Active glowing neon circuit
-              ctx.strokeStyle = door.color;
-              ctx.lineWidth = 2.5;
-              ctx.shadowColor = door.color;
-              ctx.shadowBlur = 8;
-              ctx.stroke();
+        if (door.isOpen) {
+          // Active glowing neon circuit
+          ctx.strokeStyle = door.color;
+          ctx.lineWidth = 2.5;
+          ctx.shadowColor = door.color;
+          ctx.shadowBlur = 8;
+          ctx.stroke();
 
-              // Flowing energy pulse
-              const pulsePhase = (now * 0.003) % 1;
-              const pulseX = trig.x + (dx - trig.x) * pulsePhase;
-              const pulseY = trig.y + (dy - trig.y) * pulsePhase;
-              ctx.fillStyle = '#ffffff';
-              ctx.shadowColor = '#ffffff';
-              ctx.shadowBlur = 10;
-              ctx.beginPath();
-              ctx.arc(pulseX, pulseY, 2.5, 0, Math.PI * 2);
-              ctx.fill();
-            } else {
-              // Dormant circuit wire
-              ctx.strokeStyle = 'rgba(100, 116, 139, 0.3)';
-              ctx.lineWidth = 1.5;
-              ctx.setLineDash([4, 4]);
-              ctx.stroke();
-            }
-            ctx.restore();
-          }
+          // Flowing energy pulse
+          const pulsePhase = (now * 0.003) % 1;
+          const pulseX = tx + (dx - tx) * pulsePhase;
+          const pulseY = ty + (dy - ty) * pulsePhase;
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.arc(pulseX, pulseY, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Dormant circuit wire
+          ctx.strokeStyle = 'rgba(100, 116, 139, 0.3)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
         }
+        ctx.restore();
       }
 
       // 3. Draw Pressure Plates (Mechanical, for Player OR Ghost)
@@ -372,72 +316,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
       }
 
-      // 4. Draw Echo Receivers (Ethereal Octagon/Diamond, REACTS ONLY TO GHOSTS)
-      for (const receiver of state.receivers) {
-        const rcx = offsetX + receiver.x * cellSize + cellSize / 2;
-        const rcy = offsetY + receiver.y * cellSize + cellSize / 2;
-        const radius = cellSize * 0.38;
-
-        ctx.save();
-        if (receiver.isActive) {
-          // ACTIVE SPECTRAL STATE (occupied by ghost)
-          ctx.shadowColor = receiver.color;
-          ctx.shadowBlur = 16;
-
-          // Outer rotating ethereal ring
-          ctx.save();
-          ctx.translate(rcx, rcy);
-          ctx.rotate(now * 0.002);
-          ctx.strokeStyle = receiver.color;
-          ctx.lineWidth = 2.5;
-          ctx.setLineDash([6, 3]);
-          ctx.beginPath();
-          ctx.arc(0, 0, radius, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.restore();
-
-          // Inner pulsing diamond
-          ctx.fillStyle = receiver.color;
-          ctx.globalAlpha = 0.45 + Math.sin(now * 0.006) * 0.2;
-          ctx.beginPath();
-          ctx.moveTo(rcx, rcy - radius * 0.7);
-          ctx.lineTo(rcx + radius * 0.7, rcy);
-          ctx.lineTo(rcx, rcy + radius * 0.7);
-          ctx.lineTo(rcx - radius * 0.7, rcy);
-          ctx.closePath();
-          ctx.fill();
-
-          // Center ghost resonance rune
-          ctx.globalAlpha = 1;
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(rcx, rcy, radius * 0.25, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          // DORMANT SPECTRAL STATE
-          ctx.strokeStyle = receiver.color;
-          ctx.globalAlpha = 0.5;
-          ctx.lineWidth = 1.5;
-
-          // Diamond pad outline
-          ctx.beginPath();
-          ctx.moveTo(rcx, rcy - radius * 0.6);
-          ctx.lineTo(rcx + radius * 0.6, rcy);
-          ctx.lineTo(rcx, rcy + radius * 0.6);
-          ctx.lineTo(rcx - radius * 0.6, rcy);
-          ctx.closePath();
-          ctx.stroke();
-
-          // Center receiver receptor node
-          ctx.fillStyle = 'rgba(192, 132, 252, 0.3)';
-          ctx.beginPath();
-          ctx.arc(rcx, rcy, radius * 0.2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
-      }
-
-      // 5. Draw Optional Recorded-Path Preview
+      // 4. Draw Optional Recorded-Path Preview
       if (showPathPreview && state.ghosts.length > 0) {
         state.ghosts.forEach((ghost) => {
           if (ghost.path.length <= 1) return;

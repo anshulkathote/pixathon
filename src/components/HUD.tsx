@@ -12,7 +12,6 @@ import {
   EyeOff,
   Key,
   Radio,
-  Sparkles,
   Anchor,
   Play,
 } from 'lucide-react';
@@ -51,16 +50,13 @@ export const HUD: React.FC<HUDProps> = ({
 
   // Determine dynamic objective string
   let objectiveText = '';
-  if (state.exit.requiresKey && !state.exit.isUnlocked) {
-    objectiveText = 'Retrieve Key to unlock Exit Portal';
-  } else if (state.isSynchronized) {
-    objectiveText = '⚡ Mechanisms Synchronized! Pass the gate!';
+  const hasUncollectedKey = state.keys.some((k) => !k.isCollected);
+  if (hasUncollectedKey) {
+    objectiveText = 'Retrieve the Key to unlock the security door';
   } else if (state.doors.some((d) => !d.isOpen)) {
-    if (state.doors.some((d) => d.linkedTriggerIds && d.linkedTriggerIds.length > 1)) {
-      objectiveText = 'Synchronize multiple mechanisms simultaneously to open gate';
-    } else {
-      objectiveText = 'Activate Pressure Plates / Receivers to open Doors';
-    }
+    objectiveText = 'Coordinate with your ghost on pressure plates to open gates';
+  } else if (state.exit.requiresKey && !state.exit.isUnlocked) {
+    objectiveText = 'Use your collected key to open the Exit';
   } else {
     objectiveText = 'The path is clear — reach the Exit portal!';
   }
@@ -90,18 +86,8 @@ export const HUD: React.FC<HUDProps> = ({
         </div>
 
         {/* Dynamic Objective Banner */}
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs max-w-md border transition-all ${
-            state.isSynchronized
-              ? 'bg-purple-950/80 border-purple-500/80 text-purple-200 shadow-md shadow-purple-950/40 animate-pulse'
-              : 'bg-slate-950/70 border-slate-800/80 text-slate-300'
-          }`}
-        >
-          {state.isSynchronized ? (
-            <Sparkles size={14} className="text-purple-400 shrink-0" />
-          ) : (
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
-          )}
+        <div className="flex items-center gap-2 bg-slate-950/70 border border-slate-800/80 px-3 py-1.5 rounded-lg text-xs max-w-md text-slate-300">
+          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
           <span className="font-medium truncate">{objectiveText}</span>
         </div>
 

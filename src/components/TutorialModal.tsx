@@ -78,15 +78,19 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ onClose, isFirstTi
             </div>
           </div>
 
-          {/* Card 4: Echo Receivers & Synchronization */}
+          {/* Card 4: Plan Ahead */}
           <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-start gap-3">
             <div className="w-8 h-8 rounded-lg bg-indigo-950 border border-indigo-500/60 flex items-center justify-center text-indigo-300 shrink-0 mt-0.5">
               <Sparkles size={16} />
             </div>
             <div>
-              <span className="font-bold text-slate-200 text-sm block">4. Echo Receivers & Simultaneous Sync</span>
+              <span className="font-bold text-slate-200 text-sm block">4. Plan Ahead</span>
               <p className="text-slate-400 mt-0.5 leading-relaxed">
-                <strong className="text-purple-300">Echo Receivers</strong> react <span className="underline">only</span> to ghosts! Advanced sync doors require multiple mechanisms to be held at the exact same moment. Toggle <kbd className="px-1 py-0.5 bg-slate-800 rounded text-cyan-300 font-mono text-[10px]">P</kbd> to preview echo trajectories.
+                You have a limited number of steps <strong className="text-cyan-300">and</strong> loops. Think before you move! Toggle{' '}
+                <kbd className="px-1 py-0.5 bg-slate-800 rounded text-cyan-300 font-mono text-[10px]">P</kbd>{' '}
+                to preview a ghost's recorded path, and use{' '}
+                <kbd className="px-1 py-0.5 bg-slate-800 rounded text-slate-300 font-mono text-[10px]">Z</kbd>{' '}
+                to undo your last move.
               </p>
             </div>
           </div>

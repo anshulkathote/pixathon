@@ -6,7 +6,6 @@ import type {
   StepRecord,
   Ghost,
   Door,
-  EchoReceiver,
 } from '../types/game';
 import { LEVELS } from './levels';
 
@@ -29,9 +28,6 @@ export function createInitialState(levelIndex: number): GameState {
   const playerPos = { ...level.playerStart };
   const keys = level.keys ? level.keys.map((k) => ({ ...k, isCollected: false })) : [];
   const plates = level.plates.map((p) => ({ ...p, isPressed: false }));
-  const receivers: EchoReceiver[] = level.receivers
-    ? level.receivers.map((r) => ({ ...r, isActive: false }))
-    : [];
   const doors = level.doors.map((d) => ({ ...d, isOpen: false }));
   const exit = {
     ...level.exit,
@@ -50,12 +46,10 @@ export function createInitialState(levelIndex: number): GameState {
     keys,
     doors,
     plates,
-    receivers,
     exit,
     stepHistory: [],
     isWon: false,
     isGameOver: false,
-    isSynchronized: false,
     gameStatus: 'PLAYING',
   };
 
@@ -79,11 +73,7 @@ function createStepRecord(state: GameState): StepRecord {
     activePlates: state.plates
       .filter((p) => isPlatePressed(p.x, p.y, state.playerPos, state.ghosts, state.currentStep))
       .map((p) => p.id),
-    activeReceivers: state.receivers
-      .filter((r) => isReceiverActive(r.x, r.y, state.ghosts, state.currentStep))
-      .map((r) => r.id),
     openDoors: state.doors.filter((d) => d.isOpen).map((d) => d.id),
-    isSynchronized: state.isSynchronized,
   };
 }
 
@@ -107,64 +97,6 @@ export function isPlatePressed(
   return false;
 }
 
-/**
- * Echo Receivers respond ONLY to ghosts.
- * Even if the player is standing on it, it does not activate.
- */
-export function isReceiverActive(
-  receiverX: number,
-  receiverY: number,
-  ghosts: Ghost[],
-  currentStep: number
-): boolean {
-  for (const ghost of ghosts) {
-    const idx = Math.min(currentStep, ghost.path.length - 1);
-    const gPos = ghost.path[idx];
-    if (gPos && gPos.x === receiverX && gPos.y === receiverY) {
-      return true;
-    }
-  }
-  return false;
-}
-
-export function isTriggerActiveAtStep(
-  triggerId: string,
-  state: GameState,
-  hypotheticalPlayerPos: Position,
-  targetStep: number
-): boolean {
-  // Check if it's a pressure plate
-  const plate = state.plates.find((p) => p.id === triggerId);
-  if (plate) {
-    if (hypotheticalPlayerPos.x === plate.x && hypotheticalPlayerPos.y === plate.y) {
-      return true;
-    }
-    for (const ghost of state.ghosts) {
-      const idx = Math.min(targetStep, ghost.path.length - 1);
-      const gPos = ghost.path[idx];
-      if (gPos && gPos.x === plate.x && gPos.y === plate.y) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // Check if it's an Echo Receiver (Ghost only!)
-  const receiver = state.receivers.find((r) => r.id === triggerId);
-  if (receiver) {
-    for (const ghost of state.ghosts) {
-      const idx = Math.min(targetStep, ghost.path.length - 1);
-      const gPos = ghost.path[idx];
-      if (gPos && gPos.x === receiver.x && gPos.y === receiver.y) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  return false;
-}
-
 export function isDoorOpenAtStep(
   door: Door,
   state: GameState,
@@ -173,32 +105,33 @@ export function isDoorOpenAtStep(
 ): boolean {
   // 1. Locked Door requiring Key
   if (door.requiredKeyId || door.isLockedDoor) {
-    const reqKey = state.keys.find((k) => k.id === (door.requiredKeyId || 'key-1'));
+    const keyId = door.requiredKeyId || 'key-1';
+    const reqKey = state.keys.find((k) => k.id === keyId);
     if (reqKey && (reqKey.isCollected || isPosEqual(reqKey, targetPos))) {
       return true;
     }
     return false;
   }
 
-  // 2. Multi-trigger synchronization door
-  if (door.linkedTriggerIds && door.linkedTriggerIds.length > 0) {
-    const syncCond = door.syncCondition || 'ALL';
-    if (syncCond === 'ALL') {
-      // ALL triggers must be active simultaneously
-      return door.linkedTriggerIds.every((trigId) =>
-        isTriggerActiveAtStep(trigId, state, targetPos, targetStep)
-      );
-    } else {
-      // ANY trigger satisfies condition
-      return door.linkedTriggerIds.some((trigId) =>
-        isTriggerActiveAtStep(trigId, state, targetPos, targetStep)
-      );
-    }
-  }
-
-  // 3. Single plate link (standard)
+  // 2. Pressure-plate Door
   if (door.linkedPlateId) {
-    return isTriggerActiveAtStep(door.linkedPlateId, state, targetPos, targetStep);
+    const plate = state.plates.find((p) => p.id === door.linkedPlateId);
+    if (!plate) return false;
+
+    // Is player landing on plate at targetStep?
+    if (targetPos.x === plate.x && targetPos.y === plate.y) {
+      return true;
+    }
+
+    // Is any ghost on plate at targetStep?
+    for (const ghost of state.ghosts) {
+      const idx = Math.min(targetStep, ghost.path.length - 1);
+      const gPos = ghost.path[idx];
+      if (gPos && gPos.x === plate.x && gPos.y === plate.y) {
+        return true;
+      }
+    }
+    return false;
   }
 
   return false;
@@ -216,29 +149,12 @@ export function updateMechanisms(state: GameState): void {
     );
   }
 
-  // 2. Update Echo Receivers (ghosts only!)
-  for (const receiver of state.receivers) {
-    receiver.isActive = isReceiverActive(
-      receiver.x,
-      receiver.y,
-      state.ghosts,
-      state.currentStep
-    );
-  }
-
-  // 3. Update Doors
-  let anySyncActive = false;
+  // 2. Update Doors
   for (const door of state.doors) {
     door.isOpen = isDoorOpenAtStep(door, state, state.playerPos, state.currentStep);
-
-    // Track synchronization success
-    if (door.linkedTriggerIds && door.linkedTriggerIds.length > 1 && door.isOpen) {
-      anySyncActive = true;
-    }
   }
-  state.isSynchronized = anySyncActive;
 
-  // 4. Update Exit Unlock Status
+  // 3. Update Exit Unlock Status
   if (state.exit.requiresKey) {
     state.exit.isUnlocked = state.keys.length > 0 && state.keys.every((k) => k.isCollected);
   } else {
@@ -292,7 +208,7 @@ export function canMove(state: GameState, dir: Direction): boolean {
     }
   }
 
-  // Exit collision check
+  // Exit collision check: if requires key and key not collected, exit is locked
   if (
     state.exit.x === targetX &&
     state.exit.y === targetY &&
@@ -328,7 +244,6 @@ export function applyMove(state: GameState, dir: Direction): { nextState: GameSt
     keys: state.keys.map((k) => ({ ...k })),
     doors: state.doors.map((d) => ({ ...d })),
     plates: state.plates.map((p) => ({ ...p })),
-    receivers: state.receivers.map((r) => ({ ...r })),
     exit: { ...state.exit },
     stepHistory: [...state.stepHistory],
   };
@@ -364,7 +279,7 @@ export function applyMove(state: GameState, dir: Direction): { nextState: GameSt
     }
   }
 
-  // Update mechanisms (plates, receivers, doors, exit, synchronization)
+  // Update mechanisms (plates, doors, exit)
   updateMechanisms(next);
 
   // Check victory
@@ -407,11 +322,9 @@ export function undoMove(state: GameState): GameState {
     keys: state.keys.map((k) => ({ ...k })),
     doors: state.doors.map((d) => ({ ...d })),
     plates: state.plates.map((p) => ({ ...p })),
-    receivers: state.receivers.map((r) => ({ ...r })),
     exit: { ...state.exit },
     isWon: false,
     isGameOver: false,
-    isSynchronized: false,
     gameStatus: 'PLAYING',
   };
 
@@ -456,12 +369,10 @@ export function endLoop(state: GameState): GameState {
     keys: level.keys ? level.keys.map((k) => ({ ...k, isCollected: false })) : [],
     doors: level.doors.map((d) => ({ ...d, isOpen: false })),
     plates: level.plates.map((p) => ({ ...p, isPressed: false })),
-    receivers: level.receivers ? level.receivers.map((r) => ({ ...r, isActive: false })) : [],
     exit: { ...level.exit, isUnlocked: !level.exit.requiresKey },
     stepHistory: [],
     isWon: false,
     isGameOver: false,
-    isSynchronized: false,
     gameStatus: 'PLAYING',
   };
 
@@ -492,12 +403,10 @@ export function retryLoop(state: GameState): GameState {
     keys: level.keys ? level.keys.map((k) => ({ ...k, isCollected: false })) : [],
     doors: level.doors.map((d) => ({ ...d, isOpen: false })),
     plates: level.plates.map((p) => ({ ...p, isPressed: false })),
-    receivers: level.receivers ? level.receivers.map((r) => ({ ...r, isActive: false })) : [],
     exit: { ...level.exit, isUnlocked: !level.exit.requiresKey },
     stepHistory: [],
     isWon: false,
     isGameOver: false,
-    isSynchronized: false,
     gameStatus: 'PLAYING',
   };
 

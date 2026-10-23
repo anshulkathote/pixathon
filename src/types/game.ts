@@ -11,18 +11,9 @@ export interface PressurePlate {
   id: string;
   x: number;
   y: number;
-  color: string; // e.g. '#00f2fe' (cyan), '#ec4899' (pink), '#eab308' (amber)
+  color: string; // e.g. '#00f2fe' (cyan), '#f59e0b' (amber), '#10b981' (emerald)
   name: string;
   isPressed?: boolean;
-}
-
-export interface EchoReceiver {
-  id: string;
-  x: number;
-  y: number;
-  color: string; // e.g. '#c084fc' (violet)
-  name: string;
-  isActive?: boolean;
 }
 
 export interface Door {
@@ -31,10 +22,8 @@ export interface Door {
   y: number;
   color: string;
   isOpen: boolean;
-  linkedPlateId?: string;
-  linkedTriggerIds?: string[]; // for multi-mechanism synchronization
-  syncCondition?: 'ALL' | 'ANY'; // 'ALL' = all triggers must be active simultaneously
-  requiredKeyId?: string; // if this door is locked and requires a key
+  linkedPlateId?: string; // If controlled by a pressure plate
+  requiredKeyId?: string; // If locked by a key
   isLockedDoor?: boolean;
 }
 
@@ -42,8 +31,8 @@ export interface KeyItem {
   id: string;
   x: number;
   y: number;
-  name?: string;
-  color?: string; // e.g. '#facc15'
+  name: string;
+  color?: string; // e.g. '#facc15' (gold)
   isCollected: boolean;
 }
 
@@ -81,19 +70,10 @@ export interface LevelDef {
     y: number;
     color: string;
     linkedPlateId?: string;
-    linkedTriggerIds?: string[];
-    syncCondition?: 'ALL' | 'ANY';
     requiredKeyId?: string;
     isLockedDoor?: boolean;
   }>;
   keys?: KeyItem[];
-  receivers?: Array<{
-    id: string;
-    x: number;
-    y: number;
-    color: string;
-    name: string;
-  }>;
 }
 
 export interface StepRecord {
@@ -101,28 +81,24 @@ export interface StepRecord {
   ghostPositions: Position[];
   keyCollected: boolean;
   activePlates: string[];
-  activeReceivers: string[];
   openDoors: string[];
-  isSynchronized?: boolean;
 }
 
 export interface GameState {
   levelIndex: number;
   currentLoop: number;
-  maxLoops: number; // e.g. maxGhosts + 1
+  maxLoops: number;
   currentStep: number;
   maxSteps: number;
   playerPos: Position;
-  playerHistory: Position[]; // history of positions in current loop
+  playerHistory: Position[];
   ghosts: Ghost[];
   keys: KeyItem[];
   doors: Door[];
   plates: PressurePlate[];
-  receivers: EchoReceiver[];
   exit: ExitPortal;
-  stepHistory: StepRecord[]; // for undo support
+  stepHistory: StepRecord[];
   isWon: boolean;
   isGameOver: boolean;
-  isSynchronized: boolean; // true if any multi-trigger door condition is satisfied
   gameStatus: 'PLAYING' | 'WON' | 'FAILED_STEPS' | 'FAILED_LOOPS' | 'PAUSED';
 }
