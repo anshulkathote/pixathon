@@ -29,6 +29,7 @@ interface TrailPoint {
 }
 
 type Direction8 = 'south' | 'south-east' | 'east' | 'north-east' | 'north' | 'north-west' | 'west' | 'south-west';
+type CardinalDir = 'south' | 'east' | 'north' | 'west';
 
 const DIRECTIONS: Direction8[] = [
   'south',
@@ -40,6 +41,15 @@ const DIRECTIONS: Direction8[] = [
   'west',
   'south-west',
 ];
+
+const CARDINAL_DIRS: CardinalDir[] = ['south', 'east', 'north', 'west'];
+
+function toCardinalDir(dir: Direction8): CardinalDir {
+  if (dir === 'south' || dir === 'south-east' || dir === 'south-west') return 'south';
+  if (dir === 'north' || dir === 'north-east' || dir === 'north-west') return 'north';
+  if (dir === 'east') return 'east';
+  return 'west';
+}
 
 function getDirection8(dx: number, dy: number, fallback: Direction8 = 'south'): Direction8 {
   if (dx === 0 && dy === 0) return fallback;
@@ -76,6 +86,18 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Asset image caches
   const playerSprites = useRef<Record<Direction8, HTMLImageElement>>({} as Record<Direction8, HTMLImageElement>);
   const ghostSprites = useRef<Record<Direction8, HTMLImageElement>>({} as Record<Direction8, HTMLImageElement>);
+  const playerWalkFrames = useRef<Record<CardinalDir, HTMLImageElement[]>>({
+    south: [],
+    east: [],
+    north: [],
+    west: [],
+  });
+  const ghostWalkFrames = useRef<Record<CardinalDir, HTMLImageElement[]>>({
+    south: [],
+    east: [],
+    north: [],
+    west: [],
+  });
   const tileImages = useRef<Record<string, HTMLImageElement>>({});
   const [, setAssetsLoaded] = useState<boolean>(false);
 
@@ -84,10 +106,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const prevPlayerCoord = useRef<Position>({ ...state.playerPos });
   const ghostDirections = useRef<Direction8[]>([]);
 
-  // Preload all sprites and tiles once
+  // Preload all sprites, animations, and tiles once
   useEffect(() => {
     let loadedCount = 0;
-    const totalExpected = DIRECTIONS.length * 2 + 10;
+    // 8 rotations * 2 (player + ghost) + 4 dirs * 8 walk frames * 2 (player + ghost) + 10 tiles = 16 + 64 + 10 = 90
+    const totalExpected = DIRECTIONS.length * 2 + CARDINAL_DIRS.length * 8 * 2 + 10;
     const checkDone = () => {
       loadedCount++;
       if (loadedCount >= totalExpected) {
@@ -95,6 +118,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
     };
 
+    // 1. Preload 8-directional idle rotation sprites
     DIRECTIONS.forEach((dir) => {
       const pImg = new Image();
       pImg.src = `/sprites/player/${dir}.png`;
@@ -109,6 +133,29 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ghostSprites.current[dir] = gImg;
     });
 
+    // 2. Preload 8-frame walk cycles for all 4 cardinal directions (south, east, north, west)
+    CARDINAL_DIRS.forEach((dir) => {
+      playerWalkFrames.current[dir] = [];
+      ghostWalkFrames.current[dir] = [];
+
+      for (let f = 0; f < 8; f++) {
+        const frameStr = String(f).padStart(3, '0');
+
+        const pWalkImg = new Image();
+        pWalkImg.src = `/sprites/player/walk/${dir}/frame_${frameStr}.png`;
+        pWalkImg.onload = checkDone;
+        pWalkImg.onerror = checkDone;
+        playerWalkFrames.current[dir][f] = pWalkImg;
+
+        const gWalkImg = new Image();
+        gWalkImg.src = `/sprites/ghost/walk/${dir}/frame_${frameStr}.png`;
+        gWalkImg.onload = checkDone;
+        gWalkImg.onerror = checkDone;
+        ghostWalkFrames.current[dir][f] = gWalkImg;
+      }
+    });
+
+    // 3. Preload environment tiles
     const tiles = [
       'floor_plain',
       'floor_ornate',
@@ -763,7 +810,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
       }
 
-      // 13. Draw Ghosts (Translucent with distinct color & number badge, using 8-directional sprite)
+      // 13. Draw Ghosts (Translucent with distinct color & number badge, using animated walk frames or directional idle)
       state.ghosts.forEach((ghost, gIdx) => {
         const gPos = animGhostPos.current[gIdx] || { x: 0, y: 0 };
         const gx = offsetX + gPos.x * cellSize + cellSize / 2;
@@ -772,7 +819,26 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.save();
         const ghostFloat = Math.sin(now * 0.005 + gIdx * 2) * 3;
         const gDir = ghostDirections.current[gIdx] || 'south';
-        const sprite = ghostSprites.current[gDir];
+
+        // Check if ghost is currently moving (lerping towards target coordinate)
+        const targetIdx = Math.min(state.currentStep, ghost.path.length - 1);
+        const targetPos = ghost.path[targetIdx] || { x: 0, y: 0 };
+        const isGhostMoving = Math.hypot(targetPos.x - gPos.x, targetPos.y - gPos.y) > 0.04;
+
+        let sprite: HTMLImageElement | undefined;
+        if (isGhostMoving) {
+          const cardinal = toCardinalDir(gDir);
+          const walkFrames = ghostWalkFrames.current[cardinal];
+          if (walkFrames && walkFrames.length > 0) {
+            const frameIndex = Math.floor((now / 100) % walkFrames.length);
+            sprite = walkFrames[frameIndex];
+          }
+        }
+
+        // Fallback to directional idle sprite if stationary or frame not ready
+        if (!sprite || !sprite.complete || sprite.naturalWidth === 0) {
+          sprite = ghostSprites.current[gDir];
+        }
 
         // Spectral aura glow
         ctx.shadowColor = ghost.color;
@@ -836,13 +902,29 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
       });
 
-      // 14. Draw Current Player (8-Directional Pixel-Art Sprite with Cyan Glow Aura)
+      // 14. Draw Current Player (8-Directional Pixel-Art Sprite with Cyan Glow Aura & Walking Animations)
       const px = offsetX + animPlayerPos.current.x * cellSize + cellSize / 2;
       const py = offsetY + animPlayerPos.current.y * cellSize + cellSize / 2;
 
       ctx.save();
       const pDir = playerDirection.current || 'south';
-      const pSprite = playerSprites.current[pDir];
+      const isPlayerMoving = Math.hypot(state.playerPos.x - animPlayerPos.current.x, state.playerPos.y - animPlayerPos.current.y) > 0.04;
+
+      let pSprite: HTMLImageElement | undefined;
+      if (isPlayerMoving) {
+        const cardinal = toCardinalDir(pDir);
+        const walkFrames = playerWalkFrames.current[cardinal];
+        if (walkFrames && walkFrames.length > 0) {
+          const frameIndex = Math.floor((now / 100) % walkFrames.length);
+          pSprite = walkFrames[frameIndex];
+        }
+      }
+
+      // Fallback to directional idle sprite if stationary or frame not ready
+      if (!pSprite || !pSprite.complete || pSprite.naturalWidth === 0) {
+        pSprite = playerSprites.current[pDir];
+      }
+
       const pSize = Math.floor(cellSize * 0.88);
 
       // Cyan pulse aura beneath player feet
@@ -855,7 +937,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.stroke();
 
       if (pSprite && pSprite.complete && pSprite.naturalWidth > 0) {
-        // Draw 8-directional pixel-art explorer sprite
+        // Draw pixel-art explorer sprite (animated walk or directional idle)
         ctx.drawImage(
           pSprite,
           px - pSize / 2,
