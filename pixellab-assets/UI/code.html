@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECHO MAZE — Modern Pixel UI Kit</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080b14;
+      --navy-900: #0d1322;
+      --navy-800: #141c30;
+      --navy-700: #1c2642;
+      --navy-600: #29385c;
+      --cyan-bright: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.35);
+      --violet-bright: #bd52ff;
+      --violet-glow: rgba(189, 82, 255, 0.35);
+      --gold-bright: #ffd15c;
+      --gold-glow: rgba(255, 209, 92, 0.35);
+      --border-outer: #03060c;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: #e2e8f0;
+      font-family: 'Space Grotesk', sans-serif;
+      image-rendering: pixelated;
+    }
+
+    .font-pixel {
+      font-family: 'Press Start 2P', monospace;
+      letter-spacing: -0.05em;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Pixel art border utility: authentic stepped 2px / 4px pixel edges */
+    .pixel-box-primary {
+      position: relative;
+      background: var(--navy-800);
+      box-shadow: 
+        0 4px 0 0 var(--border-outer),
+        0 -4px 0 0 var(--border-outer),
+        4px 0 0 0 var(--border-outer),
+        -4px 0 0 0 var(--border-outer),
+        inset 0 2px 0 0 #3b4e7a,
+        inset 0 -3px 0 0 #090d18,
+        0 0 16px var(--cyan-glow);
+    }
+
+    .pixel-box-cyan {
+      background: #00d2e0;
+      box-shadow: 
+        0 4px 0 0 var(--border-outer),
+        0 -4px 0 0 var(--border-outer),
+        4px 0 0 0 var(--border-outer),
+        -4px 0 0 0 var(--border-outer),
+        inset 0 4px 0 0 #a5f8ff,
+        inset 0 -4px 0 0 #008794,
+        0 4px 0 0 rgba(0, 0, 0, 0.5),
+        0 0 18px rgba(0, 240, 255, 0.5);
+    }
+    .pixel-box-cyan:hover {
+      background: #1affff;
+      transform: translateY(-2px);
+      box-shadow: 
+        0 4px 0 0 var(--border-outer),
+        0 -4px 0 0 var(--border-outer),
+        4px 0 0 0 var(--border-outer),
+        -4px 0 0 0 var(--border-outer),
+        inset 0 4px 0 0 #d9fcff,
+        inset 0 -4px 0 0 #009eab,
+        0 6px 0 0 rgba(0, 0, 0, 0.6),
+        0 0 24px rgba(0, 240, 255, 0.8);
+    }
+    .pixel-box-cyan:active, .pixel-box-cyan.is-pressed {
+      background: #00a4b0;
+      transform: translateY(2px);
+      box-shadow: 
+        0 2px 0 0 var(--border-outer),
+        0 -2px 0 0 var(--border-outer),
+        2px 0 0 0 var(--border-outer),
+        -2px 0 0 0 var(--border-outer),
+        inset 0 3px 0 0 #006870,
+        inset 0 -3px 0 0 #3ee7f2;
+    }
+
+    .pixel-box-secondary {
+      background: #18223c;
+      box-shadow: 
+        0 4px 0 0 var(--border-outer),
+        0 -4px 0 0 var(--border-outer),
+        4px 0 0 0 var(--border-outer),
+        -4px 0 0 0 var(--border-outer),
+        inset 0 3px 0 0 #364872,
+        inset 0 -4px 0 0 #0a0f1c,
+        0 4px 0 0 rgba(0, 0, 0, 0.4);
+    }
+    .pixel-box-secondary:hover {
+      background: #202d4f;
+      transform: translateY(-2px);
+      box-shadow: 
+        0 4px 0 0 var(--border-outer),
+        0 -4px 0 0 var(--border-outer),
+        4px 0 0 0 var(--border-outer),
+        -4px 0 0 0 var(--border-outer),
+        inset 0 3px 0 0 #00f0ff,
+        inset 0 -4px 0 0 #0c1324,
+        0 6px 0 0 rgba(0, 0, 0, 0.5),
+        0 0 16px rgba(0, 240, 255, 0.35);
+    }
+    .pixel-box-secondary:active, .pixel-box-secondary.is-pressed {
+      background: #11182c;
+      transform: translateY(2px);
+      box-shadow: 
+        0 2px 0 0 var(--border-outer),
+        0 -2px 0 0 var(--border-outer),
+        2px 0 0 0 var(--border-outer),
+        -2px 0 0 0 var(--border-outer),
+        inset 0 3px 0 0 #070a14,
+        inset 0 -3px 0 0 #28395f;
+    }
+
+    .pixel-box-ghost {
+      background: #1f1a38;
+      box-shadow: 
+        0 4px 0 0 var(--border-outer),
+        0 -4px 0 0 var(--border-outer),
+        4px 0 0 0 var(--border-outer),
+        -4px 0 0 0 var(--border-outer),
+        inset 0 3px 0 0 #4a3675,
+        inset 0 -4px 0 0 #100b20,
+        0 4px 0 0 rgba(0, 0, 0, 0.4),
+        0 0 16px var(--violet-glow);
+    }
+    .pixel-box-ghost:hover {
+      background: #2a224d;
+      transform: translateY(-2px);
+      box-shadow: 
+        0 4px 0 0 var(--border-outer),
+        0 -4px 0 0 var(--border-outer),
+        4px 0 0 0 var(--border-outer),
+        -4px 0 0 0 var(--border-outer),
+        inset 0 3px 0 0 #bd52ff,
+        inset 0 -4px 0 0 #130d25,
+        0 6px 0 0 rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(189, 82, 255, 0.6);
+    }
+    .pixel-box-ghost:active, .pixel-box-ghost.is-pressed {
+      background: #151128;
+      transform: translateY(2px);
+      box-shadow: 
+        0 2px 0 0 var(--border-outer),
+        0 -2px 0 0 var(--border-outer),
+        2px 0 0 0 var(--border-outer),
+        -2px 0 0 0 var(--border-outer),
+        inset 0 3px 0 0 #0c0819,
+        inset 0 -3px 0 0 #3a2760;
+    }
+
+    .pixel-box-disabled {
+      background: #161a24 !important;
+      color: #4b5568 !important;
+      cursor: not-allowed !important;
+      box-shadow: 
+        0 4px 0 0 #0a0d14,
+        0 -4px 0 0 #0a0d14,
+        4px 0 0 0 #0a0d14,
+        -4px 0 0 0 #0a0d14,
+        inset 0 2px 0 0 #282f40,
+        inset 0 -2px 0 0 #0e1118 !important;
+      transform: none !important;
+      filter: grayscale(85%);
+      opacity: 0.6;
+    }
+
+    /* Modal dialog frame */
+    .pixel-modal {
+      background: #0f1627;
+      box-shadow: 
+        0 8px 0 0 #03060c,
+        0 -8px 0 0 #03060c,
+        8px 0 0 0 #03060c,
+        -8px 0 0 0 #03060c,
+        0 0 0 4px #1f2a47,
+        inset 0 4px 0 0 #2d3c63,
+        inset 0 -4px 0 0 #070b14,
+        0 16px 36px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(0, 240, 255, 0.15);
+    }
+
+    /* Pixel corner cutouts / deco notch */
+    .pixel-corner-notch {
+      clip-path: polygon(
+        0 6px, 6px 6px, 6px 0,
+        calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+        100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%,
+        6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+      );
+    }
+
+    .pixel-grid-bg {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+
+    /* Pixelated SVG icons render with crisp pixel grid */
+    svg.pixel-art {
+      shape-rendering: crispEdges;
+    }
+  </style>
+</head>
+<body class="pixel-grid-bg min-h-screen p-6 md:p-12 text-slate-100 antialiased selection:bg-cyan-500 selection:text-black">
+
+  <div class="max-w-6xl mx-auto space-y-12">
+
+    <!-- Header & Kit Manifest -->
+    <header class="border-b border-slate-800/80 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="inline-block w-3 h-3 bg-cyan-400 shadow-[0_0_8px_#00f0ff]"></span>
+          <span class="font-pixel text-[11px] text-cyan-400 tracking-wider uppercase">UI Component System</span>
+          <span class="text-xs px-2 py-0.5 bg-slate-800 border border-slate-700 text-slate-400 font-mono-code rounded">v1.0.4</span>
+        </div>
+        <h1 class="font-pixel text-2xl md:text-3xl text-white tracking-tight flex items-center gap-3">
+          ECHO MAZE
+          <span class="text-xs font-mono-code font-normal text-violet-400 tracking-normal border border-violet-800/60 bg-violet-950/40 px-2.5 py-1">TIME-LOOP PUZZLE UI</span>
+        </h1>
+        <p class="text-slate-400 text-sm mt-2 max-w-xl">
+          Minimal, modern pixel-art game interface components with authentic stepped borders, neon cyan highlights, ghost violet accents, and gold rewards.
+        </p>
+      </div>
+
+      <!-- Color Palette Spec Reference -->
+      <div class="flex items-center gap-2 bg-[#0c1220] p-2.5 border border-slate-800">
+        <div class="text-[10px] font-pixel text-slate-400 pr-2 uppercase">Theme:</div>
+        <div class="flex gap-1.5 items-center">
+          <span title="Deep Navy #0d1322" class="w-5 h-5 bg-[#0d1322] border border-slate-700 block"></span>
+          <span title="Cobalt Surface #18223c" class="w-5 h-5 bg-[#18223c] border border-slate-600 block"></span>
+          <span title="Time-Loop Cyan #00f0ff" class="w-5 h-5 bg-[#00f0ff] shadow-[0_0_6px_#00f0ff] block"></span>
+          <span title="Ghost Violet #bd52ff" class="w-5 h-5 bg-[#bd52ff] shadow-[0_0_6px_#bd52ff] block"></span>
+          <span title="Victory Gold #ffd15c" class="w-5 h-5 bg-[#ffd15c] shadow-[0_0_6px_#ffd15c] block"></span>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- SECTION 1: PRIMARY ACTION BUTTONS (START / PLAY & RESUME) -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h2 class="font-pixel text-sm text-cyan-400 flex items-center gap-2">
+          <span>01.</span> PRIMARY BUTTONS
+        </h2>
+        <span class="text-xs font-mono-code text-slate-500">Play / Start &amp; Resume Buttons (States)</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-[#0c1220]/60 p-6 border border-slate-800/80">
+        
+        <!-- Component A: Start / Play Button -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-mono-code text-xs font-semibold text-slate-300">START / PLAY BUTTON</span>
+            <span class="text-[10px] font-pixel text-cyan-400 uppercase">Primary • High Emphasis</span>
+          </div>
+
+          <!-- Component Interactive Preview -->
+          <div class="p-6 bg-[#070b14] border border-slate-800/60 flex flex-col items-center justify-center gap-6">
+            <!-- Normal / Hoverable button -->
+            <button class="pixel-box-cyan px-8 py-3.5 text-black font-pixel text-xs tracking-wider flex items-center gap-3 transition-all cursor-pointer group select-none">
+              <svg class="w-4 h-4 pixel-art fill-black group-hover:scale-110 transition-transform" viewBox="0 0 16 16">
+                <path d="M4 2v12l10-6L4 2z"/>
+              </svg>
+              <span>START GAME</span>
+              <span class="w-1.5 h-1.5 bg-black ml-1 animate-pulse"></span>
+            </button>
+            <span class="text-[11px] text-slate-500 font-mono-code">Interactive: Hover &amp; Click above</span>
+          </div>
+
+          <!-- State Breakdown Strip -->
+          <div class="grid grid-cols-3 gap-2 pt-2">
+            <div class="text-center space-y-1">
+              <button class="pixel-box-cyan w-full py-2.5 text-black font-pixel text-[10px] flex items-center justify-center gap-1.5 cursor-default">
+                <span>PLAY</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Default</span>
+            </div>
+
+            <div class="text-center space-y-1">
+              <button class="pixel-box-cyan is-pressed w-full py-2.5 text-black font-pixel text-[10px] flex items-center justify-center gap-1.5 cursor-default">
+                <span>PLAY</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Pressed</span>
+            </div>
+
+            <div class="text-center space-y-1">
+              <button disabled class="pixel-box-disabled w-full py-2.5 font-pixel text-[10px] flex items-center justify-center gap-1.5">
+                <span>PLAY</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Disabled</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Component B: Resume Button -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-mono-code text-xs font-semibold text-slate-300">RESUME BUTTON</span>
+            <span class="text-[10px] font-pixel text-cyan-400 uppercase">Primary • In-Game Flow</span>
+          </div>
+
+          <!-- Component Interactive Preview -->
+          <div class="p-6 bg-[#070b14] border border-slate-800/60 flex flex-col items-center justify-center gap-6">
+            <button class="pixel-box-cyan px-8 py-3.5 text-black font-pixel text-xs tracking-wider flex items-center gap-3 transition-all cursor-pointer group select-none">
+              <!-- Pixel Fast-Forward / Resume icon -->
+              <svg class="w-4 h-4 pixel-art fill-black" viewBox="0 0 16 16">
+                <path d="M2 3h3v10H2V3zm6 0v10l7-5-7-5z"/>
+              </svg>
+              <span>RESUME LOOP</span>
+            </button>
+            <span class="text-[11px] text-slate-500 font-mono-code">Returns player directly into the active time loop</span>
+          </div>
+
+          <!-- State Breakdown Strip -->
+          <div class="grid grid-cols-3 gap-2 pt-2">
+            <div class="text-center space-y-1">
+              <button class="pixel-box-cyan w-full py-2.5 text-black font-pixel text-[10px] flex items-center justify-center gap-1.5 cursor-default">
+                <span>RESUME</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Default</span>
+            </div>
+
+            <div class="text-center space-y-1">
+              <button class="pixel-box-cyan is-pressed w-full py-2.5 text-black font-pixel text-[10px] flex items-center justify-center gap-1.5 cursor-default">
+                <span>RESUME</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Pressed</span>
+            </div>
+
+            <div class="text-center space-y-1">
+              <button disabled class="pixel-box-disabled w-full py-2.5 font-pixel text-[10px] flex items-center justify-center gap-1.5">
+                <span>RESUME</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Disabled</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 2: SECONDARY ACTION BUTTONS (CONTINUE & RESTART) -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h2 class="font-pixel text-sm text-cyan-400 flex items-center gap-2">
+          <span>02.</span> SECONDARY BUTTONS
+        </h2>
+        <span class="text-xs font-mono-code text-slate-500">Continue &amp; Restart Navigation Buttons</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-[#0c1220]/60 p-6 border border-slate-800/80">
+        
+        <!-- Component C: Continue Button -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-mono-code text-xs font-semibold text-slate-300">CONTINUE BUTTON</span>
+            <span class="text-[10px] font-pixel text-slate-400 uppercase">Secondary • Navy/Turquoise</span>
+          </div>
+
+          <div class="p-6 bg-[#070b14] border border-slate-800/60 flex flex-col items-center justify-center gap-6">
+            <button class="pixel-box-secondary px-7 py-3 text-cyan-300 font-pixel text-xs tracking-wider flex items-center gap-3 transition-all cursor-pointer group select-none">
+              <span>CONTINUE</span>
+              <!-- Pixel Right Arrow -->
+              <svg class="w-3.5 h-3.5 pixel-art fill-cyan-400 group-hover:translate-x-1 transition-transform" viewBox="0 0 16 16">
+                <path d="M6 3h2v2h2v2h2v2h-2v2H8v2H6v-2h2V9H2V7h6V5H6V3z"/>
+              </svg>
+            </button>
+            <span class="text-[11px] text-slate-500 font-mono-code">Preserves session memory and saved timelines</span>
+          </div>
+
+          <!-- States -->
+          <div class="grid grid-cols-3 gap-2 pt-2">
+            <div class="text-center space-y-1">
+              <button class="pixel-box-secondary w-full py-2.5 text-cyan-300 font-pixel text-[10px] flex items-center justify-center gap-1.5 cursor-default">
+                <span>CONTINUE</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Default</span>
+            </div>
+
+            <div class="text-center space-y-1">
+              <button class="pixel-box-secondary is-pressed w-full py-2.5 text-cyan-400 font-pixel text-[10px] flex items-center justify-center gap-1.5 cursor-default">
+                <span>CONTINUE</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Pressed</span>
+            </div>
+
+            <div class="text-center space-y-1">
+              <button disabled class="pixel-box-disabled w-full py-2.5 font-pixel text-[10px] flex items-center justify-center gap-1.5">
+                <span>CONTINUE</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Disabled</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Component D: Restart Button -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-mono-code text-xs font-semibold text-slate-300">RESTART BUTTON</span>
+            <span class="text-[10px] font-pixel text-violet-400 uppercase">Secondary • Ghost Violet Echo</span>
+          </div>
+
+          <div class="p-6 bg-[#070b14] border border-slate-800/60 flex flex-col items-center justify-center gap-6">
+            <button class="pixel-box-ghost px-7 py-3 text-purple-200 font-pixel text-xs tracking-wider flex items-center gap-3 transition-all cursor-pointer group select-none">
+              <!-- Pixel Loop / Restart Glyph -->
+              <svg class="w-3.5 h-3.5 pixel-art fill-purple-300 group-hover:rotate-180 transition-transform duration-300" viewBox="0 0 16 16">
+                <path d="M8 2v3L5 2 8 2zm3 2h2v4h-2V5H9V3h2v1zM3 8H1v5h5v-2H3V8zm10 0v3h-2v2h3v-5h-1zM5 11h6v2H5v-2z"/>
+              </svg>
+              <span>RESTART LOOP</span>
+            </button>
+            <span class="text-[11px] text-slate-500 font-mono-code">Resets temporal coordinates to puzzle baseline</span>
+          </div>
+
+          <!-- States -->
+          <div class="grid grid-cols-3 gap-2 pt-2">
+            <div class="text-center space-y-1">
+              <button class="pixel-box-ghost w-full py-2.5 text-purple-200 font-pixel text-[10px] flex items-center justify-center gap-1.5 cursor-default">
+                <span>RESTART</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Default</span>
+            </div>
+
+            <div class="text-center space-y-1">
+              <button class="pixel-box-ghost is-pressed w-full py-2.5 text-purple-300 font-pixel text-[10px] flex items-center justify-center gap-1.5 cursor-default">
+                <span>RESTART</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Pressed</span>
+            </div>
+
+            <div class="text-center space-y-1">
+              <button disabled class="pixel-box-disabled w-full py-2.5 font-pixel text-[10px] flex items-center justify-center gap-1.5">
+                <span>RESTART</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono-code">Disabled</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 3: COMPACT ICON BUTTONS (PAUSE & BACK / CLOSE) -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h2 class="font-pixel text-sm text-cyan-400 flex items-center gap-2">
+          <span>03.</span> SMALL ICON BUTTONS
+        </h2>
+        <span class="text-xs font-mono-code text-slate-500">Pause &amp; Back / Close Controls (Compact 44x44 &amp; 36x36)</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-[#0c1220]/60 p-6 border border-slate-800/80">
+        
+        <!-- Component E: Pause Button -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-mono-code text-xs font-semibold text-slate-300">PAUSE BUTTON</span>
+            <span class="text-[10px] font-pixel text-cyan-400 uppercase">Square Icon Component</span>
+          </div>
+
+          <div class="p-6 bg-[#070b14] border border-slate-800/60 flex items-center justify-around">
+            
+            <!-- Standard Size -->
+            <div class="flex flex-col items-center gap-2">
+              <button aria-label="Pause Game" class="pixel-box-secondary w-11 h-11 flex items-center justify-center cursor-pointer group transition-all">
+                <svg class="w-4 h-4 pixel-art fill-cyan-400 group-hover:fill-white" viewBox="0 0 16 16">
+                  <path d="M4 3h3v10H4V3zm5 0h3v10H9V3z"/>
+                </svg>
+              </button>
+              <span class="text-[10px] font-mono-code text-slate-400">Default (44px)</span>
+            </div>
+
+            <!-- Hover previewed -->
+            <div class="flex flex-col items-center gap-2">
+              <button aria-label="Pause Hover" class="pixel-box-secondary w-11 h-11 flex items-center justify-center border-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.4)]">
+                <svg class="w-4 h-4 pixel-art fill-cyan-300" viewBox="0 0 16 16">
+                  <path d="M4 3h3v10H4V3zm5 0h3v10H9V3z"/>
+                </svg>
+              </button>
+              <span class="text-[10px] font-mono-code text-cyan-400">Hovered</span>
+            </div>
+
+            <!-- Pressed state -->
+            <div class="flex flex-col items-center gap-2">
+              <button aria-label="Pause Pressed" class="pixel-box-secondary is-pressed w-11 h-11 flex items-center justify-center">
+                <svg class="w-4 h-4 pixel-art fill-cyan-500" viewBox="0 0 16 16">
+                  <path d="M4 3h3v10H4V3zm5 0h3v10H9V3z"/>
+                </svg>
+              </button>
+              <span class="text-[10px] font-mono-code text-slate-500">Pressed</span>
+            </div>
+
+            <!-- Disabled -->
+            <div class="flex flex-col items-center gap-2">
+              <button disabled aria-label="Pause Disabled" class="pixel-box-disabled w-11 h-11 flex items-center justify-center">
+                <svg class="w-4 h-4 pixel-art fill-slate-600" viewBox="0 0 16 16">
+                  <path d="M4 3h3v10H4V3zm5 0h3v10H9V3z"/>
+                </svg>
+              </button>
+              <span class="text-[10px] font-mono-code text-slate-600">Disabled</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Component F: Back / Close Button -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-mono-code text-xs font-semibold text-slate-300">BACK / CLOSE BUTTON</span>
+            <span class="text-[10px] font-pixel text-slate-400 uppercase">Dismiss &amp; Navigate Back</span>
+          </div>
+
+          <div class="p-6 bg-[#070b14] border border-slate-800/60 flex items-center justify-around">
+            
+            <!-- Close 'X' Button -->
+            <div class="flex flex-col items-center gap-2">
+              <button aria-label="Close" class="pixel-box-secondary w-11 h-11 flex items-center justify-center cursor-pointer group transition-all">
+                <!-- Pixel Cross / X -->
+                <svg class="w-4 h-4 pixel-art fill-slate-300 group-hover:fill-rose-400 transition-colors" viewBox="0 0 16 16">
+                  <path d="M3 3h2v2H3V3zm2 2h2v2H5V5zm2 2h2v2H7V7zm2-2h2V3H9v2zm2 2h2V5h-2v2zm-4 2H5v2H3v2h2v-2h2V9zm2 0h2v2h2v2h-2v-2H9V9z"/>
+                </svg>
+              </button>
+              <span class="text-[10px] font-mono-code text-slate-400">Close 'X'</span>
+            </div>
+
+            <!-- Back Arrow Button -->
+            <div class="flex flex-col items-center gap-2">
+              <button aria-label="Back" class="pixel-box-secondary w-11 h-11 flex items-center justify-center cursor-pointer group transition-all">
+                <!-- Pixel Left Arrow -->
+                <svg class="w-4 h-4 pixel-art fill-cyan-400 group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 16 16">
+                  <path d="M10 3H8v2H6v2H4v2h2v2h2v2h2v-2H8V9h6V7H8V5h2V3z"/>
+                </svg>
+              </button>
+              <span class="text-[10px] font-mono-code text-slate-400">Back Arrow</span>
+            </div>
+
+            <!-- Small / Compact Variant (32px) -->
+            <div class="flex flex-col items-center gap-2">
+              <button aria-label="Mini Close" class="pixel-box-secondary w-8 h-8 flex items-center justify-center cursor-pointer group">
+                <svg class="w-3 h-3 pixel-art fill-slate-300 group-hover:fill-rose-400" viewBox="0 0 16 16">
+                  <path d="M3 3h2v2H3V3zm2 2h2v2H5V5zm2 2h2v2H7V7zm2-2h2V3H9v2zm2 2h2V5h-2v2zm-4 2H5v2H3v2h2v-2h2V9zm2 0h2v2h2v2h-2v-2H9V9z"/>
+                </svg>
+              </button>
+              <span class="text-[10px] font-mono-code text-slate-400">Compact (32px)</span>
+            </div>
+
+            <!-- Disabled Variant -->
+            <div class="flex flex-col items-center gap-2">
+              <button disabled aria-label="Disabled Close" class="pixel-box-disabled w-8 h-8 flex items-center justify-center">
+                <svg class="w-3 h-3 pixel-art fill-slate-600" viewBox="0 0 16 16">
+                  <path d="M3 3h2v2H3V3zm2 2h2v2H5V5zm2 2h2v2H7V7zm2-2h2V3H9v2zm2 2h2V5h-2v2zm-4 2H5v2H3v2h2v-2h2V9zm2 0h2v2h2v2h-2v-2H9V9z"/>
+                </svg>
+              </button>
+              <span class="text-[10px] font-mono-code text-slate-600">Disabled</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 4: LEVEL COMPLETED POPUP COMPONENT -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h2 class="font-pixel text-sm text-cyan-400 flex items-center gap-2">
+          <span>04.</span> LEVEL COMPLETED POPUP
+        </h2>
+        <span class="text-xs font-mono-code text-slate-500">Compact Success Panel / Victory Dialog</span>
+      </div>
+
+      <!-- Popup Container on Clean Isolated Backdrop -->
+      <div class="p-6 md:p-12 bg-[#060910] border border-slate-800 flex items-center justify-center">
+        
+        <!-- The Modal Component Itself -->
+        <div class="pixel-modal w-full max-w-md p-6 sm:p-7 relative text-center">
+          
+          <!-- Top Right Close Button Integrated -->
+          <div class="absolute top-4 right-4">
+            <button aria-label="Close Popup" class="pixel-box-secondary w-8 h-8 flex items-center justify-center cursor-pointer group">
+              <svg class="w-3 h-3 pixel-art fill-slate-400 group-hover:fill-rose-400" viewBox="0 0 16 16">
+                <path d="M3 3h2v2H3V3zm2 2h2v2H5V5zm2 2h2v2H7V7zm2-2h2V3H9v2zm2 2h2V5h-2v2zm-4 2H5v2H3v2h2v-2h2V9zm2 0h2v2h2v2h-2v-2H9V9z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Time-Loop Victory Icon / Badge -->
+          <div class="mx-auto mb-4 w-12 h-12 bg-[#172238] border-2 border-[#2b3a60] flex items-center justify-center shadow-[0_0_16px_rgba(255,209,92,0.3)]">
+            <!-- Pixel Trophy / Gold Star Badge -->
+            <svg class="w-7 h-7 pixel-art fill-amber-300" viewBox="0 0 16 16">
+              <path d="M3 2h10v2h-1v4h-1v2H9v2h2v2H5v-2h2v-2H5V8H4V4H3V2zm-1 2h1v3h1V4H3v3h1v1H2V4zm11 0h1v4h-2V7h1V4z"/>
+            </svg>
+          </div>
+
+          <!-- Header Titles -->
+          <div class="inline-block px-2.5 py-1 bg-amber-950/40 border border-amber-600/40 text-[#ffd15c] font-pixel text-[9px] mb-2 tracking-widest uppercase">
+            PARADOX RESOLVED
+          </div>
+          <h3 class="font-pixel text-lg text-white tracking-wide mb-1">
+            LEVEL COMPLETED!
+          </h3>
+          <p class="font-mono-code text-xs text-cyan-300/80 mb-5">
+            Temporal echo unified in <span class="text-white font-bold">01:24</span> (<span class="text-amber-300">3 Loops</span>)
+          </p>
+
+          <!-- Compact Star / Rating Display (Gold Accents) -->
+          <div class="flex items-center justify-center gap-3 py-2.5 px-4 bg-[#0a0f1d] border border-slate-800/80 mb-6">
+            <!-- Star 1 (Gold) -->
+            <svg class="w-5 h-5 pixel-art fill-[#ffd15c]" viewBox="0 0 16 16">
+              <path d="M7 1h2v3h2v2h3v2h-2v2h1v3h-3v-2H8v2H5v-3h1v-2H4V6h3V4h-1V1h1z"/>
+            </svg>
+            <!-- Star 2 (Gold) -->
+            <svg class="w-5 h-5 pixel-art fill-[#ffd15c]" viewBox="0 0 16 16">
+              <path d="M7 1h2v3h2v2h3v2h-2v2h1v3h-3v-2H8v2H5v-3h1v-2H4V6h3V4h-1V1h1z"/>
+            </svg>
+            <!-- Star 3 (Gold Glow) -->
+            <svg class="w-5 h-5 pixel-art fill-[#ffd15c]" viewBox="0 0 16 16">
+              <path d="M7 1h2v3h2v2h3v2h-2v2h1v3h-3v-2H8v2H5v-3h1v-2H4V6h3V4h-1V1h1z"/>
+            </svg>
+            <span class="text-[11px] font-pixel text-slate-400 ml-2">3 / 3 STARS</span>
+          </div>
+
+          <!-- Action Buttons Group (Next Level & Replay) -->
+          <div class="space-y-3">
+            <!-- Next Level (Primary Cyan) -->
+            <button class="pixel-box-cyan w-full py-3.5 text-black font-pixel text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer group">
+              <span>NEXT LEVEL</span>
+              <svg class="w-3.5 h-3.5 pixel-art fill-black group-hover:translate-x-1 transition-transform" viewBox="0 0 16 16">
+                <path d="M6 3h2v2h2v2h2v2h-2v2H8v2H6v-2h2V9H2V7h6V5H6V3z"/>
+              </svg>
+            </button>
+
+            <!-- Replay Button (Secondary Ghost / Loop) -->
+            <button class="pixel-box-secondary w-full py-3 text-slate-200 font-pixel text-[11px] tracking-wider flex items-center justify-center gap-2.5 cursor-pointer group">
+              <svg class="w-3.5 h-3.5 pixel-art fill-cyan-400 group-hover:rotate-180 transition-transform duration-300" viewBox="0 0 16 16">
+                <path d="M8 2v3L5 2 8 2zm3 2h2v4h-2V5H9V3h2v1zM3 8H1v5h5v-2H3V8zm10 0v3h-2v2h3v-5h-1zM5 11h6v2H5v-2z"/>
+              </svg>
+              <span>REPLAY LEVEL</span>
+            </button>
+          </div>
+
+          <!-- Bottom Micro Details -->
+          <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono-code text-slate-500">
+            <span>CHRONO ACCURACY: 98.4%</span>
+            <span class="text-violet-400">PARADOX FREE</span>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 5: IMPLEMENTATION SPECS & REACT READY TOKENS -->
+    <section class="border border-slate-800 bg-[#0c1220]/40 p-6 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+        <h3 class="font-pixel text-xs text-slate-300 uppercase">React &amp; Tailwind Integration Specs</h3>
+        <span class="text-[11px] font-mono-code text-cyan-400">Box-shadow pixel border technique (No heavy sprite atlas required)</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono-code">
+        <div class="bg-[#070b14] p-3 border border-slate-800">
+          <div class="text-cyan-400 font-semibold mb-1">Stepped Borders</div>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            Constructed with multi-layered offset <code class="text-slate-200">box-shadow</code> (4px outer notch + 2px bevel inset) guaranteeing sharp rendering without subpixel blurring.
+          </p>
+        </div>
+
+        <div class="bg-[#070b14] p-3 border border-slate-800">
+          <div class="text-violet-400 font-semibold mb-1">State Feedback</div>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            Hover elevations use <code class="text-slate-200">-translate-y-0.5</code> with colored glow radius; active pressed states compress shadows by 2px with <code class="text-slate-200">translate-y-0.5</code>.
+          </p>
+        </div>
+
+        <div class="bg-[#070b14] p-3 border border-slate-800">
+          <div class="text-[#ffd15c] font-semibold mb-1">Typography &amp; Icons</div>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            Scalable inline SVG paths rendered with <code class="text-slate-200">shape-rendering: crispEdges</code> and 'Press Start 2P' font for 100% vector scalability.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>
