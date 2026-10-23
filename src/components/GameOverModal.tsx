@@ -21,67 +21,67 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   const canSpawnGhost = state.ghosts.length < level.maxGhosts;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-md bg-slate-900 border border-violet-500/40 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-violet-950/50 flex flex-col items-center text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in font-pixel select-none">
+      <div className="pixel-modal relative w-full max-w-md p-6 sm:p-7 flex flex-col items-center text-center text-slate-200">
         {/* Violet icon badge */}
-        <div className="w-16 h-16 rounded-2xl bg-violet-950/80 border border-violet-500/50 flex items-center justify-center text-violet-400 mb-4 shadow-lg shadow-violet-900/40">
-          <AlertTriangle size={32} />
+        <div className="w-12 h-12 pixel-card-subtle flex items-center justify-center text-violet-400 mb-4 shadow-[0_0_16px_rgba(189,82,255,0.35)]">
+          <AlertTriangle size={24} />
         </div>
 
         {/* Heading */}
-        <span className="text-xs uppercase font-bold tracking-widest text-violet-400 mb-1">
-          Shadow Loop Depleted
-        </span>
-        <h2 className="text-2xl font-black text-slate-100 tracking-tight">
-          Step Limit Reached
+        <div className="pixel-badge px-2.5 py-1 bg-violet-950/80 text-violet-300 text-[9px] mb-2 uppercase tracking-widest">
+          SHADOW LOOP DEPLETED
+        </div>
+        <h2 className="text-sm sm:text-base text-white tracking-tight mb-2">
+          STEP LIMIT REACHED
         </h2>
-        <p className="text-sm text-slate-400 mt-2">
-          You consumed all {state.maxSteps} steps for this shadow loop without reaching the exit.
+        <p className="text-[9px] text-slate-400 leading-relaxed mb-4">
+          CONSUMED ALL {state.maxSteps} STEPS FOR THIS LOOP WITHOUT REACHING EXIT.
         </p>
 
         {/* Tactical Hint */}
-        <div className="w-full my-5 bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 text-left flex items-start gap-3">
-          <HelpCircle size={18} className="text-cyan-400 shrink-0 mt-0.5" />
-          <div className="flex flex-col text-xs">
-            <span className="font-semibold text-slate-300">Tactical Hint:</span>
-            <span className="text-slate-400 mt-0.5 leading-relaxed">{level.hint}</span>
+        <div className="w-full my-3 pixel-card-subtle p-3 text-left flex items-start gap-2.5">
+          <HelpCircle size={14} className="text-cyan-400 shrink-0 mt-0.5" />
+          <div className="flex flex-col text-[8px]">
+            <span className="text-slate-300 font-bold mb-1">TACTICAL HINT:</span>
+            <span className="text-slate-400 leading-relaxed uppercase">{level.hint}</span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="w-full flex flex-col gap-2.5">
+        <div className="w-full flex flex-col gap-3 mt-2">
           {canSpawnGhost ? (
             <button
               onClick={onEndLoop}
-              className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-violet-900/40 transition active:scale-[0.98] cursor-pointer"
+              className="pixel-box-cyan w-full py-3.5 px-4 text-xs text-black tracking-wider flex items-center justify-center gap-2 cursor-pointer select-none"
             >
-              <FastForward size={16} />
-              <span>Record & Spawn Shadow {state.ghosts.length + 1}</span>
+              <FastForward size={14} />
+              <span>SPAWN SHADOW {state.ghosts.length + 1}</span>
             </button>
           ) : (
             <button
               onClick={onRetryLoop}
-              className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/40 transition active:scale-[0.98] cursor-pointer"
+              className="pixel-box-cyan w-full py-3.5 px-4 text-xs text-black tracking-wider flex items-center justify-center gap-2 cursor-pointer select-none"
             >
-              <RotateCcw size={16} />
-              <span>Retry Current Loop</span>
+              <RotateCcw size={14} />
+              <span>RETRY LOOP</span>
             </button>
           )}
 
           <div className="flex items-center gap-2.5">
             <button
               onClick={onRestart}
-              className="flex-1 py-2.5 px-3 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center justify-center gap-1.5 transition cursor-pointer"
+              className="pixel-box-secondary flex-1 py-2.5 px-2 text-[9px] text-slate-200 flex items-center justify-center gap-1.5 cursor-pointer select-none"
             >
-              <RotateCcw size={14} />
-              <span>Restart Level</span>
+              <RotateCcw size={12} />
+              <span>RESTART</span>
             </button>
             <button
               onClick={onLevelSelect}
-              className="flex-1 py-2.5 px-3 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center justify-center gap-1.5 transition cursor-pointer"
+              className="pixel-box-secondary flex-1 py-2.5 px-2 text-[9px] text-slate-200 flex items-center justify-center gap-1.5 cursor-pointer select-none"
             >
-              <ArrowLeft size={14} />
-              <span>Level Select</span>
+              <ArrowLeft size={12} />
+              <span>CHAMBERS</span>
             </button>
           </div>
         </div>

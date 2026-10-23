@@ -808,12 +808,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.fill();
 
           ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 9px ui-sans-serif, sans-serif';
+          ctx.font = '7px "Press Start 2P", monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(String(ghost.id), gx, badgeY);
+          ctx.fillText(String(ghost.id), gx, badgeY + 1);
         } else {
-          // Circular fallback if sprite image is still loading
+          // Fallback if sprite image is still loading
           ctx.fillStyle = ghost.color;
           ctx.globalAlpha = 0.55;
           ctx.beginPath();
@@ -826,7 +826,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.stroke();
 
           ctx.fillStyle = '#ffffff';
-          ctx.font = `bold ${Math.max(10, Math.floor(cellSize * 0.22))}px ui-sans-serif, sans-serif`;
+          ctx.font = `${Math.max(8, Math.floor(cellSize * 0.18))}px "Press Start 2P", monospace`;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.globalAlpha = 1;

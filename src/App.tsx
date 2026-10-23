@@ -311,7 +311,7 @@ export function App() {
         />
 
         {/* Center Game Canvas Area */}
-        <div className="relative w-full flex-1 min-h-[380px] sm:min-h-[460px] flex items-center justify-center my-1">
+        <div className="relative w-full flex-1 min-h-[380px] sm:min-h-[460px] flex items-center justify-center my-1 pixel-card p-2 bg-[#060913]/90">
           <GameCanvas
             state={gameState}
             isRewinding={isRewinding}

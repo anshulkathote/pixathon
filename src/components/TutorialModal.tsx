@@ -7,112 +7,107 @@ interface TutorialModalProps {
 
 export const TutorialModal: React.FC<TutorialModalProps> = ({ onClose, isFirstTime = false }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-violet-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-violet-950/50 flex flex-col text-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in font-pixel select-none">
+      <div className="pixel-modal relative w-full max-w-lg p-6 sm:p-7 flex flex-col text-slate-200">
         {!isFirstTime && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            aria-label="Close Help"
+            className="absolute top-3.5 right-3.5 pixel-box-secondary w-8 h-8 flex items-center justify-center cursor-pointer group select-none"
           >
-            <X size={18} />
+            <X size={14} className="text-slate-400 group-hover:text-rose-400 transition-colors" />
           </button>
         )}
 
         {/* Title Badge */}
         <div className="flex items-center gap-2 mb-2">
-          <span className="p-1.5 rounded-lg bg-violet-950 border border-violet-500/40 text-violet-400">
-            <Sparkles size={16} />
-          </span>
-          <span className="text-xs uppercase font-bold tracking-widest text-violet-400">
-            Shadow Realm Protocol
-          </span>
+          <div className="pixel-badge px-2 py-1 bg-violet-950/80 text-violet-300 text-[8px] uppercase tracking-wider">
+            <Sparkles size={11} className="mr-1.5" />
+            <span>SHADOW REALM PROTOCOL</span>
+          </div>
         </div>
 
-        <h2 className="text-2xl font-black text-slate-100 tracking-tight">
-          How to Play Shadow Maze
+        <h2 className="text-sm sm:text-base text-white tracking-tight mb-1">
+          HOW TO PLAY SHADOW MAZE
         </h2>
-        <p className="text-sm text-violet-300 font-medium italic mt-1">
-          "You are not playing alone. You are cooperating with your shadow."
+        <p className="text-[8px] text-violet-300/80 leading-relaxed mb-4">
+          "YOU ARE NOT PLAYING ALONE. YOU ARE COOPERATING WITH YOUR SHADOW."
         </p>
 
         {/* Mechanic Cards */}
-        <div className="flex flex-col gap-3 my-5 text-xs">
+        <div className="flex flex-col gap-2.5 my-2 text-[8px]">
           {/* Card 1: Record */}
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-purple-950 border border-purple-600/60 flex items-center justify-center text-purple-300 shrink-0 mt-0.5">
-              <Clock size={16} />
+          <div className="pixel-card-subtle p-2.5 flex items-start gap-2.5">
+            <div className="w-7 h-7 pixel-card flex items-center justify-center text-purple-300 shrink-0 mt-0.5">
+              <Clock size={12} />
             </div>
             <div>
-              <span className="font-bold text-slate-200 text-sm block">1. Record Your Shadow Loop</span>
-              <p className="text-slate-400 mt-0.5 leading-relaxed">
-                Take steps across the maze. When you finish positioning yourself (e.g. standing on a plate), press{' '}
-                <kbd className="px-1.5 py-0.5 bg-purple-950 border border-purple-800 rounded text-purple-300 font-mono text-[11px]">Enter</kbd> to{' '}
-                <strong className="text-purple-300">End Loop</strong>.
+              <span className="text-slate-200 font-bold block mb-1">1. RECORD SHADOW LOOP</span>
+              <p className="text-slate-400 leading-relaxed">
+                Take steps across maze. Stand on pressure plate and press{' '}
+                <span className="pixel-kbd px-1 py-0.5 text-[7px] text-purple-300">ENTER</span> to{' '}
+                <strong className="text-purple-300">END LOOP</strong>.
               </p>
             </div>
           </div>
 
           {/* Card 2: Shadows replay */}
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-violet-950 border border-violet-600/60 flex items-center justify-center text-violet-300 shrink-0 mt-0.5">
-              <FastForward size={16} />
+          <div className="pixel-card-subtle p-2.5 flex items-start gap-2.5">
+            <div className="w-7 h-7 pixel-card flex items-center justify-center text-violet-300 shrink-0 mt-0.5">
+              <FastForward size={12} />
             </div>
             <div>
-              <span className="font-bold text-slate-200 text-sm block">2. Shadows Replay Your Steps</span>
-              <p className="text-slate-400 mt-0.5 leading-relaxed">
-                The world rewinds, and your past self spawns as a translucent shadow. It will faithfully repeat your moves and remain standing on plates to keep doors open for you.
+              <span className="text-slate-200 font-bold block mb-1">2. SHADOW REPLAYS STEPS</span>
+              <p className="text-slate-400 leading-relaxed">
+                World rewinds. Past self spawns as shadow, repeating your moves to hold plates and open gates.
               </p>
             </div>
           </div>
 
           {/* Card 3: Plates, Doors, Keys */}
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-950 border border-amber-600/60 flex items-center justify-center text-amber-300 shrink-0 mt-0.5">
-              <Key size={16} />
+          <div className="pixel-card-subtle p-2.5 flex items-start gap-2.5">
+            <div className="w-7 h-7 pixel-card flex items-center justify-center text-amber-300 shrink-0 mt-0.5">
+              <Key size={12} />
             </div>
             <div>
-              <span className="font-bold text-slate-200 text-sm block">3. Plates, Keys & Locked Exits</span>
-              <p className="text-slate-400 mt-0.5 leading-relaxed">
-                Step on pressure plates to trigger doors. Retrieve collectible keys into your inventory to unlock sealed gates and exits.
+              <span className="text-slate-200 font-bold block mb-1">3. PLATES, KEYS & GATES</span>
+              <p className="text-slate-400 leading-relaxed">
+                Step on plates to open doors. Grab keys into inventory to unlock sealed exits.
               </p>
             </div>
           </div>
 
           {/* Card 4: Plan Ahead */}
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-950 border border-indigo-500/60 flex items-center justify-center text-indigo-300 shrink-0 mt-0.5">
-              <Sparkles size={16} />
+          <div className="pixel-card-subtle p-2.5 flex items-start gap-2.5">
+            <div className="w-7 h-7 pixel-card flex items-center justify-center text-cyan-300 shrink-0 mt-0.5">
+              <Sparkles size={12} />
             </div>
             <div>
-              <span className="font-bold text-slate-200 text-sm block">4. Plan Ahead</span>
-              <p className="text-slate-400 mt-0.5 leading-relaxed">
-                You have a limited number of steps <strong className="text-cyan-300">and</strong> loops. Think before you move! Toggle{' '}
-                <kbd className="px-1 py-0.5 bg-slate-800 rounded text-cyan-300 font-mono text-[10px]">P</kbd>{' '}
-                to preview a shadow's recorded path, and use{' '}
-                <kbd className="px-1 py-0.5 bg-slate-800 rounded text-slate-300 font-mono text-[10px]">Z</kbd>{' '}
-                to undo your last move.
+              <span className="text-slate-200 font-bold block mb-1">4. TACTICAL LIMITS</span>
+              <p className="text-slate-400 leading-relaxed">
+                Limited steps & loops. Press <span className="pixel-kbd px-1 py-0.5 text-[7px]">P</span> for path preview, <span className="pixel-kbd px-1 py-0.5 text-[7px] text-slate-300">Z</span> to undo.
               </p>
             </div>
           </div>
         </div>
 
         {/* Quick controls review */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 font-mono">
-          <span><strong className="text-cyan-300">WASD / Arrows:</strong> Move</span>
-          <span><strong className="text-purple-300">Enter:</strong> End Loop</span>
-          <span><strong className="text-slate-200">Space:</strong> Wait</span>
-          <span><strong className="text-slate-200">Z:</strong> Undo</span>
-          <span><strong className="text-slate-200">R:</strong> Restart</span>
-          <span><strong className="text-cyan-300">P:</strong> Path Preview</span>
+        <div className="pixel-card-subtle p-2.5 my-3 flex flex-wrap items-center justify-between gap-2 text-[7px] text-slate-400">
+          <span><strong className="text-cyan-300">WASD:</strong> MOVE</span>
+          <span><strong className="text-purple-300">ENTER:</strong> END LOOP</span>
+          <span><strong className="text-slate-200">SPACE:</strong> WAIT</span>
+          <span><strong className="text-slate-200">Z:</strong> UNDO</span>
+          <span><strong className="text-slate-200">R:</strong> RESTART</span>
+          <span><strong className="text-cyan-300">P:</strong> PREVIEW</span>
         </div>
 
         {/* Confirm Button */}
         <button
           onClick={onClose}
-          className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-400 hover:to-purple-500 text-slate-100 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25 transition active:scale-[0.98] cursor-pointer"
+          className="pixel-box-cyan w-full py-3 px-4 text-xs text-black tracking-wider flex items-center justify-center gap-2 cursor-pointer select-none"
         >
-          <Play size={16} />
-          <span>{isFirstTime ? 'Initiate Shadow Protocol' : 'Resume Mission'}</span>
+          <Play size={12} className="fill-black" />
+          <span>{isFirstTime ? 'START MISSION' : 'RESUME MISSION'}</span>
         </button>
       </div>
     </div>

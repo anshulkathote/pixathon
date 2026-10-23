@@ -51,78 +51,80 @@ export const HUD: React.FC<HUDProps> = ({
   let objectiveText = '';
   const hasUncollectedKey = state.keys.some((k) => !k.isCollected);
   if (hasUncollectedKey) {
-    objectiveText = 'Retrieve the Key to unlock the security door';
+    objectiveText = 'RETRIEVE KEY TO UNLOCK GATE';
   } else if (state.doors.some((d) => !d.isOpen)) {
-    objectiveText = 'Coordinate with your ghost on pressure plates to open gates';
+    objectiveText = 'COOPERATE ON PLATES TO OPEN GATES';
   } else if (state.exit.requiresKey && !state.exit.isUnlocked) {
-    objectiveText = 'Use your collected key to open the Exit';
+    objectiveText = 'USE KEY TO UNLOCK EXIT';
   } else {
-    objectiveText = 'The path is clear — reach the Exit portal!';
+    objectiveText = 'PATH CLEAR — ENTER THE EXIT';
   }
 
   const stepPercentage = (state.currentStep / state.maxSteps) * 100;
   const isLowSteps = stepsRemaining <= 4;
 
   return (
-    <div className="w-full flex flex-col gap-2.5 select-none">
+    <div className="w-full flex flex-col gap-2.5 select-none font-pixel text-slate-200">
       {/* Top Header Card */}
-      <div className="bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-xl px-4 py-2.5 shadow-lg flex flex-wrap items-center justify-between gap-3">
+      <div className="pixel-card px-4 py-3 flex flex-wrap items-center justify-between gap-3">
         {/* Level Title & Subtitle */}
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 border border-cyan-800/60 px-2 py-0.5 rounded-full font-mono">
+              <span className="pixel-badge text-[9px] uppercase tracking-wider text-cyan-300 bg-cyan-950/80 px-2 py-1">
                 CHAMBER 0{level.id}
               </span>
-              <h1 className="text-base sm:text-lg font-bold text-slate-100 tracking-tight">
-                {level.title}
+              <h1 className="text-xs sm:text-sm font-bold text-white tracking-tight">
+                {level.title.toUpperCase()}
               </h1>
             </div>
-            <p className="text-xs text-slate-400 hidden sm:block mt-0.5">
-              {level.subtitle}
+            <p className="text-[9px] text-slate-400 hidden sm:block mt-1">
+              {level.subtitle.toUpperCase()}
             </p>
           </div>
         </div>
 
         {/* Dynamic Objective Banner */}
-        <div className="flex items-center gap-2 bg-slate-950/70 border border-slate-800/80 px-3 py-1.5 rounded-lg text-xs max-w-md text-slate-300">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
-          <span className="font-medium truncate">{objectiveText}</span>
+        <div className="flex items-center gap-2 pixel-card-subtle px-3 py-2 text-[9px] max-w-md text-slate-300">
+          <span className="w-2 h-2 bg-cyan-400 animate-pulse shrink-0" />
+          <span className="truncate">{objectiveText}</span>
         </div>
 
         {/* Quick Utility Actions */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           {/* Path Preview Toggle */}
           <button
             onClick={onTogglePathPreview}
-            title={showPathPreview ? 'Hide Ghost Path Preview (P)' : 'Show Ghost Path Preview (P)'}
-            className={`p-2 rounded-lg transition border cursor-pointer ${
+            title={showPathPreview ? 'Hide Shadow Path Preview (P)' : 'Show Shadow Path Preview (P)'}
+            className={`w-8 h-8 flex items-center justify-center cursor-pointer transition select-none ${
               showPathPreview
-                ? 'bg-cyan-950/70 text-cyan-400 border-cyan-700/80 shadow-sm shadow-cyan-950/40'
-                : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 border-slate-700/60'
+                ? 'pixel-btn-icon-active text-black'
+                : 'pixel-btn-icon text-slate-400 hover:text-cyan-300'
             }`}
           >
-            {showPathPreview ? <Eye size={16} /> : <EyeOff size={16} />}
+            {showPathPreview ? <Eye size={14} /> : <EyeOff size={14} />}
           </button>
 
           <button
             onClick={onToggleMute}
             title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
-            className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-cyan-400 transition border border-slate-700/60 cursor-pointer"
+            className="pixel-btn-icon w-8 h-8 flex items-center justify-center text-slate-300 hover:text-cyan-300 cursor-pointer select-none"
           >
-            {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
           </button>
+
           <button
             onClick={onHelp}
             title="How to Play"
-            className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-cyan-400 transition border border-slate-700/60 cursor-pointer"
+            className="pixel-btn-icon w-8 h-8 flex items-center justify-center text-slate-300 hover:text-cyan-300 cursor-pointer select-none"
           >
-            <HelpCircle size={16} />
+            <HelpCircle size={14} />
           </button>
+
           <button
             onClick={onPause}
             title="Pause Menu (Esc)"
-            className="pixel-box-secondary w-9 h-9 flex items-center justify-center cursor-pointer group select-none ml-1"
+            className="pixel-box-secondary w-8 h-8 flex items-center justify-center cursor-pointer group select-none ml-1"
           >
             <svg className="w-3.5 h-3.5 fill-cyan-400 group-hover:fill-white transition-colors" viewBox="0 0 16 16">
               <path d="M4 3h3v10H4V3zm5 0h3v10H9V3z" />
@@ -132,162 +134,166 @@ export const HUD: React.FC<HUDProps> = ({
       </div>
 
       {/* Primary Status & Telemetry Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {/* Steps Remaining Card */}
-        <div className="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
-            <span>Steps Left</span>
+        <div className="pixel-card p-3 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[9px] text-slate-400">
+            <span>STEPS LEFT</span>
             <span className={isLowSteps ? 'text-amber-400 font-bold animate-pulse' : 'text-slate-300'}>
-              {state.currentStep} / {state.maxSteps}
+              {state.currentStep}/{state.maxSteps}
             </span>
           </div>
-          <div className="flex items-baseline gap-2 mt-1">
+          <div className="flex items-baseline gap-2 mt-1.5">
             <span
-              className={`text-2xl font-black tracking-tight ${
+              className={`text-xl font-bold tracking-tight ${
                 isLowSteps ? 'text-amber-400' : 'text-cyan-400'
               }`}
             >
               {stepsRemaining}
             </span>
-            <span className="text-xs text-slate-500">remaining</span>
+            <span className="text-[8px] text-slate-500">REMAINING</span>
           </div>
-          <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+          <div className="w-full h-2 pixel-progress-track mt-2 p-[1px]">
             <div
-              className={`h-full transition-all duration-300 ${
-                isLowSteps ? 'bg-amber-500' : 'bg-cyan-400 shadow-sm shadow-cyan-400'
+              className={`h-full pixel-progress-bar transition-all duration-200 ${
+                isLowSteps ? 'bg-amber-400 text-amber-400' : 'bg-cyan-400 text-cyan-400'
               }`}
-              style={{ width: `${100 - stepPercentage}%` }}
+              style={{ width: `${Math.max(0, 100 - stepPercentage)}%` }}
             />
           </div>
         </div>
 
         {/* Current Loop / Timeline Card */}
-        <div className="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <span className="text-xs text-slate-400 font-medium">Shadow Loop</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-black text-purple-400 tracking-tight">
+        <div className="pixel-card p-3 flex flex-col justify-between">
+          <span className="text-[9px] text-slate-400">SHADOW LOOP</span>
+          <div className="flex items-baseline gap-2 mt-1.5">
+            <span className="text-xl font-bold text-purple-400 tracking-tight">
               {state.currentLoop}
             </span>
-            <span className="text-xs text-slate-500">of {state.maxLoops}</span>
+            <span className="text-[8px] text-slate-500">OF {state.maxLoops}</span>
           </div>
           <div className="flex gap-1.5 mt-2">
             {Array.from({ length: state.maxLoops }).map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 flex-1 rounded-full transition-colors ${
-                  i < state.currentLoop
-                    ? i === 0
-                      ? 'bg-cyan-400 shadow-sm shadow-cyan-400'
-                      : i === 1
-                      ? 'bg-purple-400 shadow-sm shadow-purple-400'
-                      : 'bg-amber-400 shadow-sm shadow-amber-400'
-                    : 'bg-slate-800'
-                }`}
-              />
+                className={`h-2 flex-1 pixel-progress-track p-[1px]`}
+              >
+                <div
+                  className={`h-full transition-colors ${
+                    i < state.currentLoop
+                      ? i === 0
+                        ? 'bg-cyan-400'
+                        : i === 1
+                        ? 'bg-purple-400'
+                        : 'bg-amber-400'
+                      : 'bg-transparent'
+                  }`}
+                />
+              </div>
             ))}
           </div>
         </div>
 
         {/* Key Inventory Card */}
-        <div className="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <span className="text-xs text-slate-400 font-medium">Inventory Keys</span>
-          <div className="flex items-center gap-2 mt-1">
+        <div className="pixel-card p-3 flex flex-col justify-between">
+          <span className="text-[9px] text-slate-400">INVENTORY KEYS</span>
+          <div className="flex items-center gap-1.5 mt-1.5">
             {state.keys.length === 0 ? (
-              <span className="text-xs text-slate-500 italic">None required</span>
+              <span className="text-[8px] text-slate-500">NONE REQUIRED</span>
             ) : (
               state.keys.map((key) => (
                 <div
                   key={key.id}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition ${
+                  className={`pixel-badge items-center gap-1.5 px-2 py-1 text-[8px] font-bold ${
                     key.isCollected
-                      ? 'bg-amber-950/80 border-amber-500/80 text-amber-300 shadow-md shadow-amber-950/50'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-600'
+                      ? 'bg-amber-950/80 text-amber-300'
+                      : 'bg-slate-950/60 text-slate-600'
                   }`}
                 >
-                  <Key size={13} className={key.isCollected ? 'text-amber-400 animate-pulse' : 'text-slate-600'} />
-                  <span>{key.isCollected ? 'Carrying Key' : 'Key Unfound'}</span>
+                  <Key size={10} className={key.isCollected ? 'text-amber-400 animate-pulse' : 'text-slate-600'} />
+                  <span>{key.isCollected ? 'KEY READY' : 'KEY MISSING'}</span>
                 </div>
               ))
             )}
           </div>
-          <span className="text-[11px] text-slate-500 mt-2 truncate">
+          <span className="text-[8px] text-slate-500 mt-2 truncate">
             {state.exit.requiresKey
               ? state.exit.isUnlocked
-                ? 'Exit portal unlocked'
-                : 'Exit portal sealed'
-              : 'Direct exit available'}
+                ? 'EXIT UNLOCKED'
+                : 'EXIT LOCKED'
+              : 'DIRECT EXIT OPEN'}
           </span>
         </div>
 
         {/* Action Controls Bar */}
-        <div className="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-xl p-2 flex items-center justify-around gap-1.5">
+        <div className="pixel-card p-2 flex items-center justify-around gap-1.5">
           {/* End Loop Button */}
           <button
             onClick={onEndLoop}
             disabled={!canEndLoop}
-            className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-lg font-medium text-xs transition border cursor-pointer ${
+            className={`flex-1 flex flex-col items-center justify-center py-2 px-1 text-[8px] transition select-none cursor-pointer ${
               canEndLoop
-                ? 'bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border-purple-800/80 hover:border-purple-600 shadow-sm shadow-purple-900/30'
-                : 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed opacity-50'
+                ? 'pixel-box-ghost text-purple-200'
+                : 'bg-slate-900/40 text-slate-600 opacity-40 cursor-not-allowed'
             }`}
-            title="Record path and rewind timeline to spawn ghost (Enter)"
+            title="Record path and rewind to spawn shadow (Enter)"
           >
             <div className="flex items-center gap-1">
-              <FastForward size={14} />
-              <span className="font-semibold">End Loop</span>
+              <FastForward size={12} />
+              <span className="font-bold">END LOOP</span>
             </div>
-            <span className="text-[10px] text-purple-400/80 mt-0.5">Enter</span>
+            <span className="text-[7px] text-purple-400/80 mt-0.5">[ENTER]</span>
           </button>
 
           {/* Wait Button */}
           <button
             onClick={onWait}
             disabled={state.gameStatus !== 'PLAYING'}
-            className="flex flex-col items-center justify-center py-1.5 px-2 rounded-lg font-medium text-xs transition border bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-cyan-300 border-slate-700/60 cursor-pointer"
+            className="pixel-box-secondary flex flex-col items-center justify-center py-2 px-2 text-[8px] text-slate-300 hover:text-cyan-300 cursor-pointer select-none"
             title="Pass turn in place (Space)"
           >
-            <span className="font-semibold">Wait</span>
-            <span className="text-[10px] text-slate-400 mt-0.5">Space</span>
+            <span className="font-bold">WAIT</span>
+            <span className="text-[7px] text-slate-400 mt-0.5">[SPACE]</span>
           </button>
 
           {/* Undo Button */}
           <button
             onClick={onUndo}
             disabled={!canUndo}
-            className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-lg font-medium text-xs transition border cursor-pointer ${
+            className={`flex flex-col items-center justify-center py-2 px-2 text-[8px] select-none ${
               canUndo
-                ? 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-cyan-300 border-slate-700/60'
-                : 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed opacity-50'
+                ? 'pixel-box-secondary text-slate-300 hover:text-cyan-300 cursor-pointer'
+                : 'bg-slate-900/40 text-slate-600 opacity-40 cursor-not-allowed'
             }`}
             title="Undo last move (Z)"
           >
-            <Undo2 size={14} />
-            <span className="text-[10px] text-slate-400 mt-0.5">Z</span>
+            <Undo2 size={12} />
+            <span className="text-[7px] text-slate-400 mt-0.5">[Z]</span>
           </button>
 
           {/* Restart Button */}
           <button
             onClick={onRestart}
-            className="flex flex-col items-center justify-center py-1.5 px-2 rounded-lg font-medium text-xs transition border bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-rose-400 border-slate-700/60 cursor-pointer"
+            className="pixel-box-secondary flex flex-col items-center justify-center py-2 px-2 text-[8px] text-slate-300 hover:text-rose-400 cursor-pointer select-none"
             title="Restart Level completely (R)"
           >
-            <RotateCcw size={14} />
-            <span className="text-[10px] text-slate-400 mt-0.5">R</span>
+            <RotateCcw size={12} />
+            <span className="text-[7px] text-slate-400 mt-0.5">[R]</span>
           </button>
         </div>
       </div>
 
-      {/* Ghost Timeline Bar - Showing recorded movement count, identity, and live status */}
+      {/* Ghost Timeline Bar */}
       {state.ghosts.length > 0 && (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-slate-400 font-medium">
-            <Radio size={14} className="text-purple-400 animate-pulse" />
-            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
-              Shadow Timelines:
+        <div className="pixel-card-subtle px-3 py-2 flex flex-wrap items-center justify-between gap-3 text-[9px]">
+          <div className="flex items-center gap-2 text-slate-400">
+            <Radio size={12} className="text-purple-400 animate-pulse" />
+            <span className="uppercase tracking-wider text-slate-400 font-bold">
+              SHADOW TIMELINES:
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             {state.ghosts.map((ghost) => {
               const totalMoves = ghost.path.length - 1;
               const isStationed = state.currentStep >= totalMoves;
@@ -296,28 +302,28 @@ export const HUD: React.FC<HUDProps> = ({
               return (
                 <div
                   key={ghost.id}
-                  className="flex items-center gap-2 bg-slate-950/80 border rounded-lg px-2.5 py-1"
-                  style={{ borderColor: `${ghost.color}66` }}
+                  className="pixel-badge items-center gap-1.5 px-2 py-1 bg-slate-950/80 text-[8px]"
+                  style={{ color: ghost.color }}
                 >
                   <span
-                    className="w-2 h-2 rounded-full"
+                    className="w-2 h-2"
                     style={{ backgroundColor: ghost.color }}
                   />
-                  <span className="font-bold" style={{ color: ghost.color }}>
-                    Shadow {ghost.id}
+                  <span className="font-bold">
+                    SHADOW {ghost.id}
                   </span>
-                  <span className="text-slate-500">|</span>
-                  <span className="text-slate-300 font-mono text-[11px]">
-                    Recorded: {totalMoves} moves
+                  <span className="text-slate-600">|</span>
+                  <span className="text-slate-300">
+                    MOVES: {totalMoves}
                   </span>
-                  <span className="text-slate-500">|</span>
+                  <span className="text-slate-600">|</span>
                   {isStationed ? (
-                    <span className="flex items-center gap-1 text-emerald-400 text-[11px] font-semibold">
-                      <Anchor size={11} /> Stationed
+                    <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                      <Anchor size={9} /> STATIONED
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 text-cyan-300 text-[11px] font-semibold">
-                      <Play size={10} className="fill-cyan-300" /> Step {curGhostStep}/{totalMoves}
+                    <span className="flex items-center gap-1 text-cyan-300 font-bold">
+                      <Play size={8} className="fill-cyan-300" /> STEP {curGhostStep}/{totalMoves}
                     </span>
                   )}
                 </div>

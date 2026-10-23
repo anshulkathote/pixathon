@@ -52,7 +52,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in font-pixel select-none">
       <div className="pixel-modal relative w-full max-w-md p-6 sm:p-7 flex flex-col items-center text-center text-slate-200">
         {/* Top Close 'X' Button */}
         <div className="absolute top-3.5 right-3.5">
@@ -68,25 +68,25 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         {/* Victory Trophy Badge */}
-        <div className="mx-auto mb-3.5 w-12 h-12 bg-[#172238] border-2 border-[#2b3a60] flex items-center justify-center shadow-[0_0_16px_rgba(255,209,92,0.35)]">
+        <div className="mx-auto mb-3.5 w-12 h-12 pixel-card-subtle flex items-center justify-center shadow-[0_0_16px_rgba(255,209,92,0.35)]">
           <svg className="w-7 h-7 fill-amber-300" viewBox="0 0 16 16">
             <path d="M3 2h10v2h-1v4h-1v2H9v2h2v2H5v-2h2v-2H5V8H4V4H3V2zm-1 2h1v3h1V4H3v3h1v1H2V4zm11 0h1v4h-2V7h1V4z" />
           </svg>
         </div>
 
         {/* Header Titles */}
-        <div className="inline-block px-2.5 py-1 bg-amber-950/40 border border-amber-600/40 text-[#ffd15c] font-pixel text-[9px] mb-2 tracking-widest uppercase">
+        <div className="pixel-badge px-2.5 py-1 bg-amber-950/60 text-[#ffd15c] text-[9px] mb-2 tracking-widest uppercase">
           PARADOX RESOLVED
         </div>
-        <h3 className="font-pixel text-lg text-white tracking-wide mb-1">
+        <h3 className="text-sm sm:text-base text-white tracking-wide mb-1.5">
           LEVEL COMPLETED!
         </h3>
-        <p className="font-mono-code text-xs text-violet-300/80 mb-4">
-          Shadow unified in Chamber 0{level.id} (<span className="text-amber-300">{state.currentLoop} Loop{state.currentLoop > 1 ? 's' : ''}</span>)
+        <p className="text-[9px] text-violet-300/90 mb-4 leading-relaxed">
+          SHADOW UNIFIED IN CHAMBER 0{level.id} (<span className="text-amber-300">{state.currentLoop} LOOP{state.currentLoop > 1 ? 'S' : ''}</span>)
         </p>
 
         {/* Stars Rating Display */}
-        <div className="flex items-center justify-center gap-3 py-2 px-4 bg-[#0a0f1d] border border-slate-800/80 mb-5 w-full">
+        <div className="flex items-center justify-center gap-3 py-2.5 px-4 pixel-card-subtle mb-5 w-full">
           <svg className="w-5 h-5 fill-[#ffd15c] drop-shadow-[0_0_4px_#ffd15c]" viewBox="0 0 16 16">
             <path d="M7 1h2v3h2v2h3v2h-2v2h1v3h-3v-2H8v2H5v-3h1v-2H4V6h3V4h-1V1h1z" />
           </svg>
@@ -103,7 +103,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           >
             <path d="M7 1h2v3h2v2h3v2h-2v2h1v3h-3v-2H8v2H5v-3h1v-2H4V6h3V4h-1V1h1z" />
           </svg>
-          <span className="text-[10px] font-pixel text-slate-400 ml-2">
+          <span className="text-[9px] text-slate-400 ml-2">
             {state.currentLoop <= 2 ? '3 / 3' : '2 / 3'} STARS
           </span>
         </div>
@@ -113,7 +113,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           {hasNextLevel ? (
             <button
               onClick={onNextLevel}
-              className="pixel-box-cyan w-full py-3.5 text-black font-pixel text-xs tracking-wider flex items-center justify-center gap-2.5 cursor-pointer group select-none"
+              className="pixel-box-cyan w-full py-3.5 text-black text-xs tracking-wider flex items-center justify-center gap-2.5 cursor-pointer group select-none"
             >
               <span>NEXT LEVEL</span>
               <svg className="w-3.5 h-3.5 fill-black group-hover:translate-x-1 transition-transform" viewBox="0 0 16 16">
@@ -121,15 +121,15 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               </svg>
             </button>
           ) : (
-            <div className="py-3 px-4 bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 font-pixel text-xs">
-              🎉 ALL CHAMBERS UNLOCKED!
+            <div className="pixel-card-subtle py-3 px-4 text-emerald-300 text-[10px]">
+              ALL CHAMBERS UNLOCKED!
             </div>
           )}
 
           {/* Replay Level */}
           <button
             onClick={onRestart}
-            className="pixel-box-secondary w-full py-3 text-slate-200 font-pixel text-[11px] tracking-wider flex items-center justify-center gap-2.5 cursor-pointer group select-none"
+            className="pixel-box-secondary w-full py-3 text-slate-200 text-[10px] tracking-wider flex items-center justify-center gap-2.5 cursor-pointer group select-none"
           >
             <svg className="w-3.5 h-3.5 fill-cyan-400 group-hover:rotate-180 transition-transform duration-300" viewBox="0 0 16 16">
               <path d="M8 2v3L5 2 8 2zm3 2h2v4h-2V5H9V3h2v1zM3 8H1v5h5v-2H3V8zm10 0v3h-2v2h3v-5h-1zM5 11h6v2H5v-2z" />
@@ -139,7 +139,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         {/* Micro Telemetry Details */}
-        <div className="mt-4 pt-3 border-t border-slate-800/80 w-full flex items-center justify-between text-[10px] font-mono-code text-slate-500">
+        <div className="mt-4 pt-3 border-t border-slate-800/80 w-full flex items-center justify-between text-[8px] text-slate-500">
           <span>STEPS: {state.currentStep}/{state.maxSteps}</span>
           <span className="text-violet-400">PARADOX FREE</span>
         </div>

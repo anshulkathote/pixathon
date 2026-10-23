@@ -19,67 +19,67 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   completedLevels,
 }) => {
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-6 bg-[#060913] text-slate-100 overflow-hidden select-none">
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-6 bg-[#060913] text-slate-100 overflow-hidden select-none font-pixel">
       {/* Background radial atmosphere */}
-      <div className="absolute w-[600px] h-[600px] rounded-full bg-cyan-600/10 blur-[140px] pointer-events-none -top-40 -left-20" />
-      <div className="absolute w-[500px] h-[500px] rounded-full bg-purple-600/10 blur-[130px] pointer-events-none -bottom-30 -right-20" />
+      <div className="absolute w-[600px] h-[600px] bg-cyan-600/10 blur-[140px] pointer-events-none -top-40 -left-20" />
+      <div className="absolute w-[500px] h-[500px] bg-purple-600/10 blur-[130px] pointer-events-none -bottom-30 -right-20" />
 
       {/* Decorative Grid Lines */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none" />
 
       {/* Main Brand Card */}
       <div className="relative z-10 w-full max-w-lg flex flex-col items-center text-center">
-        {/* Animated Cyber Tag */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-950/70 border border-violet-500/40 text-violet-300 text-xs font-semibold tracking-widest uppercase mb-4 shadow-lg shadow-violet-950/40 animate-pulse">
-          <Sparkles size={13} />
-          <span>Shadow Co-op Puzzle</span>
+        {/* Pixel Badge Cyber Tag */}
+        <div className="pixel-badge items-center gap-2 px-3 py-1.5 bg-violet-950/80 text-violet-300 text-[9px] uppercase tracking-widest mb-5 animate-pulse shadow-[0_0_12px_rgba(189,82,255,0.4)]">
+          <Sparkles size={12} />
+          <span>SHADOW CO-OP PUZZLE</span>
         </div>
 
         {/* Title */}
-        <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-200 to-purple-500 drop-shadow-sm">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-200 to-purple-500 drop-shadow-[0_4px_0_#03060c] mb-3">
           SHADOW MAZE
         </h1>
 
         {/* Subtitle / Core Hook */}
-        <p className="text-base sm:text-lg text-slate-300 font-medium mt-3 max-w-md">
-          You are not playing alone.{' '}
-          <span className="text-violet-300 font-semibold block sm:inline">
-            You are cooperating with your shadow.
+        <p className="text-[10px] sm:text-xs text-slate-300 mt-2 max-w-md leading-relaxed">
+          YOU ARE NOT PLAYING ALONE.{' '}
+          <span className="text-violet-300 block sm:inline">
+            YOU ARE COOPERATING WITH YOUR SHADOW.
           </span>
         </p>
 
-        <p className="text-xs text-slate-400 mt-2 max-w-sm leading-relaxed">
-          Record your path. Rewind the loop. Your translucent shadows replay your past movements to hold plates, bypass dark barriers, and unlock the sanctum.
+        <p className="text-[8px] text-slate-400 mt-3 max-w-md leading-relaxed">
+          RECORD PATH. REWIND LOOP. TRANSLUCENT SHADOWS REPLAY MOVEMENTS TO HOLD PLATES & UNLOCK THE SANCTUM.
         </p>
 
         {/* Hero Interactive Elements Preview */}
-        <div className="flex items-center justify-center gap-5 my-8 bg-slate-900/60 backdrop-blur-md border border-slate-800/80 px-6 py-3.5 rounded-2xl shadow-xl">
+        <div className="flex items-center justify-center gap-4 my-7 pixel-card px-5 py-3.5">
           {/* Player Avatar */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-9 h-9 rounded-full bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-              <div className="w-3.5 h-3.5 rounded-full bg-cyan-300" />
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-8 h-8 pixel-card bg-cyan-950/80 flex items-center justify-center shadow-[0_0_8px_rgba(0,240,255,0.4)]">
+              <div className="w-3.5 h-3.5 bg-cyan-400" />
             </div>
-            <span className="text-[11px] font-mono text-cyan-300">You (Now)</span>
+            <span className="text-[8px] text-cyan-300">YOU</span>
           </div>
 
           <span className="text-slate-600 font-bold">+</span>
 
           {/* Shadow 1 */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-9 h-9 rounded-full bg-purple-500/20 border-2 border-purple-400 flex items-center justify-center shadow-lg shadow-purple-500/30 opacity-75">
-              <span className="text-xs font-bold text-purple-200">1</span>
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-8 h-8 pixel-card bg-purple-950/80 flex items-center justify-center opacity-85 shadow-[0_0_8px_rgba(189,82,255,0.4)]">
+              <span className="text-[10px] font-bold text-purple-200">1</span>
             </div>
-            <span className="text-[11px] font-mono text-purple-300">Shadow 1</span>
+            <span className="text-[8px] text-purple-300">SHADOW 1</span>
           </div>
 
           <span className="text-slate-600 font-bold">+</span>
 
           {/* Shadow 2 */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-9 h-9 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/30 opacity-75">
-              <span className="text-xs font-bold text-amber-200">2</span>
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-8 h-8 pixel-card bg-amber-950/80 flex items-center justify-center opacity-85 shadow-[0_0_8px_rgba(255,209,92,0.4)]">
+              <span className="text-[10px] font-bold text-amber-200">2</span>
             </div>
-            <span className="text-[11px] font-mono text-amber-300">Shadow 2</span>
+            <span className="text-[8px] text-amber-300">SHADOW 2</span>
           </div>
         </div>
 
@@ -87,9 +87,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         <div className="w-full max-w-xs flex flex-col gap-3.5">
           <button
             onClick={onStartGame}
-            className="pixel-box-cyan w-full py-3.5 px-6 font-pixel text-xs text-black tracking-wider flex items-center justify-center gap-3 cursor-pointer group select-none"
+            className="pixel-box-cyan w-full py-3.5 px-6 text-xs text-black tracking-wider flex items-center justify-center gap-3 cursor-pointer group select-none"
           >
-            <svg className="w-4 h-4 fill-black group-hover:scale-110 transition-transform" viewBox="0 0 16 16">
+            <svg className="w-3.5 h-3.5 fill-black group-hover:scale-110 transition-transform" viewBox="0 0 16 16">
               <path d="M4 2v12l10-6L4 2z" />
             </svg>
             <span>START GAME</span>
@@ -98,32 +98,32 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
           <button
             onClick={onOpenLevelSelect}
-            className="pixel-box-secondary w-full py-3 px-5 font-pixel text-[11px] text-cyan-300 tracking-wider flex items-center justify-center gap-2.5 cursor-pointer group select-none"
+            className="pixel-box-secondary w-full py-3 px-5 text-[10px] text-cyan-300 tracking-wider flex items-center justify-center gap-2.5 cursor-pointer group select-none"
           >
-            <Grid size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+            <Grid size={13} className="text-cyan-400 group-hover:scale-110 transition-transform" />
             <span>CHAMBERS ({completedLevels.length}/{LEVELS.length})</span>
           </button>
 
           <button
             onClick={onOpenTutorial}
-            className="pixel-box-secondary w-full py-2.5 px-4 font-mono-code text-xs text-slate-300 flex items-center justify-center gap-2 cursor-pointer select-none hover:text-white"
+            className="pixel-box-secondary w-full py-2.5 px-4 text-[10px] text-slate-300 flex items-center justify-center gap-2 cursor-pointer select-none hover:text-white"
           >
-            <HelpCircle size={14} className="text-cyan-400" />
+            <HelpCircle size={13} className="text-cyan-400" />
             <span>HOW TO PLAY</span>
           </button>
         </div>
 
         {/* Footer controls */}
-        <div className="mt-8 flex items-center gap-4 text-xs text-slate-500">
+        <div className="mt-8 flex items-center gap-4 text-[8px] text-slate-500">
           <button
             onClick={onToggleMute}
             className="flex items-center gap-1.5 hover:text-slate-300 transition cursor-pointer"
           >
-            {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-            <span>{isMuted ? 'Muted' : 'Audio On'}</span>
+            {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+            <span>{isMuted ? 'MUTED' : 'AUDIO ON'}</span>
           </button>
           <span>•</span>
-          <span>Keyboard & Touch Enabled</span>
+          <span>KEYBOARD & TOUCH</span>
         </div>
       </div>
     </div>
