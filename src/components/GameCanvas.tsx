@@ -361,41 +361,90 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const offsetY = Math.floor((displayHeight - gridPixelHeight) / 2);
 
       // --- 0. DEEP SPACE & SURROUNDING SPACESHIP SUPERSTRUCTURE ---
-      // Outer facility background - deep space & structural bulkheads
-      ctx.fillStyle = '#08080f';
+      // Clear background with deep cosmic void
+      ctx.fillStyle = '#03060f';
       ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-      // Subtle ambient stars / nebula particles in outer perimeter
-      for (let s = 0; s < 36; s++) {
+      // Distant stars / nebula dust in background void
+      for (let s = 0; s < 40; s++) {
         const sx = (Math.sin(s * 91.7 + 12.3) * 0.5 + 0.5) * displayWidth;
         const sy = (Math.cos(s * 43.1 + 84.9) * 0.5 + 0.5) * displayHeight;
-        const sBrightness = 0.15 + (Math.sin(now * 0.0015 + s * 1.5) * 0.5 + 0.5) * 0.35;
-        ctx.fillStyle = s % 3 === 0 ? `rgba(0, 240, 255, ${sBrightness})` : `rgba(168, 85, 247, ${sBrightness * 0.7})`;
+        const sBrightness = 0.2 + (Math.sin(now * 0.0015 + s * 1.5) * 0.5 + 0.5) * 0.4;
+        ctx.fillStyle = s % 3 === 0 ? `rgba(0, 240, 255, ${sBrightness})` : `rgba(168, 85, 247, ${sBrightness * 0.8})`;
         ctx.fillRect(Math.floor(sx), Math.floor(sy), s % 4 === 0 ? 2 : 1, s % 4 === 0 ? 2 : 1);
       }
 
       // Outer spaceship hull panel plating around the active maze module
-      const outerHullPadding = Math.max(16, Math.floor(cellSize * 0.65));
+      const outerHullPadding = Math.max(16, Math.floor(cellSize * 0.6));
       const hullLeft = offsetX - outerHullPadding;
       const hullTop = offsetY - outerHullPadding;
       const hullWidth = gridPixelWidth + outerHullPadding * 2;
       const hullHeight = gridPixelHeight + outerHullPadding * 2;
 
-      // Heavy industrial perimeter hull
-      ctx.fillStyle = '#10131f';
+      // Outer hull bay foundation
+      ctx.fillStyle = '#070c1b';
       ctx.fillRect(hullLeft, hullTop, hullWidth, hullHeight);
 
-      // Outer steel rim
-      ctx.strokeStyle = '#222940';
+      // Heavy modular steel bulkhead rim
+      ctx.strokeStyle = '#152244';
       ctx.lineWidth = 3;
       ctx.strokeRect(hullLeft, hullTop, hullWidth, hullHeight);
 
-      // Perimeter outer wall dark void rim
-      ctx.strokeStyle = '#05060a';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(hullLeft + 2, hullTop + 2, hullWidth - 4, hullHeight - 4);
+      // Outer corner diagonal braces / tech bevels
+      const braceSize = Math.min(24, Math.floor(outerHullPadding * 0.8));
+      ctx.fillStyle = '#1e3260';
+      // TL brace
+      ctx.beginPath();
+      ctx.moveTo(hullLeft, hullTop + braceSize);
+      ctx.lineTo(hullLeft + braceSize, hullTop);
+      ctx.lineTo(hullLeft, hullTop);
+      ctx.fill();
+      // TR brace
+      ctx.beginPath();
+      ctx.moveTo(hullLeft + hullWidth - braceSize, hullTop);
+      ctx.lineTo(hullLeft + hullWidth, hullTop + braceSize);
+      ctx.lineTo(hullLeft + hullWidth, hullTop);
+      ctx.fill();
+      // BL brace
+      ctx.beginPath();
+      ctx.moveTo(hullLeft, hullTop + hullHeight - braceSize);
+      ctx.lineTo(hullLeft + braceSize, hullTop + hullHeight);
+      ctx.lineTo(hullLeft, hullTop + hullHeight);
+      ctx.fill();
+      // BR brace
+      ctx.beginPath();
+      ctx.moveTo(hullLeft + hullWidth - braceSize, hullTop + hullHeight);
+      ctx.lineTo(hullLeft + hullWidth, hullTop + hullHeight - braceSize);
+      ctx.lineTo(hullLeft + hullWidth, hullTop + hullHeight);
+      ctx.fill();
 
-      // --- 1. INDUSTRIAL CORRIDOR FLOOR PLATING & GRATES ---
+      // Atmospheric cyan conduit perimeter glow around active sector
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 12;
+      ctx.strokeRect(offsetX - 2, offsetY - 2, gridPixelWidth + 4, gridPixelHeight + 4);
+      ctx.restore();
+
+      // Ambient radial lighting centered on the player's sector
+      const playerPixelX = offsetX + animPlayerPos.current.x * cellSize + cellSize / 2;
+      const playerPixelY = offsetY + animPlayerPos.current.y * cellSize + cellSize / 2;
+      const auraGrad = ctx.createRadialGradient(
+        playerPixelX,
+        playerPixelY,
+        cellSize * 0.5,
+        playerPixelX,
+        playerPixelY,
+        cellSize * 4.5
+      );
+      auraGrad.addColorStop(0, 'rgba(0, 240, 255, 0.08)');
+      auraGrad.addColorStop(0.6, 'rgba(13, 242, 200, 0.03)');
+      auraGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = auraGrad;
+      ctx.fillRect(offsetX, offsetY, gridPixelWidth, gridPixelHeight);
+
+      // --- 1. WALKABLE SPACESHIP CORRIDOR FLOOR TILES ---
       for (let y = 0; y < level.height; y++) {
         for (let x = 0; x < level.width; x++) {
           const cx = offsetX + x * cellSize;
@@ -403,133 +452,57 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           const isWall = level.walls.some((w) => w.x === x && w.y === y);
 
           if (!isWall) {
+            // Pick floor tile pattern based on coordinate hash:
+            // 70% main hull plate, 20% tech mesh vent, 10% special energy conduit
             const hash = (x * 7 + y * 13) % 10;
-            const isGrate = hash === 3 || hash === 8;
+            let tileKey = 'floor_main';
+            if (hash === 2 || hash === 8) tileKey = 'floor_alt';
+            else if (hash === 5) tileKey = 'floor_energy';
 
-            if (isGrate) {
-              // Industrial ventilation mesh / drainage grate tile
-              ctx.fillStyle = '#151c2e';
-              ctx.fillRect(cx, cy, cellSize, cellSize);
-
-              // Grate mesh slits
-              ctx.fillStyle = '#0a0d16';
-              const slitH = Math.max(2, Math.floor(cellSize * 0.08));
-              const gap = Math.max(4, Math.floor(cellSize * 0.16));
-              for (let gy = cy + 4; gy < cy + cellSize - 4; gy += gap) {
-                ctx.fillRect(cx + 4, gy, cellSize - 8, slitH);
-              }
-
-              // Grate frame border
-              ctx.strokeStyle = '#283652';
-              ctx.lineWidth = 1;
-              ctx.strokeRect(cx + 1, cy + 1, cellSize - 2, cellSize - 2);
+            const tileImg = tileImages.current[tileKey] || tileImages.current['floor_plain'];
+            if (tileImg && tileImg.complete && tileImg.naturalWidth > 0) {
+              ctx.drawImage(tileImg, cx, cy, cellSize, cellSize);
             } else {
-              // Heavy metallic floor plate (blue-grey slate)
-              ctx.fillStyle = '#212f48';
+              // Deep spaceship hull floor fallback
+              ctx.fillStyle = '#101a33';
               ctx.fillRect(cx, cy, cellSize, cellSize);
 
-              // Inner floor plate tone variation
-              const shade = (x + y) % 2 === 0 ? '#263753' : '#1e2b42';
-              ctx.fillStyle = shade;
-              ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+              ctx.fillStyle = '#121e3c';
+              ctx.fillRect(cx + 1, cy + 1, cellSize - 2, cellSize - 2);
 
-              // Metal floor seams & bevels
-              ctx.strokeStyle = '#121a2a';
-              ctx.lineWidth = 1.5;
+              ctx.strokeStyle = '#1b2a50';
+              ctx.lineWidth = 1;
               ctx.strokeRect(cx + 0.5, cy + 0.5, cellSize - 1, cellSize - 1);
+            }
 
-              // Subtle corner bolts
-              ctx.fillStyle = '#3f567f';
-              ctx.fillRect(cx + 4, cy + 4, 2, 2);
-              ctx.fillRect(cx + cellSize - 6, cy + 4, 2, 2);
-              ctx.fillRect(cx + 4, cy + cellSize - 6, 2, 2);
-              ctx.fillRect(cx + cellSize - 6, cy + cellSize - 6, 2, 2);
+            // High-readability corridor floor seams & subtle bolt accents
+            ctx.strokeStyle = '#0a1020';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(cx + 0.5, cy + 0.5, cellSize - 1, cellSize - 1);
 
-              // Subtle scratch / panel seam line
-              if (hash === 5) {
-                ctx.strokeStyle = '#182338';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(cx + 6, cy + cellSize / 2);
-                ctx.lineTo(cx + cellSize - 6, cy + cellSize / 2);
-                ctx.stroke();
+            // Subtle corner rivets
+            ctx.fillStyle = '#223668';
+            ctx.fillRect(cx + 3, cy + 3, 2, 2);
+            ctx.fillRect(cx + cellSize - 5, cy + 3, 2, 2);
+            ctx.fillRect(cx + 3, cy + cellSize - 5, 2, 2);
+            ctx.fillRect(cx + cellSize - 5, cy + cellSize - 5, 2, 2);
+
+            // Tech console / cable splice details on select floor junctions
+            if ((x * 11 + y * 17) % 23 === 7) {
+              const decoKey = (x + y) % 2 === 0 ? 'deco_terminal' : 'deco_cables';
+              const decoImg = tileImages.current[decoKey];
+              if (decoImg && decoImg.complete && decoImg.naturalWidth > 0) {
+                ctx.save();
+                ctx.globalAlpha = 0.85;
+                ctx.drawImage(decoImg, cx, cy, cellSize, cellSize);
+                ctx.restore();
               }
             }
-
-            // Floor cables snaking across corridors (as in reference image)
-            if ((x * 11 + y * 17) % 19 === 7) {
-              ctx.save();
-              ctx.strokeStyle = '#0e121a';
-              ctx.lineWidth = 3;
-              ctx.beginPath();
-              ctx.moveTo(cx, cy + cellSize * 0.7);
-              ctx.bezierCurveTo(cx + cellSize * 0.4, cy + cellSize * 0.9, cx + cellSize * 0.6, cy + cellSize * 0.3, cx + cellSize, cy + cellSize * 0.5);
-              ctx.stroke();
-
-              // Colored wire jacket
-              ctx.strokeStyle = (x % 2 === 0) ? '#852b36' : '#2d4b68';
-              ctx.lineWidth = 1.5;
-              ctx.beginPath();
-              ctx.moveTo(cx, cy + cellSize * 0.7);
-              ctx.bezierCurveTo(cx + cellSize * 0.4, cy + cellSize * 0.9, cx + cellSize * 0.6, cy + cellSize * 0.3, cx + cellSize, cy + cellSize * 0.5);
-              ctx.stroke();
-              ctx.restore();
-            }
           }
         }
       }
 
-      // --- 2. RADIANT CYAN NEON FLOOR LIGHT GUIDES & CIRCUITS ---
-      // Draw continuous cyan neon light strips along the corridor paths (signature look from reference image)
-      for (let y = 0; y < level.height; y++) {
-        for (let x = 0; x < level.width; x++) {
-          const isWall = level.walls.some((w) => w.x === x && w.y === y);
-          if (isWall) continue;
-
-          const cx = offsetX + x * cellSize;
-          const cy = offsetY + y * cellSize;
-
-          // Check if neighboring cells are walls to place floor edge neon tracks
-          const hasWallN = level.walls.some((w) => w.x === x && w.y === y - 1);
-          const hasWallS = level.walls.some((w) => w.x === x && w.y === y + 1);
-          const hasWallW = level.walls.some((w) => w.x === x - 1 && w.y === y);
-          const hasWallE = level.walls.some((w) => w.x === x + 1 && w.y === y);
-
-          // Draw neon guide strip along corridor edge parallel to walls
-          ctx.save();
-          ctx.shadowColor = '#00f0ff';
-          ctx.shadowBlur = 8;
-          ctx.strokeStyle = '#00f0ff';
-          ctx.lineWidth = Math.max(2, Math.floor(cellSize * 0.05));
-
-          const margin = Math.max(4, Math.floor(cellSize * 0.14));
-
-          if (hasWallN && !hasWallW && !hasWallE) {
-            ctx.beginPath();
-            ctx.moveTo(cx, cy + margin);
-            ctx.lineTo(cx + cellSize, cy + margin);
-            ctx.stroke();
-          } else if (hasWallS && !hasWallW && !hasWallE) {
-            ctx.beginPath();
-            ctx.moveTo(cx, cy + cellSize - margin);
-            ctx.lineTo(cx + cellSize, cy + cellSize - margin);
-            ctx.stroke();
-          } else if (hasWallW && !hasWallN && !hasWallS) {
-            ctx.beginPath();
-            ctx.moveTo(cx + margin, cy);
-            ctx.lineTo(cx + margin, cy + cellSize);
-            ctx.stroke();
-          } else if (hasWallE && !hasWallN && !hasWallS) {
-            ctx.beginPath();
-            ctx.moveTo(cx + cellSize - margin, cy);
-            ctx.lineTo(cx + cellSize - margin, cy + cellSize);
-            ctx.stroke();
-          }
-          ctx.restore();
-        }
-      }
-
-      // Circuit conduit lines connecting pressure plates to their linked doors
+      // --- 2. CIRCUIT CONDUIT LINES (Plates to Doors) ---
       for (const door of state.doors) {
         if (!door.linkedPlateId) continue;
         const plate = state.plates.find((p) => p.id === door.linkedPlateId);
@@ -547,89 +520,102 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.lineTo(dx, dy);
 
         if (door.isOpen) {
-          // Blazing active cyan circuit
-          ctx.strokeStyle = '#00f0ff';
-          ctx.lineWidth = Math.max(2.5, Math.floor(cellSize * 0.07));
+          // Active glowing neon circuit (cyan/teal pulse)
+          ctx.strokeStyle = '#0df2c8';
+          ctx.lineWidth = Math.max(2, Math.floor(cellSize * 0.06));
           ctx.shadowColor = '#00f0ff';
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = 10;
           ctx.stroke();
 
-          // Flowing pulse particle
+          // Flowing energy pulse
           const pulsePhase = (now * 0.003) % 1;
           const pulseX = tx + (dx - tx) * pulsePhase;
           const pulseY = ty + (dy - ty) * pulsePhase;
           ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = '#ffffff';
+          ctx.shadowColor = '#00f0ff';
           ctx.shadowBlur = 10;
           ctx.beginPath();
-          ctx.arc(pulseX, pulseY, Math.max(2.5, cellSize * 0.06), 0, Math.PI * 2);
+          ctx.arc(pulseX, pulseY, Math.max(2, cellSize * 0.05), 0, Math.PI * 2);
           ctx.fill();
         } else {
-          // Dormant cable trench
-          ctx.strokeStyle = '#18243a';
-          ctx.lineWidth = Math.max(2, Math.floor(cellSize * 0.04));
+          // Dormant tech conduit wire
+          ctx.strokeStyle = 'rgba(27, 43, 84, 0.7)';
+          ctx.lineWidth = Math.max(1.5, Math.floor(cellSize * 0.035));
+          ctx.setLineDash([4, 4]);
           ctx.stroke();
         }
         ctx.restore();
       }
 
-      // --- 3. PRESSURE PLATES (Capacitive Sub-Floor Trigger Terminals) ---
+      // --- 3. PRESSURE PLATES (Mechanical & Capacitive Sensors) ---
       for (const plate of state.plates) {
         const cx = offsetX + plate.x * cellSize;
         const cy = offsetY + plate.y * cellSize;
         const isPressed = plate.isPressed;
 
-        const pad = Math.floor(cellSize * 0.14);
-        const pw = cellSize - pad * 2;
-        const ph = cellSize - pad * 2;
-
         ctx.save();
-        // Heavy steel rim
-        ctx.fillStyle = '#0e1422';
-        ctx.fillRect(cx + pad - 2, cy + pad - 2, pw + 4, ph + 4);
-        ctx.strokeStyle = '#2d3e5e';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(cx + pad - 2, cy + pad - 2, pw + 4, ph + 4);
+        const plateSpriteKey = isPressed ? 'plate_active' : 'plate_inactive';
+        const plateImg = tileImages.current[plateSpriteKey];
 
-        if (isPressed) {
-          // Blazing cyan capacitive depression
-          ctx.fillStyle = '#061324';
-          ctx.fillRect(cx + pad, cy + pad, pw, ph);
+        // Draw recessed metal socket bed
+        ctx.fillStyle = '#080d19';
+        ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
 
-          ctx.strokeStyle = '#00f0ff';
-          ctx.lineWidth = 2.5;
-          ctx.shadowColor = '#00f0ff';
-          ctx.shadowBlur = 16;
-          ctx.strokeRect(cx + pad + 1, cy + pad + 1, pw - 2, ph - 2);
+        if (plateImg && plateImg.complete && plateImg.naturalWidth > 0) {
+          if (isPressed) {
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 18;
+            ctx.drawImage(plateImg, cx, cy, cellSize, cellSize);
 
-          // Center glowing core
-          ctx.fillStyle = '#0df2c8';
-          ctx.beginPath();
-          ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.22, 0, Math.PI * 2);
-          ctx.fill();
+            // Pulsing capacitive feedback border
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = Math.max(1.5, Math.floor(cellSize * 0.04));
+            ctx.globalAlpha = 0.7 + Math.sin(now * 0.008) * 0.3;
+            ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+          } else {
+            ctx.drawImage(plateImg, cx, cy, cellSize, cellSize);
 
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.1, 0, Math.PI * 2);
-          ctx.fill();
+            // Distinct colored indicator for multi-plate identification
+            if (plate.color && plate.color !== '#00f2fe') {
+              ctx.fillStyle = plate.color;
+              ctx.globalAlpha = 0.85;
+              const dotSize = Math.max(4, Math.floor(cellSize * 0.1));
+              ctx.fillRect(cx + cellSize / 2 - dotSize / 2, cy + cellSize / 2 - dotSize / 2, dotSize, dotSize);
+            }
+          }
         } else {
-          // Raised mechanical plate in standby
-          ctx.fillStyle = '#1c283f';
-          ctx.fillRect(cx + pad, cy + pad, pw, ph);
+          // Sci-Fi procedural fallback
+          const pad = Math.floor(cellSize * 0.12);
+          const pw = cellSize - pad * 2;
+          const ph = cellSize - pad * 2;
 
-          ctx.strokeStyle = '#32486d';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(cx + pad, cy + pad, pw, ph);
+          if (isPressed) {
+            ctx.fillStyle = '#061224';
+            ctx.fillRect(cx + pad, cy + pad, pw, ph);
 
-          // Standby cyan LED dot
-          ctx.fillStyle = '#00f0ff';
-          ctx.globalAlpha = 0.5 + Math.sin(now * 0.005) * 0.3;
-          ctx.fillRect(cx + cellSize / 2 - 2, cy + cellSize / 2 - 2, 4, 4);
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 14;
+            ctx.strokeRect(cx + pad + 1, cy + pad + 1, pw - 2, ph - 2);
+
+            ctx.fillStyle = '#0df2c8';
+            ctx.beginPath();
+            ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillStyle = '#15213b';
+            ctx.fillRect(cx + pad, cy + pad, pw, ph);
+
+            ctx.strokeStyle = '#223254';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(cx + pad, cy + pad, pw, ph);
+          }
         }
         ctx.restore();
       }
 
-      // --- 4. RECORDED-PATH PREVIEW ---
+      // --- 4. OPTIONAL RECORDED-PATH PREVIEW ---
       if (showPathPreview && state.ghosts.length > 0) {
         state.ghosts.forEach((ghost) => {
           if (ghost.path.length <= 1) return;
@@ -645,11 +631,15 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ghost.path.forEach((pt, pIdx) => {
             const px = offsetX + pt.x * cellSize + cellSize / 2;
             const py = offsetY + pt.y * cellSize + cellSize / 2;
-            if (pIdx === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
+            if (pIdx === 0) {
+              ctx.moveTo(px, py);
+            } else {
+              ctx.lineTo(px, py);
+            }
           });
           ctx.stroke();
 
+          // Step node markers
           ctx.setLineDash([]);
           ghost.path.forEach((pt) => {
             const px = offsetX + pt.x * cellSize + cellSize / 2;
@@ -659,6 +649,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             ctx.fill();
           });
 
+          // Stationed marker at final position
           const finalPt = ghost.path[ghost.path.length - 1];
           const fx = offsetX + finalPt.x * cellSize + cellSize / 2;
           const fy = offsetY + finalPt.y * cellSize + cellSize / 2;
@@ -671,83 +662,78 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         });
       }
 
-      // --- 6. SCI-FI AIRLOCK DOORS (Matches the glowing orange double-sliding airlocks from the reference image) ---
+      // --- 6. GATES & DOORS (Heavy Bulkhead Emitters & Laser Barriers) ---
       for (const door of state.doors) {
         const cx = offsetX + door.x * cellSize;
         const cy = offsetY + door.y * cellSize;
         const isLocked = door.requiredKeyId || door.isLockedDoor;
 
         ctx.save();
+        let gateKey = 'gate_locked';
         if (door.isOpen) {
-          // RETRACTED AIRLOCK: Door leaves slid into wall pockets
-          // Doorway frame
-          ctx.fillStyle = '#151b2c';
-          ctx.fillRect(cx, cy, cellSize, cellSize);
+          gateKey = 'gate_open';
+        } else if (!isLocked) {
+          gateKey = 'gate_unlocked';
+        }
 
-          // Retracted left and right door leaves
-          ctx.fillStyle = '#2a334a';
-          ctx.fillRect(cx, cy + 2, 4, cellSize - 4);
-          ctx.fillRect(cx + cellSize - 4, cy + 2, 4, cellSize - 4);
+        const gateImg = tileImages.current[gateKey];
+        if (gateImg && gateImg.complete && gateImg.naturalWidth > 0) {
+          if (door.isOpen) {
+            ctx.globalAlpha = 0.95;
+            ctx.drawImage(gateImg, cx, cy, cellSize, cellSize);
 
-          // Threshold walk track & green access indicator
-          ctx.fillStyle = '#0df2c8';
-          ctx.shadowColor = '#00f0ff';
-          ctx.shadowBlur = 8;
-          ctx.fillRect(cx + 6, cy + cellSize / 2 - 1, cellSize - 12, 2);
+            // Active threshold floor indicators
+            ctx.fillStyle = '#0df2c8';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 8;
+            ctx.fillRect(cx + 8, cy + cellSize / 2 - 1, cellSize - 16, 2);
+          } else {
+            // Closed door with laser beams
+            ctx.shadowColor = isLocked ? '#ef4444' : (door.color || '#00f0ff');
+            ctx.shadowBlur = 12;
+            ctx.drawImage(gateImg, cx, cy, cellSize, cellSize);
+
+            // Laser barrier animation
+            ctx.strokeStyle = isLocked ? '#f87171' : '#00f0ff';
+            ctx.globalAlpha = 0.6 + Math.sin(now * 0.007) * 0.35;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+          }
         } else {
-          // CLOSED AIRLOCK: Vibrant orange/amber illuminated double-panel doors with chevron seal
-          const doorColor = isLocked ? '#ff5533' : '#ff9900';
-          const coreColor = isLocked ? '#ffaa66' : '#ffcc33';
+          // Procedural Sci-Fi Door Fallback
+          if (door.isOpen) {
+            ctx.fillStyle = 'rgba(16, 26, 51, 0.5)';
+            ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
 
-          // Outer heavy reinforced frame
-          ctx.fillStyle = '#111624';
-          ctx.fillRect(cx, cy, cellSize, cellSize);
-          ctx.strokeStyle = '#2e3a54';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(cx + 1, cy + 1, cellSize - 2, cellSize - 2);
+            ctx.fillStyle = '#202f52';
+            ctx.fillRect(cx + 2, cy + 4, 4, cellSize - 8);
+            ctx.fillRect(cx + cellSize - 6, cy + 4, 4, cellSize - 8);
 
-          // Radiant orange ambient light emission onto surrounding floor
-          ctx.shadowColor = doorColor;
-          ctx.shadowBlur = 20;
+            ctx.fillStyle = '#0df2c8';
+            ctx.fillRect(cx + 8, cy + cellSize / 2 - 1, cellSize - 16, 2);
+          } else {
+            ctx.fillStyle = '#090f1d';
+            ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
 
-          // Left sliding door leaf
-          const leafW = Math.floor(cellSize * 0.42);
-          ctx.fillStyle = doorColor;
-          ctx.fillRect(cx + 3, cy + 3, leafW, cellSize - 6);
+            ctx.strokeStyle = isLocked ? '#ef4444' : (door.color || '#00f0ff');
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 10;
+            ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
 
-          // Right sliding door leaf
-          ctx.fillRect(cx + cellSize - leafW - 3, cy + 3, leafW, cellSize - 6);
-
-          // Inner glowing core panel on each leaf
-          ctx.fillStyle = coreColor;
-          ctx.fillRect(cx + 6, cy + 6, leafW - 6, cellSize - 12);
-          ctx.fillRect(cx + cellSize - leafW, cy + 6, leafW - 6, cellSize - 12);
-
-          // Center seal line with mechanical interlocking chevron
-          ctx.shadowBlur = 0;
-          ctx.strokeStyle = '#0e121a';
-          ctx.lineWidth = 2;
-          const midX = cx + cellSize / 2;
-          ctx.beginPath();
-          ctx.moveTo(midX, cy + 3);
-          ctx.lineTo(midX, cy + cellSize * 0.4);
-          ctx.lineTo(midX + 3, cy + cellSize * 0.5);
-          ctx.lineTo(midX, cy + cellSize * 0.6);
-          ctx.lineTo(midX, cy + cellSize - 3);
-          ctx.stroke();
-
-          // If locked with key, draw digital padlock badge
-          if (isLocked) {
-            ctx.fillStyle = '#ffeedd';
-            ctx.fillRect(midX - 4, cy + cellSize / 2 - 4, 8, 8);
-            ctx.fillStyle = '#220000';
-            ctx.fillRect(midX - 2, cy + cellSize / 2 - 2, 4, 4);
+            for (let b = 1; b <= 3; b++) {
+              const by = cy + (cellSize * b) / 4;
+              ctx.beginPath();
+              ctx.moveTo(cx + 6, by);
+              ctx.lineTo(cx + cellSize - 6, by);
+              ctx.stroke();
+            }
           }
         }
         ctx.restore();
       }
 
-      // --- 7. QUANTUM KEY ITEM ---
+      // --- 7. COLLECTIBLE QUANTUM KEY ---
       for (const key of state.keys) {
         if (!key.isCollected) {
           const kx = offsetX + key.x * cellSize;
@@ -755,96 +741,125 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           const ky = offsetY + key.y * cellSize + floatOffset;
 
           ctx.save();
-          const centerKx = kx + cellSize / 2;
-          const centerKy = ky + cellSize / 2;
+          const keyImg = tileImages.current['key'];
+          if (keyImg && keyImg.complete && keyImg.naturalWidth > 0) {
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 16;
+            ctx.drawImage(keyImg, kx, ky, cellSize, cellSize);
 
-          ctx.shadowColor = '#fbbf24';
-          ctx.shadowBlur = 18;
+            // Shimmer flare
+            ctx.fillStyle = '#ffffff';
+            ctx.globalAlpha = 0.7 + Math.sin(now * 0.01) * 0.3;
+            ctx.fillRect(kx + cellSize * 0.46, ky + cellSize * 0.32, 3, 3);
+          } else {
+            // Procedural gold key
+            const centerKx = kx + cellSize / 2;
+            const centerKy = ky + cellSize / 2;
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 14;
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerKx, centerKy - 4, 6, 0, Math.PI * 2);
+            ctx.stroke();
 
-          // Gold key head
-          ctx.strokeStyle = '#fbbf24';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.arc(centerKx, centerKy - 4, 6, 0, Math.PI * 2);
-          ctx.stroke();
-
-          // Key shaft & teeth
-          ctx.beginPath();
-          ctx.moveTo(centerKx, centerKy + 2);
-          ctx.lineTo(centerKx, centerKy + 12);
-          ctx.moveTo(centerKx, centerKy + 7);
-          ctx.lineTo(centerKx + 4, centerKy + 7);
-          ctx.stroke();
-
-          // Embedded sparkling blue sub-pixel
-          ctx.fillStyle = '#00f0ff';
-          ctx.fillRect(centerKx - 1.5, centerKy - 5.5, 3, 3);
+            ctx.beginPath();
+            ctx.moveTo(centerKx, centerKy + 2);
+            ctx.lineTo(centerKx, centerKy + 12);
+            ctx.moveTo(centerKx, centerKy + 7);
+            ctx.lineTo(centerKx + 4, centerKy + 7);
+            ctx.stroke();
+          }
           ctx.restore();
         }
       }
 
-      // --- 8. TEMPORAL EXIT PORTAL ---
+      // --- 8. EXIT / TEMPORAL GOAL PORTAL ---
       const exitX = offsetX + state.exit.x * cellSize;
       const exitY = offsetY + state.exit.y * cellSize;
       const exitCx = exitX + cellSize / 2;
       const exitCy = exitY + cellSize / 2;
 
       ctx.save();
-      if (state.exit.isUnlocked) {
-        // Swirling purple & cyan portal terminal pad
-        ctx.fillStyle = '#101526';
-        ctx.fillRect(exitX + 2, exitY + 2, cellSize - 4, cellSize - 4);
-        ctx.strokeStyle = '#a855f7';
-        ctx.lineWidth = 2.5;
-        ctx.strokeRect(exitX + 2, exitY + 2, cellSize - 4, cellSize - 4);
+      const portalImg = tileImages.current['exit_portal'];
+      if (portalImg && portalImg.complete && portalImg.naturalWidth > 0) {
+        if (state.exit.isUnlocked) {
+          ctx.shadowColor = '#a855f7';
+          ctx.shadowBlur = 20;
+          ctx.drawImage(portalImg, exitX, exitY, cellSize, cellSize);
 
-        // Rotating vortex rings
-        ctx.shadowColor = '#a855f7';
-        ctx.shadowBlur = 20;
-        const rot = now * 0.003;
-        ctx.save();
-        ctx.translate(exitCx, exitCy);
-        ctx.rotate(rot);
-        ctx.strokeStyle = '#00f0ff';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        ctx.arc(0, 0, cellSize * 0.28, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
+          // Animated temporal vortex swirl overlay
+          const rot = now * 0.003;
+          ctx.save();
+          ctx.translate(exitCx, exitCy);
+          ctx.rotate(rot);
+          ctx.strokeStyle = '#00f0ff';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.arc(0, 0, cellSize * 0.24, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
 
-        // Pulsing white quantum core
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 14;
-        ctx.globalAlpha = 0.85 + Math.sin(now * 0.008) * 0.15;
-        ctx.beginPath();
-        ctx.arc(exitCx, exitCy, cellSize * 0.12, 0, Math.PI * 2);
-        ctx.fill();
+          // Pulsing white quantum core
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 14;
+          ctx.globalAlpha = 0.85 + Math.sin(now * 0.008) * 0.15;
+          ctx.beginPath();
+          ctx.arc(exitCx, exitCy, cellSize * 0.11, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Locked exit pad: dim violet base with sealed cyber-lock
+          ctx.globalAlpha = 0.55;
+          ctx.drawImage(portalImg, exitX, exitY, cellSize, cellSize);
+
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 8;
+          ctx.strokeRect(exitX + 4, exitY + 4, cellSize - 8, cellSize - 8);
+
+          // Lock icon
+          ctx.fillStyle = '#f87171';
+          ctx.fillRect(exitCx - 5, exitCy - 1, 10, 8);
+          ctx.beginPath();
+          ctx.arc(exitCx, exitCy - 1, 4, Math.PI, 0, false);
+          ctx.stroke();
+        }
       } else {
-        // Sealed airlock portal
-        ctx.fillStyle = '#141824';
-        ctx.fillRect(exitX + 2, exitY + 2, cellSize - 4, cellSize - 4);
-        ctx.strokeStyle = '#ef4444';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(exitX + 2, exitY + 2, cellSize - 4, cellSize - 4);
+        // Procedural Sci-Fi Portal Fallback
+        if (state.exit.isUnlocked) {
+          ctx.shadowColor = '#a855f7';
+          ctx.shadowBlur = 18;
+          ctx.strokeStyle = '#7e22ce';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(exitX + 3, exitY + 3, cellSize - 6, cellSize - 6);
 
-        ctx.fillStyle = '#f87171';
-        ctx.fillRect(exitCx - 5, exitCy - 1, 10, 8);
-        ctx.beginPath();
-        ctx.arc(exitCx, exitCy - 1, 4, Math.PI, 0, false);
-        ctx.stroke();
+          ctx.fillStyle = '#00f0ff';
+          ctx.beginPath();
+          ctx.arc(exitCx, exitCy, cellSize * 0.25, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = '#101a33';
+          ctx.fillRect(exitX + 3, exitY + 3, cellSize - 6, cellSize - 6);
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(exitX + 3, exitY + 3, cellSize - 6, cellSize - 6);
+        }
       }
       ctx.restore();
 
-      // --- 9. TOP-DOWN 2.5D SPACESHIP BULKHEAD WALLS WITH MACHINERY & PIPING ---
-      // (Recreates the exact perspective, wall depth, pipe bundles, and computer terminal monitors from the reference image)
+      // --- 9. CONTINUOUS STRUCTURAL SPACESHIP BULKHEAD WALLS ---
+      // Pre-calculate wall set for instantaneous adjacency queries
       const isWallAt = (wx: number, wy: number) => level.walls.some((w) => w.x === wx && w.y === wy);
 
       for (const wall of level.walls) {
         const wx = offsetX + wall.x * cellSize;
         const wy = offsetY + wall.y * cellSize;
 
+        // 4 cardinal adjacencies
         const n = isWallAt(wall.x, wall.y - 1);
         const s = isWallAt(wall.x, wall.y + 1);
         const e = isWallAt(wall.x + 1, wall.y);
@@ -852,92 +867,75 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
         ctx.save();
 
-        // LAYER 1: WALL TOP CAP (The dark ceiling/bulkhead boundary seen from pure top-down)
-        // Dark steel / black void cap
-        ctx.fillStyle = '#121624';
+        // Layer 1: Solid Bulkhead Base (Deep Armor Foundation with no seam lines between adjacent wall blocks)
+        ctx.fillStyle = '#080d19';
         ctx.fillRect(wx, wy, cellSize, cellSize);
 
-        // Inner cap plate
-        ctx.fillStyle = '#1c2236';
+        // Fill inner armor core
+        ctx.fillStyle = '#141e34';
         ctx.fillRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
 
-        // Connect seamlessly with adjacent wall caps
+        // Continuous structural connections: bridge the 2px gap toward neighbors so walls merge seamlessly
         if (n) ctx.fillRect(wx + 2, wy, cellSize - 4, 2);
         if (s) ctx.fillRect(wx + 2, wy + cellSize - 2, cellSize - 4, 2);
         if (w) ctx.fillRect(wx, wy + 2, 2, cellSize - 4);
         if (e) ctx.fillRect(wx + cellSize - 2, wy + 2, 2, cellSize - 4);
 
-        // LAYER 2: SOUTHERN 2.5D WALL FACE (Vertical structural face looking into corridors)
-        if (!s) {
-          // Draw the vertical wall face with recessed panels & depth
-          const faceH = Math.max(8, Math.floor(cellSize * 0.35));
-          const faceY = wy + cellSize - faceH;
+        // Layer 2: Raised Metallic Armor Plate (Dark Navy Top-Down Hull)
+        const inset = Math.max(3, Math.floor(cellSize * 0.1));
+        const plateW = cellSize - inset * 2;
+        const plateH = cellSize - inset * 2;
+        ctx.fillStyle = '#1b294a';
+        ctx.fillRect(wx + inset, wy + inset, plateW, plateH);
 
-          // Vertical panel surface (deep charcoal/navy slate)
-          ctx.fillStyle = '#0f1422';
-          ctx.fillRect(wx, faceY, cellSize, faceH);
+        // Bridge raised plate to connected wall neighbors
+        if (n) ctx.fillRect(wx + inset, wy, plateW, inset);
+        if (s) ctx.fillRect(wx + inset, wy + cellSize - inset, plateW, inset);
+        if (w) ctx.fillRect(wx, wy + inset, inset, plateH);
+        if (e) ctx.fillRect(wx + cellSize - inset, wy + inset, inset, plateH);
 
-          // Wall face panel groove lines
-          ctx.strokeStyle = '#080a12';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(wx + 1, faceY + 1, cellSize - 2, faceH - 2);
+        // Layer 3: Top Bevel Highlight (Simulating overhead spaceship corridor lighting)
+        ctx.fillStyle = 'rgba(100, 150, 240, 0.22)';
+        ctx.fillRect(wx + inset, wy + inset, plateW, Math.max(2, Math.floor(cellSize * 0.05)));
 
-          // Horizontal industrial pipes / conduit bundles along the wall base (prominent in reference image)
-          const pipeY1 = faceY + faceH * 0.35;
-          const pipeY2 = faceY + faceH * 0.7;
+        // Layer 4: Exposed Structural Machinery / Conduit Ribs in centers
+        const centerPad = Math.max(6, Math.floor(cellSize * 0.26));
+        const centerSize = cellSize - centerPad * 2;
+        ctx.fillStyle = '#0d1526';
+        ctx.fillRect(wx + centerPad, wy + centerPad, centerSize, centerSize);
 
-          // Primary pipe (copper / steel conduit)
-          ctx.fillStyle = '#3a2d24';
-          ctx.fillRect(wx, pipeY1, cellSize, 2.5);
-          ctx.fillStyle = '#6b5443';
-          ctx.fillRect(wx, pipeY1, cellSize, 1);
+        // Machinery rib stripes
+        ctx.fillStyle = '#22365e';
+        const ribThickness = Math.max(1, Math.floor(cellSize * 0.04));
+        ctx.fillRect(wx + centerPad + 2, wy + centerPad + 2, centerSize - 4, ribThickness);
+        ctx.fillRect(wx + centerPad + 2, wy + cellSize / 2 - ribThickness / 2, centerSize - 4, ribThickness);
+        ctx.fillRect(wx + centerPad + 2, wy + cellSize - centerPad - 2 - ribThickness, centerSize - 4, ribThickness);
 
-          // Secondary pipe (dark steel)
-          ctx.fillStyle = '#1a2233';
-          ctx.fillRect(wx, pipeY2, cellSize, 2);
+        // Layer 5: Active Cyan Circuit Status LEDs along wall boundaries
+        const ledSize = Math.max(2, Math.floor(cellSize * 0.05));
+        const pulse = 0.5 + Math.sin(now * 0.004 + wall.x * 2 + wall.y * 3) * 0.45;
+        ctx.fillStyle = pulse > 0.7 ? '#00f0ff' : '#0df2c8';
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 6;
+        ctx.fillRect(wx + cellSize / 2 - ledSize / 2, wy + cellSize / 2 - ledSize / 2, ledSize, ledSize);
 
-          // Pipe brackets / wall mounts
-          ctx.fillStyle = '#556688';
-          ctx.fillRect(wx + 4, faceY + 2, 3, faceH - 4);
-          ctx.fillRect(wx + cellSize - 7, faceY + 2, 3, faceH - 4);
+        // Layer 6: Exterior Corridor Edge Bevels (Delineates wall vs walkable corridor with absolute clarity)
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = Math.max(1.5, Math.floor(cellSize * 0.035));
+        ctx.globalAlpha = 0.35;
 
-          // Wall-mounted glowing computer terminals / monitors (like in reference image)
-          if ((wall.x * 7 + wall.y * 11) % 5 === 2) {
-            const screenW = Math.max(8, Math.floor(cellSize * 0.32));
-            const screenH = Math.max(6, Math.floor(faceH * 0.75));
-            const screenX = wx + cellSize / 2 - screenW / 2;
-            const screenY = faceY + 2;
-
-            // Monitor casing
-            ctx.fillStyle = '#080b12';
-            ctx.fillRect(screenX - 1, screenY - 1, screenW + 2, screenH + 2);
-
-            // Glowing blue/cyan display screen
-            const isMagentaScreen = (wall.x + wall.y) % 3 === 0;
-            ctx.fillStyle = isMagentaScreen ? '#e056fd' : '#00f0ff';
-            ctx.shadowColor = ctx.fillStyle;
-            ctx.shadowBlur = 6;
-            ctx.fillRect(screenX, screenY, screenW, screenH);
-
-            // Scanlines / interface lines
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(screenX + 2, screenY + 2, screenW - 4, 1);
-            ctx.fillRect(screenX + 2, screenY + 4, screenW - 6, 1);
-          }
-
-          // Deep ground contact shadow onto the floor below
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-          ctx.fillRect(wx, wy + cellSize, cellSize, Math.max(3, Math.floor(cellSize * 0.12)));
-        }
-
-        // LAYER 3: CORRIDOR EDGE CONDUIT FRAMING (Subtle steel bevels facing empty corridors)
-        ctx.strokeStyle = '#2d3852';
-        ctx.lineWidth = 1.5;
+        // Draw crisp cyan boundary line only on faces that border walkable corridor floors
         if (!n) {
           ctx.beginPath();
           ctx.moveTo(wx, wy);
           ctx.lineTo(wx + cellSize, wy);
+          ctx.stroke();
+        }
+        if (!s) {
+          ctx.beginPath();
+          ctx.moveTo(wx, wy + cellSize);
+          ctx.lineTo(wx + cellSize, wy + cellSize);
           ctx.stroke();
         }
         if (!w) {
@@ -951,6 +949,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.moveTo(wx + cellSize, wy);
           ctx.lineTo(wx + cellSize, wy + cellSize);
           ctx.stroke();
+        }
+
+        // Heavy dark drop-shadow on south floor edge for 2.5D architectural depth
+        if (!s) {
+          ctx.fillStyle = 'rgba(2, 4, 10, 0.45)';
+          ctx.fillRect(wx, wy + cellSize, cellSize, Math.max(3, Math.floor(cellSize * 0.1)));
         }
 
         ctx.restore();
