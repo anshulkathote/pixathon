@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/> <!-- Walkable background hint -->
+              <!-- Corner L-Shape -->
+              <path d="M0,0 L32,0 L32,16 L16,16 L16,32 L0,32 Z" fill="#080e1c"/>
+              <path d="M2,2 L32,2 L32,14 L14,14 L14,32 L2,32 Z" fill="#23355c"/>
+              <path d="M4,4 L32,4 L32,12 L12,12 L12,32 L4,32 Z" fill="#2d4272"/>
+              <!-- Corner Re-enforcement -->
+              <rect x="4" y="4" width="8" height="8" fill="#3a5592"/>
+              <rect x="6" y="6" width="4" height="4" fill="#00f0ff"/>
+              <!-- Border striping -->
+              <rect x="16" y="6" width="16" height="2" fill="#182542"/>
+              <rect x="6" y="16" width="2" height="16" fill="#182542"/>
+            </svg>

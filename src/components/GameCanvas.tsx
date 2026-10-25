@@ -109,8 +109,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Preload all sprites, animations, and tiles once
   useEffect(() => {
     let loadedCount = 0;
-    // 8 rotations * 2 (player + ghost) + 4 dirs * 8 walk frames * 2 (player + ghost) + 10 tiles = 16 + 64 + 10 = 90
-    const totalExpected = DIRECTIONS.length * 2 + CARDINAL_DIRS.length * 8 * 2 + 10;
+    // 8 rotations * 2 (player + ghost) + 4 dirs * 8 walk frames * 2 (player + ghost) + 10 pngTiles + 16 scifiTiles = 16 + 64 + 26 = 106
+    const totalExpected = DIRECTIONS.length * 2 + CARDINAL_DIRS.length * 8 * 2 + 10 + 16;
     const checkDone = () => {
       loadedCount++;
       if (loadedCount >= totalExpected) {
@@ -155,8 +155,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
     });
 
-    // 3. Preload environment tiles
-    const tiles = [
+    // 3. Preload environment tiles (classic & futuristic sci-fi)
+    const pngTiles = [
       'floor_plain',
       'floor_ornate',
       'floor_runes',
@@ -169,9 +169,36 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       'crystal_single',
     ];
 
-    tiles.forEach((t) => {
+    const scifiTiles = [
+      'floor_main',
+      'floor_alt',
+      'floor_energy',
+      'wall_solid',
+      'wall_corner',
+      'wall_edge',
+      'wall_pillar',
+      'gate_locked',
+      'gate_unlocked',
+      'gate_open',
+      'plate_inactive',
+      'plate_active',
+      'key',
+      'exit_portal',
+      'deco_terminal',
+      'deco_cables',
+    ];
+
+    pngTiles.forEach((t) => {
       const img = new Image();
       img.src = `/tiles/${t}.png`;
+      img.onload = checkDone;
+      img.onerror = checkDone;
+      tileImages.current[t] = img;
+    });
+
+    scifiTiles.forEach((t) => {
+      const img = new Image();
+      img.src = `/tiles/scifi/${t}.svg`;
       img.onload = checkDone;
       img.onerror = checkDone;
       tileImages.current[t] = img;
@@ -352,7 +379,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-      // 1. Draw Environment Walkable Floor Tiles & Crystal Cavern Accents
+      // 1. Draw Environment Walkable Floor Tiles & Sci-Fi Tech Accents
       for (let y = 0; y < level.height; y++) {
         for (let x = 0; x < level.width; x++) {
           const cx = offsetX + x * cellSize;
@@ -360,40 +387,37 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           const isWall = level.walls.some((w) => w.x === x && w.y === y);
 
           if (!isWall) {
-            // Pick floor tile pattern based on coordinate hash
+            // Pick floor tile pattern based on coordinate hash:
+            // 70% main hull plate, 20% tech mesh vent, 10% special energy conduit
             const hash = (x * 7 + y * 13) % 10;
-            let tileKey = 'floor_plain';
-            if (hash === 2 || hash === 8) tileKey = 'floor_ornate';
-            else if (hash === 5) tileKey = 'floor_runes';
-            else if (hash === 9) tileKey = 'floor_cracked';
+            let tileKey = 'floor_main';
+            if (hash === 2 || hash === 8) tileKey = 'floor_alt';
+            else if (hash === 5) tileKey = 'floor_energy';
 
-            const tileImg = tileImages.current[tileKey];
+            const tileImg = tileImages.current[tileKey] || tileImages.current['floor_plain'];
             if (tileImg && tileImg.complete && tileImg.naturalWidth > 0) {
-              // Draw rich pixel art floor tile
               ctx.drawImage(tileImg, cx, cy, cellSize, cellSize);
-
-              // Subtle glowing edge trim for crystal temple atmosphere
-              ctx.strokeStyle = 'rgba(0, 242, 254, 0.12)';
-              ctx.lineWidth = 1;
-              ctx.strokeRect(cx + 0.5, cy + 0.5, cellSize - 1, cellSize - 1);
             } else {
-              // Rich turquoise fallback
-              ctx.fillStyle = '#0d2838';
+              // Deep spaceship hull floor fallback
+              ctx.fillStyle = '#101a33';
+              ctx.fillRect(cx, cy, cellSize, cellSize);
+
+              ctx.fillStyle = '#121e3c';
               ctx.fillRect(cx + 1, cy + 1, cellSize - 2, cellSize - 2);
 
-              ctx.strokeStyle = 'rgba(0, 242, 254, 0.25)';
+              ctx.strokeStyle = '#1b2a50';
               ctx.lineWidth = 1;
-              ctx.strokeRect(cx + 1.5, cy + 1.5, cellSize - 3, cellSize - 3);
+              ctx.strokeRect(cx + 0.5, cy + 0.5, cellSize - 1, cellSize - 1);
             }
 
-            // Decorative glowing crystals in select corridor dead-ends or corners
-            if ((x * 11 + y * 17) % 19 === 3) {
-              const crystalImg = tileImages.current['crystal_single'];
-              if (crystalImg && crystalImg.complete && crystalImg.naturalWidth > 0) {
-                const cSize = Math.floor(cellSize * 0.35);
+            // Decorative floor elements: subtle tech consoles or cable junctions
+            if ((x * 11 + y * 17) % 23 === 7) {
+              const decoKey = (x + y) % 2 === 0 ? 'deco_terminal' : 'deco_cables';
+              const decoImg = tileImages.current[decoKey];
+              if (decoImg && decoImg.complete && decoImg.naturalWidth > 0) {
                 ctx.save();
-                ctx.globalAlpha = 0.6 + Math.sin(now * 0.004 + x + y) * 0.2;
-                ctx.drawImage(crystalImg, cx + cellSize - cSize - 2, cy + 2, cSize, cSize);
+                ctx.globalAlpha = 0.85;
+                ctx.drawImage(decoImg, cx, cy, cellSize, cellSize);
                 ctx.restore();
               }
             }
@@ -419,11 +443,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.lineTo(dx, dy);
 
         if (door.isOpen) {
-          // Active glowing neon circuit
-          ctx.strokeStyle = door.color;
+          // Active glowing neon circuit (cyan/teal pulse)
+          ctx.strokeStyle = '#0df2c8';
           ctx.lineWidth = 2.5;
-          ctx.shadowColor = door.color;
-          ctx.shadowBlur = 8;
+          ctx.shadowColor = '#00f0ff';
+          ctx.shadowBlur = 10;
           ctx.stroke();
 
           // Flowing energy pulse
@@ -431,14 +455,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           const pulseX = tx + (dx - tx) * pulsePhase;
           const pulseY = ty + (dy - ty) * pulsePhase;
           ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = '#ffffff';
+          ctx.shadowColor = '#00f0ff';
           ctx.shadowBlur = 10;
           ctx.beginPath();
           ctx.arc(pulseX, pulseY, 2.5, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          // Dormant circuit wire
-          ctx.strokeStyle = 'rgba(100, 116, 139, 0.3)';
+          // Dormant tech conduit wire
+          ctx.strokeStyle = 'rgba(27, 43, 84, 0.7)';
           ctx.lineWidth = 1.5;
           ctx.setLineDash([4, 4]);
           ctx.stroke();
@@ -446,50 +470,65 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
       }
 
-      // 3. Draw Pressure Plates (Mechanical, for Player OR Ghost)
+      // 3. Draw Pressure Plates (Mechanical & Capacitive Sensors)
       for (const plate of state.plates) {
         const cx = offsetX + plate.x * cellSize;
         const cy = offsetY + plate.y * cellSize;
         const isPressed = plate.isPressed;
 
-        const pad = Math.floor(cellSize * 0.16);
-        const pw = cellSize - pad * 2;
-        const ph = cellSize - pad * 2;
-
         ctx.save();
-        if (isPressed) {
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-          ctx.fillRect(cx + pad, cy + pad, pw, ph);
+        const plateSpriteKey = isPressed ? 'plate_active' : 'plate_inactive';
+        const plateImg = tileImages.current[plateSpriteKey];
 
-          ctx.strokeStyle = plate.color;
-          ctx.lineWidth = 2.5;
-          ctx.shadowColor = plate.color;
-          ctx.shadowBlur = 12;
-          ctx.strokeRect(cx + pad + 1, cy + pad + 1, pw - 2, ph - 2);
+        if (plateImg && plateImg.complete && plateImg.naturalWidth > 0) {
+          if (isPressed) {
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 16;
+            ctx.drawImage(plateImg, cx, cy, cellSize, cellSize);
 
-          ctx.fillStyle = plate.color;
-          ctx.globalAlpha = 0.35 + Math.sin(now * 0.008) * 0.15;
-          ctx.fillRect(cx + pad + 4, cy + pad + 4, pw - 8, ph - 8);
+            // Pulsing capacitive feedback ring
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.6 + Math.sin(now * 0.008) * 0.3;
+            ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+          } else {
+            ctx.drawImage(plateImg, cx, cy, cellSize, cellSize);
 
-          ctx.globalAlpha = 1;
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.18, 0, Math.PI * 2);
-          ctx.fill();
+            // Subtle color identification marker for distinct puzzle plates
+            if (plate.color && plate.color !== '#00f2fe') {
+              ctx.fillStyle = plate.color;
+              ctx.globalAlpha = 0.7;
+              ctx.fillRect(cx + cellSize / 2 - 2, cy + cellSize / 2 - 2, 4, 4);
+            }
+          }
         } else {
-          ctx.fillStyle = '#1e293b';
-          ctx.fillRect(cx + pad, cy + pad, pw, ph);
+          // Sci-Fi procedural fallback
+          const pad = Math.floor(cellSize * 0.12);
+          const pw = cellSize - pad * 2;
+          const ph = cellSize - pad * 2;
 
-          ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(cx + pad, cy + pad, pw, ph);
+          if (isPressed) {
+            ctx.fillStyle = '#061224';
+            ctx.fillRect(cx + pad, cy + pad, pw, ph);
 
-          ctx.strokeStyle = plate.color;
-          ctx.globalAlpha = 0.6;
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.2, 0, Math.PI * 2);
-          ctx.stroke();
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 14;
+            ctx.strokeRect(cx + pad + 1, cy + pad + 1, pw - 2, ph - 2);
+
+            ctx.fillStyle = '#0df2c8';
+            ctx.beginPath();
+            ctx.arc(cx + cellSize / 2, cy + cellSize / 2, pw * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillStyle = '#15213b';
+            ctx.fillRect(cx + pad, cy + pad, pw, ph);
+
+            ctx.strokeStyle = '#223254';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(cx + pad, cy + pad, pw, ph);
+          }
         }
         ctx.restore();
       }
@@ -541,212 +580,271 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         });
       }
 
-      // 6. Draw Doors (Standard, Synchronized, or Key-Locked)
+      // 6. Draw Doors (Standard Laser Barricade, Unlocked Power-Cycling, or Retracted Open)
       for (const door of state.doors) {
         const cx = offsetX + door.x * cellSize;
         const cy = offsetY + door.y * cellSize;
         const isLocked = door.requiredKeyId || door.isLockedDoor;
 
         ctx.save();
+        let gateKey = 'gate_locked';
         if (door.isOpen) {
-          // Open Door: energy threshold pillars and floor glow
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.5)';
-          ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+          gateKey = 'gate_open';
+        } else if (!isLocked) {
+          gateKey = 'gate_unlocked';
+        }
 
-          // Side emitter pillars
-          ctx.fillStyle = door.color;
-          ctx.shadowColor = door.color;
-          ctx.shadowBlur = 8;
-          ctx.fillRect(cx + 2, cy + 2, 4, cellSize - 4);
-          ctx.fillRect(cx + cellSize - 6, cy + 2, 4, cellSize - 4);
+        const gateImg = tileImages.current[gateKey];
+        if (gateImg && gateImg.complete && gateImg.naturalWidth > 0) {
+          if (door.isOpen) {
+            ctx.globalAlpha = 0.9;
+            ctx.drawImage(gateImg, cx, cy, cellSize, cellSize);
 
-          // Open glowing indicator
-          ctx.strokeStyle = door.color;
-          ctx.globalAlpha = 0.35 + Math.sin(now * 0.006) * 0.15;
-          ctx.lineWidth = 1.5;
-          ctx.setLineDash([2, 4]);
-          ctx.strokeRect(cx + 8, cy + 4, cellSize - 16, cellSize - 8);
-        } else {
-          // Closed Door: solid barrier with pulsating energy laser grid
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
-
-          // Strong border
-          ctx.strokeStyle = door.color;
-          ctx.lineWidth = 2.5;
-          ctx.shadowColor = door.color;
-          ctx.shadowBlur = 10;
-          ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
-
-          // Energy laser bars
-          ctx.lineWidth = 2;
-          ctx.shadowBlur = 6;
-          const barCount = 3;
-          for (let b = 1; b <= barCount; b++) {
-            const by = cy + (cellSize * b) / (barCount + 1);
-            ctx.beginPath();
-            ctx.moveTo(cx + 6, by);
-            ctx.lineTo(cx + cellSize - 6, by);
-            ctx.stroke();
-          }
-
-          // Central icon (Lock glyph if locked door, else central node)
-          if (isLocked) {
-            ctx.fillStyle = '#facc15';
-            ctx.fillRect(cx + cellSize / 2 - 5, cy + cellSize / 2 - 2, 10, 8);
-            ctx.strokeStyle = '#facc15';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(cx + cellSize / 2, cy + cellSize / 2 - 2, 4, Math.PI, 0, false);
-            ctx.stroke();
+            // Subtle energy glow along open corridor threshold
+            ctx.fillStyle = '#0df2c8';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 8;
+            ctx.fillRect(cx + 8, cy + cellSize / 2 - 1, cellSize - 16, 2);
           } else {
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(cx + cellSize / 2, cy + cellSize / 2, 4, 0, Math.PI * 2);
-            ctx.fill();
+            // Closed door with laser beams
+            ctx.shadowColor = isLocked ? '#ef4444' : (door.color || '#00f0ff');
+            ctx.shadowBlur = 10;
+            ctx.drawImage(gateImg, cx, cy, cellSize, cellSize);
+
+            // Pulsing laser glow effect
+            ctx.strokeStyle = isLocked ? '#f87171' : '#00f0ff';
+            ctx.globalAlpha = 0.5 + Math.sin(now * 0.007) * 0.3;
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+          }
+        } else {
+          // Procedural Sci-Fi Door Fallback
+          if (door.isOpen) {
+            ctx.fillStyle = 'rgba(16, 26, 51, 0.5)';
+            ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+
+            // Retracted posts
+            ctx.fillStyle = '#202f52';
+            ctx.fillRect(cx + 2, cy + 4, 4, cellSize - 8);
+            ctx.fillRect(cx + cellSize - 6, cy + 4, 4, cellSize - 8);
+
+            ctx.fillStyle = '#0df2c8';
+            ctx.fillRect(cx + 8, cy + cellSize / 2 - 1, cellSize - 16, 2);
+          } else {
+            ctx.fillStyle = '#090f1d';
+            ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+
+            ctx.strokeStyle = isLocked ? '#ef4444' : (door.color || '#00f0ff');
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 10;
+            ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+
+            // Laser beams
+            for (let b = 1; b <= 3; b++) {
+              const by = cy + (cellSize * b) / 4;
+              ctx.beginPath();
+              ctx.moveTo(cx + 6, by);
+              ctx.lineTo(cx + cellSize - 6, by);
+              ctx.stroke();
+            }
           }
         }
         ctx.restore();
       }
 
-      // 7. Draw Key (if present and not collected)
+      // 7. Draw Collectible Quantum Gold Key (if present and not collected)
       for (const key of state.keys) {
         if (!key.isCollected) {
-          const kx = offsetX + key.x * cellSize + cellSize / 2;
-          const floatOffset = Math.sin(now * 0.005) * 4;
-          const ky = offsetY + key.y * cellSize + cellSize / 2 + floatOffset;
+          const kx = offsetX + key.x * cellSize;
+          const floatOffset = Math.sin(now * 0.005) * 3;
+          const ky = offsetY + key.y * cellSize + floatOffset;
 
           ctx.save();
-          ctx.shadowColor = key.color || '#facc15';
-          ctx.shadowBlur = 14;
+          const keyImg = tileImages.current['key'];
+          if (keyImg && keyImg.complete && keyImg.naturalWidth > 0) {
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 14;
+            ctx.drawImage(keyImg, kx, ky, cellSize, cellSize);
 
-          // Key head ring
-          ctx.strokeStyle = key.color || '#facc15';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.arc(kx, ky - 4, 7, 0, Math.PI * 2);
-          ctx.stroke();
+            // Shimmer flare
+            ctx.fillStyle = '#ffffff';
+            ctx.globalAlpha = 0.6 + Math.sin(now * 0.01) * 0.4;
+            ctx.fillRect(kx + cellSize * 0.46, ky + cellSize * 0.32, 2.5, 2.5);
+          } else {
+            // Procedural gold key
+            const centerKx = kx + cellSize / 2;
+            const centerKy = ky + cellSize / 2;
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 14;
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerKx, centerKy - 4, 6, 0, Math.PI * 2);
+            ctx.stroke();
 
-          // Key shaft
-          ctx.beginPath();
-          ctx.moveTo(kx, ky + 3);
-          ctx.lineTo(kx, ky + 14);
-          ctx.stroke();
-
-          // Key teeth
-          ctx.beginPath();
-          ctx.moveTo(kx, ky + 10);
-          ctx.lineTo(kx + 5, ky + 10);
-          ctx.moveTo(kx, ky + 14);
-          ctx.lineTo(kx + 5, ky + 14);
-          ctx.stroke();
-
+            ctx.beginPath();
+            ctx.moveTo(centerKx, centerKy + 2);
+            ctx.lineTo(centerKx, centerKy + 12);
+            ctx.moveTo(centerKx, centerKy + 7);
+            ctx.lineTo(centerKx + 4, centerKy + 7);
+            ctx.stroke();
+          }
           ctx.restore();
         }
       }
 
-      // 8. Draw Exit Portal
-      const exitCx = offsetX + state.exit.x * cellSize + cellSize / 2;
-      const exitCy = offsetY + state.exit.y * cellSize + cellSize / 2;
+      // 8. Draw Exit / Temporal Goal Portal
+      const exitX = offsetX + state.exit.x * cellSize;
+      const exitY = offsetY + state.exit.y * cellSize;
+      const exitCx = exitX + cellSize / 2;
+      const exitCy = exitY + cellSize / 2;
+
       ctx.save();
+      const portalImg = tileImages.current['exit_portal'];
+      if (portalImg && portalImg.complete && portalImg.naturalWidth > 0) {
+        if (state.exit.isUnlocked) {
+          ctx.shadowColor = '#a855f7';
+          ctx.shadowBlur = 18;
+          ctx.drawImage(portalImg, exitX, exitY, cellSize, cellSize);
 
-      if (state.exit.isUnlocked) {
-        // Swirling unlocked quantum portal
-        const rot = now * 0.002;
-        ctx.shadowColor = '#10b981';
-        ctx.shadowBlur = 18;
+          // Animated temporal vortex swirl overlay
+          const rot = now * 0.003;
+          ctx.save();
+          ctx.translate(exitCx, exitCy);
+          ctx.rotate(rot);
+          ctx.strokeStyle = '#00f0ff';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.arc(0, 0, cellSize * 0.22, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
 
-        // Outer rotating ring
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(exitCx, exitCy, cellSize * 0.36, 0, Math.PI * 2);
-        ctx.stroke();
+          // Pulsing white quantum core
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 12;
+          ctx.globalAlpha = 0.8 + Math.sin(now * 0.008) * 0.2;
+          ctx.beginPath();
+          ctx.arc(exitCx, exitCy, cellSize * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Locked exit pad: dim violet base with sealed cyber-lock
+          ctx.globalAlpha = 0.55;
+          ctx.drawImage(portalImg, exitX, exitY, cellSize, cellSize);
 
-        // Inner vortex ring
-        ctx.strokeStyle = '#34d399';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([6, 4]);
-        ctx.save();
-        ctx.translate(exitCx, exitCy);
-        ctx.rotate(rot);
-        ctx.beginPath();
-        ctx.arc(0, 0, cellSize * 0.24, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 8;
+          ctx.strokeRect(exitX + 4, exitY + 4, cellSize - 8, cellSize - 8);
 
-        // Center glowing rift
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(exitCx, exitCy, cellSize * 0.12, 0, Math.PI * 2);
-        ctx.fill();
+          // Lock icon
+          ctx.fillStyle = '#f87171';
+          ctx.fillRect(exitCx - 5, exitCy - 1, 10, 8);
+          ctx.beginPath();
+          ctx.arc(exitCx, exitCy - 1, 4, Math.PI, 0, false);
+          ctx.stroke();
+        }
       } else {
-        // Locked Exit: sealed cyber-door with padlock glyph
-        ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
-        ctx.fillRect(
-          offsetX + state.exit.x * cellSize + 4,
-          offsetY + state.exit.y * cellSize + 4,
-          cellSize - 8,
-          cellSize - 8
-        );
+        // Procedural Sci-Fi Portal Fallback
+        if (state.exit.isUnlocked) {
+          ctx.shadowColor = '#a855f7';
+          ctx.shadowBlur = 18;
+          ctx.strokeStyle = '#7e22ce';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(exitX + 3, exitY + 3, cellSize - 6, cellSize - 6);
 
-        ctx.strokeStyle = '#ef4444';
-        ctx.lineWidth = 2;
-        ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 8;
-        ctx.strokeRect(
-          offsetX + state.exit.x * cellSize + 4,
-          offsetY + state.exit.y * cellSize + 4,
-          cellSize - 8,
-          cellSize - 8
-        );
-
-        // Lock icon
-        ctx.fillStyle = '#f87171';
-        ctx.fillRect(exitCx - 6, exitCy, 12, 10);
-        ctx.strokeStyle = '#f87171';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(exitCx, exitCy, 5, Math.PI, 0, false);
-        ctx.stroke();
+          ctx.fillStyle = '#00f0ff';
+          ctx.beginPath();
+          ctx.arc(exitCx, exitCy, cellSize * 0.25, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = '#101a33';
+          ctx.fillRect(exitX + 3, exitY + 3, cellSize - 6, cellSize - 6);
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(exitX + 3, exitY + 3, cellSize - 6, cellSize - 6);
+        }
       }
       ctx.restore();
 
-      // 9. Draw Temple / Cavern Walls & Circuitry Boundaries
+      // 9. Draw Spaceship Hull Walls & Corner Junctions
       for (const wall of level.walls) {
         const wx = offsetX + wall.x * cellSize;
         const wy = offsetY + wall.y * cellSize;
 
+        // Check 4-way wall adjacencies
+        const hasNorth = level.walls.some((w) => w.x === wall.x && w.y === wall.y - 1);
+        const hasSouth = level.walls.some((w) => w.x === wall.x && w.y === wall.y + 1);
+        const hasEast = level.walls.some((w) => w.x === wall.x + 1 && w.y === wall.y);
+        const hasWest = level.walls.some((w) => w.x === wall.x - 1 && w.y === wall.y);
+        const neighborCount = (hasNorth ? 1 : 0) + (hasSouth ? 1 : 0) + (hasEast ? 1 : 0) + (hasWest ? 1 : 0);
+
         ctx.save();
-        const wallImg = tileImages.current['wall_block'];
-        if (wallImg && wallImg.complete && wallImg.naturalWidth > 0) {
-          // Draw textured stone & circuit wall tile
-          ctx.drawImage(wallImg, wx, wy, cellSize, cellSize);
+        let wallKey = 'wall_solid';
+        let rotation = 0; // in radians
 
-          // Deep blue stone depth border
-          ctx.strokeStyle = '#1e1b4b';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(wx + 0.5, wy + 0.5, cellSize - 1, cellSize - 1);
-
-          // Top highlight bevel for 3D depth
-          ctx.fillStyle = 'rgba(129, 140, 248, 0.25)';
-          ctx.fillRect(wx + 1, wy + 1, cellSize - 2, 3);
-
-          // Subtle purple energy circuit glow
-          ctx.fillStyle = '#a855f7';
-          ctx.globalAlpha = 0.4 + Math.sin(now * 0.003 + wall.x + wall.y) * 0.25;
-          ctx.fillRect(wx + cellSize / 2 - 2, wy + cellSize / 2 - 2, 4, 4);
+        if (neighborCount === 0) {
+          // Free-standing obstacle pillar
+          wallKey = 'wall_pillar';
+        } else if ((hasSouth && hasEast) && !hasNorth && !hasWest) {
+          // Top-left corner
+          wallKey = 'wall_corner';
+          rotation = 0;
+        } else if ((hasSouth && hasWest) && !hasNorth && !hasEast) {
+          // Top-right corner
+          wallKey = 'wall_corner';
+          rotation = Math.PI / 2;
+        } else if ((hasNorth && hasWest) && !hasSouth && !hasEast) {
+          // Bottom-right corner
+          wallKey = 'wall_corner';
+          rotation = Math.PI;
+        } else if ((hasNorth && hasEast) && !hasSouth && !hasWest) {
+          // Bottom-left corner
+          wallKey = 'wall_corner';
+          rotation = (3 * Math.PI) / 2;
+        } else if ((hasEast || hasWest) && !hasNorth && !hasSouth) {
+          // Horizontal wall edge
+          wallKey = 'wall_edge';
         } else {
-          // Deep mysterious blue/navy stone block fallback
-          ctx.fillStyle = '#0a1122';
+          // Solid wall section
+          wallKey = 'wall_solid';
+        }
+
+        const wallImg = tileImages.current[wallKey] || tileImages.current['wall_solid'] || tileImages.current['wall_block'];
+
+        if (wallImg && wallImg.complete && wallImg.naturalWidth > 0) {
+          if (rotation !== 0) {
+            ctx.translate(wx + cellSize / 2, wy + cellSize / 2);
+            ctx.rotate(rotation);
+            ctx.drawImage(wallImg, -cellSize / 2, -cellSize / 2, cellSize, cellSize);
+          } else {
+            ctx.drawImage(wallImg, wx, wy, cellSize, cellSize);
+          }
+
+          // Subtle cyan edge armor glow
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(wx + 0.5, wy + 0.5, cellSize - 1, cellSize - 1);
+        } else {
+          // High-contrast spaceship hull wall fallback
+          ctx.fillStyle = '#080e1c';
           ctx.fillRect(wx, wy, cellSize, cellSize);
 
-          ctx.fillStyle = '#111c34';
+          ctx.fillStyle = '#182542';
           ctx.fillRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
 
-          ctx.strokeStyle = '#312e81';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
+          ctx.fillStyle = '#2d4272';
+          ctx.fillRect(wx + 4, wy + 4, cellSize - 8, cellSize - 8);
+
+          ctx.fillStyle = '#00f0ff';
+          ctx.fillRect(wx + 5, wy + 5, 2, 2);
+          ctx.fillRect(wx + cellSize - 7, wy + 5, 2, 2);
+          ctx.fillRect(wx + 5, wy + cellSize - 7, 2, 2);
+          ctx.fillRect(wx + cellSize - 7, wy + cellSize - 7, 2, 2);
         }
         ctx.restore();
       }

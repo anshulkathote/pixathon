@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Outer Plate Frame -->
+              <rect x="3" y="3" width="26" height="26" fill="#080e1c"/>
+              <rect x="4" y="4" width="24" height="24" fill="#1b2742"/>
+              <!-- Raised Bevel Edge -->
+              <rect x="5" y="5" width="22" height="22" fill="#223254"/>
+              <!-- Plate Surface Raised (Subtle shadow on south edge) -->
+              <rect x="7" y="7" width="18" height="18" fill="#15213b"/>
+              <rect x="7" y="23" width="18" height="2" fill="#0c1322"/>
+              <!-- Inactive Unlit Center Ring -->
+              <rect x="11" y="11" width="10" height="10" fill="#0a0f1c"/>
+              <rect x="13" y="13" width="6" height="6" fill="#1b2a48"/>
+              <!-- Dim Standby Dot -->
+              <rect x="15" y="15" width="2" height="2" fill="#005577"/>
+            </svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Wall spans top half -->
+              <rect x="0" y="0" width="32" height="20" fill="#080e1c"/>
+              <rect x="0" y="2" width="32" height="16" fill="#23355c"/>
+              <rect x="0" y="4" width="32" height="12" fill="#2d4272"/>
+              <!-- Wall base bevel (facing south floor) -->
+              <rect x="0" y="16" width="32" height="4" fill="#121b2f"/>
+              <!-- Energy conduit along edge -->
+              <rect x="0" y="9" width="32" height="2" fill="#0df2c8"/>
+            </svg>

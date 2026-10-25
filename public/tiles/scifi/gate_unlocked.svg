@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Left Post -->
+              <rect x="0" y="4" width="8" height="24" fill="#090f1d"/>
+              <rect x="1" y="5" width="6" height="22" fill="#202f52"/>
+              <rect x="3" y="14" width="2" height="4" fill="#0df2c8"/>
+              <!-- Right Post -->
+              <rect x="24" y="4" width="8" height="24" fill="#090f1d"/>
+              <rect x="25" y="5" width="6" height="22" fill="#202f52"/>
+              <rect x="27" y="14" width="2" height="4" fill="#0df2c8"/>
+              <!-- Cyan/Teal Pulsing Field -->
+              <rect x="8" y="11" width="16" height="2" fill="#005577"/>
+              <rect x="8" y="12" width="16" height="1" fill="#00f0ff"/>
+              <rect x="8" y="19" width="16" height="2" fill="#005577"/>
+              <rect x="8" y="19" width="16" height="1" fill="#0df2c8"/>
+              <!-- Central Access Granted Icon -->
+              <rect x="14" y="14" width="4" height="4" fill="#0df2c8"/>
+              <rect x="15" y="15" width="2" height="2" fill="#ffffff"/>
+            </svg>

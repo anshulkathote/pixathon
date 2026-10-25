@@ -312,7 +312,52 @@ export function App() {
           />
         </div>
 
-        {/* Mobile Touch Controls (hidden on desktop to ensure purely minimal UI) */}
+        {/* Primary Gameplay Action: END LOOP / REWIND & SPAWN GHOST Button */}
+        {(() => {
+          const canEnd = gameState.ghosts.length < level.maxGhosts && !gameState.isWon && !isRewinding;
+          const ghostNum = gameState.ghosts.length + 1;
+          const ghostColor = gameState.ghosts.length === 0 ? '#bd52ff' : '#0df2c8';
+
+          return (
+            <div className="w-full flex items-center justify-center py-1">
+              <button
+                onClick={handleEndLoop}
+                disabled={!canEnd}
+                className={`w-full max-w-md py-2.5 sm:py-3 px-5 flex items-center justify-center gap-3 transition-all select-none font-pixel text-xs sm:text-sm tracking-wider cursor-pointer ${
+                  canEnd
+                    ? 'pixel-box-ghost text-purple-100 hover:text-white'
+                    : 'bg-[#0a0f20] border border-slate-800 text-slate-600 opacity-40 cursor-not-allowed shadow-none'
+                }`}
+                title={canEnd ? 'End current recording loop & rewind to spawn ghost (Press Enter)' : 'Loop limit reached or game won'}
+                aria-label="End Loop and Rewind"
+              >
+                {/* Retro Fast-Forward / Echo Icon */}
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 pixel-crisp flex-shrink-0"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  style={{ color: canEnd ? ghostColor : '#64748b' }}
+                >
+                  <path d="M2 3 L8 8 L2 13 Z M8 3 L14 8 L8 13 Z" />
+                </svg>
+
+                <span className="truncate">
+                  {isRewinding
+                    ? 'REWINDING...'
+                    : canEnd
+                    ? `END LOOP (SPAWN GHOST #${ghostNum})`
+                    : `LOOP LIMIT (${level.maxGhosts}/${level.maxGhosts})`}
+                </span>
+
+                <span className="hidden sm:inline-block pixel-kbd px-1.5 py-0.5 text-[8px] text-purple-300 font-mono-tech border border-purple-500/40 bg-purple-950/60 ml-1">
+                  ENTER
+                </span>
+              </button>
+            </div>
+          );
+        })()}
+
+        {/* Mobile Touch Controls (D-pad & shortcuts) */}
         <div className="md:hidden">
           <ControlsOverlay
             onMove={handleMove}

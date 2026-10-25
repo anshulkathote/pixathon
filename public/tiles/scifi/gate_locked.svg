@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 32 32">
+              <rect width="32" height="32" fill="#101a33"/>
+              <!-- Left Post -->
+              <rect x="0" y="4" width="8" height="24" fill="#090f1d"/>
+              <rect x="1" y="5" width="6" height="22" fill="#202f52"/>
+              <rect x="3" y="14" width="2" height="4" fill="#ef4444"/>
+              <!-- Right Post -->
+              <rect x="24" y="4" width="8" height="24" fill="#090f1d"/>
+              <rect x="25" y="5" width="6" height="22" fill="#202f52"/>
+              <rect x="27" y="14" width="2" height="4" fill="#ef4444"/>
+              <!-- Red/Gold Heavy Barricade Laser Beams -->
+              <rect x="8" y="9" width="16" height="3" fill="#7f1d1d"/>
+              <rect x="8" y="10" width="16" height="1" fill="#f87171"/>
+              <rect x="8" y="15" width="16" height="3" fill="#7f1d1d"/>
+              <rect x="8" y="16" width="16" height="1" fill="#f87171"/>
+              <rect x="8" y="21" width="16" height="3" fill="#7f1d1d"/>
+              <rect x="8" y="22" width="16" height="1" fill="#f87171"/>
+              <!-- Central Heavy Padlock / Digital Key Icon -->
+              <rect x="13" y="13" width="6" height="6" fill="#080d19"/>
+              <rect x="14" y="14" width="4" height="4" fill="#fbbf24"/>
+              <rect x="15" y="15" width="2" height="2" fill="#78350f"/>
+            </svg>

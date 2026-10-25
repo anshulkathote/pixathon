@@ -1,0 +1,42 @@
+<svg  viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" fill="#101a33"/>
+              <rect x="0" y="0" width="32" height="1" fill="#1b2a50"/>
+              <rect x="0" y="0" width="1" height="32" fill="#1b2a50"/>
+              <rect x="0" y="31" width="32" height="1" fill="#090e1c"/>
+              <rect x="31" y="0" width="1" height="32" fill="#090e1c"/>
+              <!-- Diamond vent / grid micro pattern -->
+              <rect x="2" y="2" width="28" height="28" fill="#132040"/>
+              <!-- Mesh / Grating micro-dots -->
+              <rect x="6" y="6" width="2" height="2" fill="#090f20"/>
+              <rect x="10" y="6" width="2" height="2" fill="#090f20"/>
+              <rect x="14" y="6" width="2" height="2" fill="#090f20"/>
+              <rect x="18" y="6" width="2" height="2" fill="#090f20"/>
+              <rect x="22" y="6" width="2" height="2" fill="#090f20"/>
+
+              <rect x="8" y="10" width="2" height="2" fill="#090f20"/>
+              <rect x="12" y="10" width="2" height="2" fill="#090f20"/>
+              <rect x="16" y="10" width="2" height="2" fill="#090f20"/>
+              <rect x="20" y="10" width="2" height="2" fill="#090f20"/>
+              <rect x="24" y="10" width="2" height="2" fill="#090f20"/>
+
+              <rect x="6" y="14" width="2" height="2" fill="#090f20"/>
+              <rect x="10" y="14" width="2" height="2" fill="#090f20"/>
+              <rect x="14" y="14" width="2" height="2" fill="#090f20"/>
+              <rect x="18" y="14" width="2" height="2" fill="#090f20"/>
+              <rect x="22" y="14" width="2" height="2" fill="#090f20"/>
+
+              <rect x="8" y="18" width="2" height="2" fill="#090f20"/>
+              <rect x="12" y="18" width="2" height="2" fill="#090f20"/>
+              <rect x="16" y="18" width="2" height="2" fill="#090f20"/>
+              <rect x="20" y="18" width="2" height="2" fill="#090f20"/>
+              <rect x="24" y="18" width="2" height="2" fill="#090f20"/>
+
+              <rect x="6" y="22" width="2" height="2" fill="#090f20"/>
+              <rect x="10" y="22" width="2" height="2" fill="#090f20"/>
+              <rect x="14" y="22" width="2" height="2" fill="#090f20"/>
+              <rect x="18" y="22" width="2" height="2" fill="#090f20"/>
+              <rect x="22" y="22" width="2" height="2" fill="#090f20"/>
+              <!-- Border Accent -->
+              <rect x="4" y="4" width="24" height="1" fill="#1b2a52"/>
+              <rect x="4" y="27" width="24" height="1" fill="#1b2a52"/>
+            </svg>
