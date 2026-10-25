@@ -292,9 +292,9 @@ export function App() {
   }
 
   return (
-    <main className="min-h-screen w-full bg-[#060913] text-slate-100 flex flex-col items-center justify-between p-3 sm:p-5 select-none overflow-x-hidden">
-      {/* Container with max width for desktop display */}
-      <div className="w-full max-w-4xl flex flex-col gap-3 flex-1">
+    <main className="min-h-screen w-full bg-[#060913] text-slate-100 flex flex-col items-center justify-between p-2 sm:p-4 select-none overflow-x-hidden">
+      {/* Container with optimized width for immersive display */}
+      <div className="w-full max-w-5xl flex flex-col gap-2.5 flex-1">
         {/* Minimal Gameplay HUD (Showing ONLY Game Board, Level, Moves Left, Pause, Rewind) */}
         <HUD
           state={gameState}
@@ -302,8 +302,8 @@ export function App() {
           onPause={() => setIsPaused(true)}
         />
 
-        {/* Center Game Canvas Area */}
-        <div className="relative w-full flex-1 min-h-[380px] sm:min-h-[460px] flex items-center justify-center my-1 pixel-card p-2 bg-[#060913]/90">
+        {/* Center Game Canvas Area - Expanded for rich spaceship environment */}
+        <div className="relative w-full flex-1 min-h-[460px] sm:min-h-[560px] md:min-h-[620px] flex items-center justify-center my-1 pixel-card p-1 sm:p-2 bg-[#060913]/95">
           <GameCanvas
             state={gameState}
             isRewinding={isRewinding}

@@ -346,40 +346,105 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // Compute grid layout & cell sizing
-      const padding = 32;
-      const availWidth = displayWidth - padding * 2;
-      const availHeight = displayHeight - padding * 2;
-      const cellSize = Math.min(
-        Math.floor(availWidth / level.width),
-        Math.floor(availHeight / level.height),
-        72 // max cell size
-      );
+      // Compute optimal cell sizing and viewport positioning
+      const minPadding = displayWidth < 640 ? 12 : 24;
+      const availWidth = displayWidth - minPadding * 2;
+      const availHeight = displayHeight - minPadding * 2;
+
+      // Scale dynamically to fill viewport while preserving 1:1 aspect ratio
+      const rawCellSize = Math.min(availWidth / level.width, availHeight / level.height);
+      const cellSize = Math.max(38, Math.min(Math.floor(rawCellSize), 96));
 
       const gridPixelWidth = level.width * cellSize;
       const gridPixelHeight = level.height * cellSize;
       const offsetX = Math.floor((displayWidth - gridPixelWidth) / 2);
       const offsetY = Math.floor((displayHeight - gridPixelHeight) / 2);
 
-      // Background clearing
-      ctx.fillStyle = '#060913';
+      // --- 0. DEEP SPACE & SURROUNDING SPACESHIP SUPERSTRUCTURE ---
+      // Clear background with deep cosmic void
+      ctx.fillStyle = '#03060f';
       ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-      // Subtle ambient vignette
-      const bgGrad = ctx.createRadialGradient(
-        displayWidth / 2,
-        displayHeight / 2,
-        Math.min(displayWidth, displayHeight) * 0.2,
-        displayWidth / 2,
-        displayHeight / 2,
-        Math.max(displayWidth, displayHeight) * 0.7
+      // Distant stars / nebula dust in background void
+      for (let s = 0; s < 40; s++) {
+        const sx = (Math.sin(s * 91.7 + 12.3) * 0.5 + 0.5) * displayWidth;
+        const sy = (Math.cos(s * 43.1 + 84.9) * 0.5 + 0.5) * displayHeight;
+        const sBrightness = 0.2 + (Math.sin(now * 0.0015 + s * 1.5) * 0.5 + 0.5) * 0.4;
+        ctx.fillStyle = s % 3 === 0 ? `rgba(0, 240, 255, ${sBrightness})` : `rgba(168, 85, 247, ${sBrightness * 0.8})`;
+        ctx.fillRect(Math.floor(sx), Math.floor(sy), s % 4 === 0 ? 2 : 1, s % 4 === 0 ? 2 : 1);
+      }
+
+      // Outer spaceship hull panel plating around the active maze module
+      const outerHullPadding = Math.max(16, Math.floor(cellSize * 0.6));
+      const hullLeft = offsetX - outerHullPadding;
+      const hullTop = offsetY - outerHullPadding;
+      const hullWidth = gridPixelWidth + outerHullPadding * 2;
+      const hullHeight = gridPixelHeight + outerHullPadding * 2;
+
+      // Outer hull bay foundation
+      ctx.fillStyle = '#070c1b';
+      ctx.fillRect(hullLeft, hullTop, hullWidth, hullHeight);
+
+      // Heavy modular steel bulkhead rim
+      ctx.strokeStyle = '#152244';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(hullLeft, hullTop, hullWidth, hullHeight);
+
+      // Outer corner diagonal braces / tech bevels
+      const braceSize = Math.min(24, Math.floor(outerHullPadding * 0.8));
+      ctx.fillStyle = '#1e3260';
+      // TL brace
+      ctx.beginPath();
+      ctx.moveTo(hullLeft, hullTop + braceSize);
+      ctx.lineTo(hullLeft + braceSize, hullTop);
+      ctx.lineTo(hullLeft, hullTop);
+      ctx.fill();
+      // TR brace
+      ctx.beginPath();
+      ctx.moveTo(hullLeft + hullWidth - braceSize, hullTop);
+      ctx.lineTo(hullLeft + hullWidth, hullTop + braceSize);
+      ctx.lineTo(hullLeft + hullWidth, hullTop);
+      ctx.fill();
+      // BL brace
+      ctx.beginPath();
+      ctx.moveTo(hullLeft, hullTop + hullHeight - braceSize);
+      ctx.lineTo(hullLeft + braceSize, hullTop + hullHeight);
+      ctx.lineTo(hullLeft, hullTop + hullHeight);
+      ctx.fill();
+      // BR brace
+      ctx.beginPath();
+      ctx.moveTo(hullLeft + hullWidth - braceSize, hullTop + hullHeight);
+      ctx.lineTo(hullLeft + hullWidth, hullTop + hullHeight - braceSize);
+      ctx.lineTo(hullLeft + hullWidth, hullTop + hullHeight);
+      ctx.fill();
+
+      // Atmospheric cyan conduit perimeter glow around active sector
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 12;
+      ctx.strokeRect(offsetX - 2, offsetY - 2, gridPixelWidth + 4, gridPixelHeight + 4);
+      ctx.restore();
+
+      // Ambient radial lighting centered on the player's sector
+      const playerPixelX = offsetX + animPlayerPos.current.x * cellSize + cellSize / 2;
+      const playerPixelY = offsetY + animPlayerPos.current.y * cellSize + cellSize / 2;
+      const auraGrad = ctx.createRadialGradient(
+        playerPixelX,
+        playerPixelY,
+        cellSize * 0.5,
+        playerPixelX,
+        playerPixelY,
+        cellSize * 4.5
       );
-      bgGrad.addColorStop(0, '#0c1322');
-      bgGrad.addColorStop(1, '#04060c');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, displayWidth, displayHeight);
+      auraGrad.addColorStop(0, 'rgba(0, 240, 255, 0.08)');
+      auraGrad.addColorStop(0.6, 'rgba(13, 242, 200, 0.03)');
+      auraGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = auraGrad;
+      ctx.fillRect(offsetX, offsetY, gridPixelWidth, gridPixelHeight);
 
-      // 1. Draw Environment Walkable Floor Tiles & Sci-Fi Tech Accents
+      // --- 1. WALKABLE SPACESHIP CORRIDOR FLOOR TILES ---
       for (let y = 0; y < level.height; y++) {
         for (let x = 0; x < level.width; x++) {
           const cx = offsetX + x * cellSize;
@@ -410,7 +475,19 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
               ctx.strokeRect(cx + 0.5, cy + 0.5, cellSize - 1, cellSize - 1);
             }
 
-            // Decorative floor elements: subtle tech consoles or cable junctions
+            // High-readability corridor floor seams & subtle bolt accents
+            ctx.strokeStyle = '#0a1020';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(cx + 0.5, cy + 0.5, cellSize - 1, cellSize - 1);
+
+            // Subtle corner rivets
+            ctx.fillStyle = '#223668';
+            ctx.fillRect(cx + 3, cy + 3, 2, 2);
+            ctx.fillRect(cx + cellSize - 5, cy + 3, 2, 2);
+            ctx.fillRect(cx + 3, cy + cellSize - 5, 2, 2);
+            ctx.fillRect(cx + cellSize - 5, cy + cellSize - 5, 2, 2);
+
+            // Tech console / cable splice details on select floor junctions
             if ((x * 11 + y * 17) % 23 === 7) {
               const decoKey = (x + y) % 2 === 0 ? 'deco_terminal' : 'deco_cables';
               const decoImg = tileImages.current[decoKey];
@@ -425,9 +502,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         }
       }
 
-      // 2. Draw Circuit Lines connecting Plates to their Energy Doors
+      // --- 2. CIRCUIT CONDUIT LINES (Plates to Doors) ---
       for (const door of state.doors) {
-        if (!door.linkedPlateId) continue; // only pressure-plate doors get circuit lines
+        if (!door.linkedPlateId) continue;
         const plate = state.plates.find((p) => p.id === door.linkedPlateId);
         if (!plate) continue;
 
@@ -445,7 +522,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         if (door.isOpen) {
           // Active glowing neon circuit (cyan/teal pulse)
           ctx.strokeStyle = '#0df2c8';
-          ctx.lineWidth = 2.5;
+          ctx.lineWidth = Math.max(2, Math.floor(cellSize * 0.06));
           ctx.shadowColor = '#00f0ff';
           ctx.shadowBlur = 10;
           ctx.stroke();
@@ -458,19 +535,19 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.shadowColor = '#00f0ff';
           ctx.shadowBlur = 10;
           ctx.beginPath();
-          ctx.arc(pulseX, pulseY, 2.5, 0, Math.PI * 2);
+          ctx.arc(pulseX, pulseY, Math.max(2, cellSize * 0.05), 0, Math.PI * 2);
           ctx.fill();
         } else {
           // Dormant tech conduit wire
           ctx.strokeStyle = 'rgba(27, 43, 84, 0.7)';
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = Math.max(1.5, Math.floor(cellSize * 0.035));
           ctx.setLineDash([4, 4]);
           ctx.stroke();
         }
         ctx.restore();
       }
 
-      // 3. Draw Pressure Plates (Mechanical & Capacitive Sensors)
+      // --- 3. PRESSURE PLATES (Mechanical & Capacitive Sensors) ---
       for (const plate of state.plates) {
         const cx = offsetX + plate.x * cellSize;
         const cy = offsetY + plate.y * cellSize;
@@ -480,25 +557,30 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         const plateSpriteKey = isPressed ? 'plate_active' : 'plate_inactive';
         const plateImg = tileImages.current[plateSpriteKey];
 
+        // Draw recessed metal socket bed
+        ctx.fillStyle = '#080d19';
+        ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
+
         if (plateImg && plateImg.complete && plateImg.naturalWidth > 0) {
           if (isPressed) {
             ctx.shadowColor = '#00f0ff';
-            ctx.shadowBlur = 16;
+            ctx.shadowBlur = 18;
             ctx.drawImage(plateImg, cx, cy, cellSize, cellSize);
 
-            // Pulsing capacitive feedback ring
+            // Pulsing capacitive feedback border
             ctx.strokeStyle = '#00f0ff';
-            ctx.lineWidth = 1.5;
-            ctx.globalAlpha = 0.6 + Math.sin(now * 0.008) * 0.3;
+            ctx.lineWidth = Math.max(1.5, Math.floor(cellSize * 0.04));
+            ctx.globalAlpha = 0.7 + Math.sin(now * 0.008) * 0.3;
             ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
           } else {
             ctx.drawImage(plateImg, cx, cy, cellSize, cellSize);
 
-            // Subtle color identification marker for distinct puzzle plates
+            // Distinct colored indicator for multi-plate identification
             if (plate.color && plate.color !== '#00f2fe') {
               ctx.fillStyle = plate.color;
-              ctx.globalAlpha = 0.7;
-              ctx.fillRect(cx + cellSize / 2 - 2, cy + cellSize / 2 - 2, 4, 4);
+              ctx.globalAlpha = 0.85;
+              const dotSize = Math.max(4, Math.floor(cellSize * 0.1));
+              ctx.fillRect(cx + cellSize / 2 - dotSize / 2, cy + cellSize / 2 - dotSize / 2, dotSize, dotSize);
             }
           }
         } else {
@@ -533,7 +615,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
       }
 
-      // 4. Draw Optional Recorded-Path Preview
+      // --- 4. OPTIONAL RECORDED-PATH PREVIEW ---
       if (showPathPreview && state.ghosts.length > 0) {
         state.ghosts.forEach((ghost) => {
           if (ghost.path.length <= 1) return;
@@ -541,9 +623,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.save();
           ctx.strokeStyle = ghost.color;
           ctx.fillStyle = ghost.color;
-          ctx.lineWidth = 2;
+          ctx.lineWidth = Math.max(1.5, Math.floor(cellSize * 0.04));
           ctx.setLineDash([4, 4]);
-          ctx.globalAlpha = 0.38;
+          ctx.globalAlpha = 0.42;
 
           ctx.beginPath();
           ghost.path.forEach((pt, pIdx) => {
@@ -557,30 +639,30 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           });
           ctx.stroke();
 
-          // Draw small step node indicators along path
+          // Step node markers
           ctx.setLineDash([]);
           ghost.path.forEach((pt) => {
             const px = offsetX + pt.x * cellSize + cellSize / 2;
             const py = offsetY + pt.y * cellSize + cellSize / 2;
             ctx.beginPath();
-            ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+            ctx.arc(px, py, Math.max(2, cellSize * 0.04), 0, Math.PI * 2);
             ctx.fill();
           });
 
-          // Draw stationed marker at final resting position
+          // Stationed marker at final position
           const finalPt = ghost.path[ghost.path.length - 1];
           const fx = offsetX + finalPt.x * cellSize + cellSize / 2;
           const fy = offsetY + finalPt.y * cellSize + cellSize / 2;
-          ctx.globalAlpha = 0.7;
-          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = 0.75;
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(fx, fy, cellSize * 0.34, 0, Math.PI * 2);
+          ctx.arc(fx, fy, cellSize * 0.32, 0, Math.PI * 2);
           ctx.stroke();
           ctx.restore();
         });
       }
 
-      // 6. Draw Doors (Standard Laser Barricade, Unlocked Power-Cycling, or Retracted Open)
+      // --- 6. GATES & DOORS (Heavy Bulkhead Emitters & Laser Barriers) ---
       for (const door of state.doors) {
         const cx = offsetX + door.x * cellSize;
         const cy = offsetY + door.y * cellSize;
@@ -597,10 +679,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         const gateImg = tileImages.current[gateKey];
         if (gateImg && gateImg.complete && gateImg.naturalWidth > 0) {
           if (door.isOpen) {
-            ctx.globalAlpha = 0.9;
+            ctx.globalAlpha = 0.95;
             ctx.drawImage(gateImg, cx, cy, cellSize, cellSize);
 
-            // Subtle energy glow along open corridor threshold
+            // Active threshold floor indicators
             ctx.fillStyle = '#0df2c8';
             ctx.shadowColor = '#00f0ff';
             ctx.shadowBlur = 8;
@@ -608,13 +690,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           } else {
             // Closed door with laser beams
             ctx.shadowColor = isLocked ? '#ef4444' : (door.color || '#00f0ff');
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 12;
             ctx.drawImage(gateImg, cx, cy, cellSize, cellSize);
 
-            // Pulsing laser glow effect
+            // Laser barrier animation
             ctx.strokeStyle = isLocked ? '#f87171' : '#00f0ff';
-            ctx.globalAlpha = 0.5 + Math.sin(now * 0.007) * 0.3;
-            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.6 + Math.sin(now * 0.007) * 0.35;
+            ctx.lineWidth = 2;
             ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
           }
         } else {
@@ -623,7 +705,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             ctx.fillStyle = 'rgba(16, 26, 51, 0.5)';
             ctx.fillRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
 
-            // Retracted posts
             ctx.fillStyle = '#202f52';
             ctx.fillRect(cx + 2, cy + 4, 4, cellSize - 8);
             ctx.fillRect(cx + cellSize - 6, cy + 4, 4, cellSize - 8);
@@ -640,7 +721,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             ctx.shadowBlur = 10;
             ctx.strokeRect(cx + 2, cy + 2, cellSize - 4, cellSize - 4);
 
-            // Laser beams
             for (let b = 1; b <= 3; b++) {
               const by = cy + (cellSize * b) / 4;
               ctx.beginPath();
@@ -653,7 +733,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
       }
 
-      // 7. Draw Collectible Quantum Gold Key (if present and not collected)
+      // --- 7. COLLECTIBLE QUANTUM KEY ---
       for (const key of state.keys) {
         if (!key.isCollected) {
           const kx = offsetX + key.x * cellSize;
@@ -664,13 +744,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           const keyImg = tileImages.current['key'];
           if (keyImg && keyImg.complete && keyImg.naturalWidth > 0) {
             ctx.shadowColor = '#fbbf24';
-            ctx.shadowBlur = 14;
+            ctx.shadowBlur = 16;
             ctx.drawImage(keyImg, kx, ky, cellSize, cellSize);
 
             // Shimmer flare
             ctx.fillStyle = '#ffffff';
-            ctx.globalAlpha = 0.6 + Math.sin(now * 0.01) * 0.4;
-            ctx.fillRect(kx + cellSize * 0.46, ky + cellSize * 0.32, 2.5, 2.5);
+            ctx.globalAlpha = 0.7 + Math.sin(now * 0.01) * 0.3;
+            ctx.fillRect(kx + cellSize * 0.46, ky + cellSize * 0.32, 3, 3);
           } else {
             // Procedural gold key
             const centerKx = kx + cellSize / 2;
@@ -694,7 +774,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         }
       }
 
-      // 8. Draw Exit / Temporal Goal Portal
+      // --- 8. EXIT / TEMPORAL GOAL PORTAL ---
       const exitX = offsetX + state.exit.x * cellSize;
       const exitY = offsetY + state.exit.y * cellSize;
       const exitCx = exitX + cellSize / 2;
@@ -705,7 +785,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       if (portalImg && portalImg.complete && portalImg.naturalWidth > 0) {
         if (state.exit.isUnlocked) {
           ctx.shadowColor = '#a855f7';
-          ctx.shadowBlur = 18;
+          ctx.shadowBlur = 20;
           ctx.drawImage(portalImg, exitX, exitY, cellSize, cellSize);
 
           // Animated temporal vortex swirl overlay
@@ -714,20 +794,20 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.translate(exitCx, exitCy);
           ctx.rotate(rot);
           ctx.strokeStyle = '#00f0ff';
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = 2;
           ctx.setLineDash([4, 4]);
           ctx.beginPath();
-          ctx.arc(0, 0, cellSize * 0.22, 0, Math.PI * 2);
+          ctx.arc(0, 0, cellSize * 0.24, 0, Math.PI * 2);
           ctx.stroke();
           ctx.restore();
 
           // Pulsing white quantum core
           ctx.fillStyle = '#ffffff';
           ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 12;
-          ctx.globalAlpha = 0.8 + Math.sin(now * 0.008) * 0.2;
+          ctx.shadowBlur = 14;
+          ctx.globalAlpha = 0.85 + Math.sin(now * 0.008) * 0.15;
           ctx.beginPath();
-          ctx.arc(exitCx, exitCy, cellSize * 0.1, 0, Math.PI * 2);
+          ctx.arc(exitCx, exitCy, cellSize * 0.11, 0, Math.PI * 2);
           ctx.fill();
         } else {
           // Locked exit pad: dim violet base with sealed cyber-lock
@@ -771,81 +851,112 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
       ctx.restore();
 
-      // 9. Draw Spaceship Hull Walls & Corner Junctions
+      // --- 9. CONTINUOUS STRUCTURAL SPACESHIP BULKHEAD WALLS ---
+      // Pre-calculate wall set for instantaneous adjacency queries
+      const isWallAt = (wx: number, wy: number) => level.walls.some((w) => w.x === wx && w.y === wy);
+
       for (const wall of level.walls) {
         const wx = offsetX + wall.x * cellSize;
         const wy = offsetY + wall.y * cellSize;
 
-        // Check 4-way wall adjacencies
-        const hasNorth = level.walls.some((w) => w.x === wall.x && w.y === wall.y - 1);
-        const hasSouth = level.walls.some((w) => w.x === wall.x && w.y === wall.y + 1);
-        const hasEast = level.walls.some((w) => w.x === wall.x + 1 && w.y === wall.y);
-        const hasWest = level.walls.some((w) => w.x === wall.x - 1 && w.y === wall.y);
-        const neighborCount = (hasNorth ? 1 : 0) + (hasSouth ? 1 : 0) + (hasEast ? 1 : 0) + (hasWest ? 1 : 0);
+        // 4 cardinal adjacencies
+        const n = isWallAt(wall.x, wall.y - 1);
+        const s = isWallAt(wall.x, wall.y + 1);
+        const e = isWallAt(wall.x + 1, wall.y);
+        const w = isWallAt(wall.x - 1, wall.y);
 
         ctx.save();
-        let wallKey = 'wall_solid';
-        let rotation = 0; // in radians
 
-        if (neighborCount === 0) {
-          // Free-standing obstacle pillar
-          wallKey = 'wall_pillar';
-        } else if ((hasSouth && hasEast) && !hasNorth && !hasWest) {
-          // Top-left corner
-          wallKey = 'wall_corner';
-          rotation = 0;
-        } else if ((hasSouth && hasWest) && !hasNorth && !hasEast) {
-          // Top-right corner
-          wallKey = 'wall_corner';
-          rotation = Math.PI / 2;
-        } else if ((hasNorth && hasWest) && !hasSouth && !hasEast) {
-          // Bottom-right corner
-          wallKey = 'wall_corner';
-          rotation = Math.PI;
-        } else if ((hasNorth && hasEast) && !hasSouth && !hasWest) {
-          // Bottom-left corner
-          wallKey = 'wall_corner';
-          rotation = (3 * Math.PI) / 2;
-        } else if ((hasEast || hasWest) && !hasNorth && !hasSouth) {
-          // Horizontal wall edge
-          wallKey = 'wall_edge';
-        } else {
-          // Solid wall section
-          wallKey = 'wall_solid';
+        // Layer 1: Solid Bulkhead Base (Deep Armor Foundation with no seam lines between adjacent wall blocks)
+        ctx.fillStyle = '#080d19';
+        ctx.fillRect(wx, wy, cellSize, cellSize);
+
+        // Fill inner armor core
+        ctx.fillStyle = '#141e34';
+        ctx.fillRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
+
+        // Continuous structural connections: bridge the 2px gap toward neighbors so walls merge seamlessly
+        if (n) ctx.fillRect(wx + 2, wy, cellSize - 4, 2);
+        if (s) ctx.fillRect(wx + 2, wy + cellSize - 2, cellSize - 4, 2);
+        if (w) ctx.fillRect(wx, wy + 2, 2, cellSize - 4);
+        if (e) ctx.fillRect(wx + cellSize - 2, wy + 2, 2, cellSize - 4);
+
+        // Layer 2: Raised Metallic Armor Plate (Dark Navy Top-Down Hull)
+        const inset = Math.max(3, Math.floor(cellSize * 0.1));
+        const plateW = cellSize - inset * 2;
+        const plateH = cellSize - inset * 2;
+        ctx.fillStyle = '#1b294a';
+        ctx.fillRect(wx + inset, wy + inset, plateW, plateH);
+
+        // Bridge raised plate to connected wall neighbors
+        if (n) ctx.fillRect(wx + inset, wy, plateW, inset);
+        if (s) ctx.fillRect(wx + inset, wy + cellSize - inset, plateW, inset);
+        if (w) ctx.fillRect(wx, wy + inset, inset, plateH);
+        if (e) ctx.fillRect(wx + cellSize - inset, wy + inset, inset, plateH);
+
+        // Layer 3: Top Bevel Highlight (Simulating overhead spaceship corridor lighting)
+        ctx.fillStyle = 'rgba(100, 150, 240, 0.22)';
+        ctx.fillRect(wx + inset, wy + inset, plateW, Math.max(2, Math.floor(cellSize * 0.05)));
+
+        // Layer 4: Exposed Structural Machinery / Conduit Ribs in centers
+        const centerPad = Math.max(6, Math.floor(cellSize * 0.26));
+        const centerSize = cellSize - centerPad * 2;
+        ctx.fillStyle = '#0d1526';
+        ctx.fillRect(wx + centerPad, wy + centerPad, centerSize, centerSize);
+
+        // Machinery rib stripes
+        ctx.fillStyle = '#22365e';
+        const ribThickness = Math.max(1, Math.floor(cellSize * 0.04));
+        ctx.fillRect(wx + centerPad + 2, wy + centerPad + 2, centerSize - 4, ribThickness);
+        ctx.fillRect(wx + centerPad + 2, wy + cellSize / 2 - ribThickness / 2, centerSize - 4, ribThickness);
+        ctx.fillRect(wx + centerPad + 2, wy + cellSize - centerPad - 2 - ribThickness, centerSize - 4, ribThickness);
+
+        // Layer 5: Active Cyan Circuit Status LEDs along wall boundaries
+        const ledSize = Math.max(2, Math.floor(cellSize * 0.05));
+        const pulse = 0.5 + Math.sin(now * 0.004 + wall.x * 2 + wall.y * 3) * 0.45;
+        ctx.fillStyle = pulse > 0.7 ? '#00f0ff' : '#0df2c8';
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 6;
+        ctx.fillRect(wx + cellSize / 2 - ledSize / 2, wy + cellSize / 2 - ledSize / 2, ledSize, ledSize);
+
+        // Layer 6: Exterior Corridor Edge Bevels (Delineates wall vs walkable corridor with absolute clarity)
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = Math.max(1.5, Math.floor(cellSize * 0.035));
+        ctx.globalAlpha = 0.35;
+
+        // Draw crisp cyan boundary line only on faces that border walkable corridor floors
+        if (!n) {
+          ctx.beginPath();
+          ctx.moveTo(wx, wy);
+          ctx.lineTo(wx + cellSize, wy);
+          ctx.stroke();
+        }
+        if (!s) {
+          ctx.beginPath();
+          ctx.moveTo(wx, wy + cellSize);
+          ctx.lineTo(wx + cellSize, wy + cellSize);
+          ctx.stroke();
+        }
+        if (!w) {
+          ctx.beginPath();
+          ctx.moveTo(wx, wy);
+          ctx.lineTo(wx, wy + cellSize);
+          ctx.stroke();
+        }
+        if (!e) {
+          ctx.beginPath();
+          ctx.moveTo(wx + cellSize, wy);
+          ctx.lineTo(wx + cellSize, wy + cellSize);
+          ctx.stroke();
         }
 
-        const wallImg = tileImages.current[wallKey] || tileImages.current['wall_solid'] || tileImages.current['wall_block'];
-
-        if (wallImg && wallImg.complete && wallImg.naturalWidth > 0) {
-          if (rotation !== 0) {
-            ctx.translate(wx + cellSize / 2, wy + cellSize / 2);
-            ctx.rotate(rotation);
-            ctx.drawImage(wallImg, -cellSize / 2, -cellSize / 2, cellSize, cellSize);
-          } else {
-            ctx.drawImage(wallImg, wx, wy, cellSize, cellSize);
-          }
-
-          // Subtle cyan edge armor glow
-          ctx.strokeStyle = 'rgba(0, 240, 255, 0.12)';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(wx + 0.5, wy + 0.5, cellSize - 1, cellSize - 1);
-        } else {
-          // High-contrast spaceship hull wall fallback
-          ctx.fillStyle = '#080e1c';
-          ctx.fillRect(wx, wy, cellSize, cellSize);
-
-          ctx.fillStyle = '#182542';
-          ctx.fillRect(wx + 2, wy + 2, cellSize - 4, cellSize - 4);
-
-          ctx.fillStyle = '#2d4272';
-          ctx.fillRect(wx + 4, wy + 4, cellSize - 8, cellSize - 8);
-
-          ctx.fillStyle = '#00f0ff';
-          ctx.fillRect(wx + 5, wy + 5, 2, 2);
-          ctx.fillRect(wx + cellSize - 7, wy + 5, 2, 2);
-          ctx.fillRect(wx + 5, wy + cellSize - 7, 2, 2);
-          ctx.fillRect(wx + cellSize - 7, wy + cellSize - 7, 2, 2);
+        // Heavy dark drop-shadow on south floor edge for 2.5D architectural depth
+        if (!s) {
+          ctx.fillStyle = 'rgba(2, 4, 10, 0.45)';
+          ctx.fillRect(wx, wy + cellSize, cellSize, Math.max(3, Math.floor(cellSize * 0.1)));
         }
+
         ctx.restore();
       }
 
